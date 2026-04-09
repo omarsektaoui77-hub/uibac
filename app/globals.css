@@ -1,0 +1,410 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-geist-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-geist-mono: "Consolas", "Courier New", monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans);
+}
+
+:root {
+  --ui0-bg: #120c2b;
+  --ui0-line: rgba(255, 255, 255, 0.08);
+  --ui0-text: #f8f7ff;
+  --ui0-muted: #cfc7f5;
+  --ui0-purple: #8b5cf6;
+  --ui0-pink: #ff5ea8;
+  --ui0-cyan: #29d3ff;
+  --ui0-gold: #ffbf3c;
+  --ui0-shadow: 0 20px 40px rgba(5, 4, 19, 0.35);
+  --ui0-radius-xl: 28px;
+  --ui0-radius-lg: 22px;
+  --ui0-radius-md: 18px;
+}
+
+.ui0-shell,
+.ui0-shell * {
+  box-sizing: border-box;
+}
+
+.ui0-shell {
+  color: var(--ui0-text);
+  background:
+    radial-gradient(circle at top left, rgba(255, 191, 60, 0.18), transparent 18%),
+    radial-gradient(circle at top right, rgba(41, 211, 255, 0.15), transparent 22%),
+    linear-gradient(180deg, #171035 0%, var(--ui0-bg) 100%);
+  min-height: 100vh;
+}
+
+.ui0-shell .app {
+  max-width: 460px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 18px 14px 98px;
+}
+
+.ui0-shell .topbar,
+.ui0-shell .hero,
+.ui0-shell .section-card,
+.ui0-shell .mission,
+.ui0-shell .pack,
+.ui0-shell .profile-card,
+.ui0-shell .stat,
+.ui0-shell .badge,
+.ui0-shell .bottom-nav {
+  box-shadow: var(--ui0-shadow);
+}
+
+.ui0-shell .topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ui0-shell .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ui0-shell .logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--ui0-gold), var(--ui0-pink), var(--ui0-purple));
+  font-weight: 800;
+}
+
+.ui0-shell .brand strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.ui0-shell .brand span,
+.ui0-shell .muted {
+  color: var(--ui0-muted);
+  font-size: 0.84rem;
+}
+
+.ui0-shell .hero {
+  background: linear-gradient(180deg, rgba(42, 28, 103, 0.98), rgba(29, 19, 73, 0.96));
+  border: 1px solid var(--ui0-line);
+  border-radius: var(--ui0-radius-xl);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ui0-shell .hero::before,
+.ui0-shell .hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ui0-shell .hero::before {
+  width: 160px;
+  height: 160px;
+  right: -40px;
+  top: -30px;
+  background: radial-gradient(circle, rgba(255, 191, 60, 0.22), transparent 68%);
+}
+
+.ui0-shell .hero::after {
+  width: 140px;
+  height: 140px;
+  left: -30px;
+  bottom: -50px;
+  background: radial-gradient(circle, rgba(41, 211, 255, 0.16), transparent 70%);
+}
+
+.ui0-shell .eyebrow {
+  display: inline-block;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.11);
+  color: #fff1bd;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ui0-shell h1,
+.ui0-shell h2,
+.ui0-shell h3,
+.ui0-shell p {
+  margin: 0;
+}
+
+.ui0-shell h1 {
+  margin-top: 12px;
+  font-size: 2rem;
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  max-width: 10ch;
+}
+
+.ui0-shell .hero-sub {
+  margin-top: 12px;
+  color: var(--ui0-muted);
+  font-size: 0.96rem;
+}
+
+.ui0-shell .hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ui0-shell .stat {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--ui0-line);
+  border-radius: var(--ui0-radius-md);
+  padding: 14px;
+}
+
+.ui0-shell .stat strong {
+  display: block;
+  font-size: 1.25rem;
+}
+
+.ui0-shell .cta-stack {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ui0-shell .cta {
+  border: 0;
+  border-radius: 999px;
+  padding: 15px 18px;
+  font: inherit;
+  font-weight: 800;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+}
+
+.ui0-shell .cta.primary {
+  background: linear-gradient(135deg, var(--ui0-gold), var(--ui0-pink), var(--ui0-purple));
+}
+
+.ui0-shell .cta.secondary {
+  background: linear-gradient(135deg, var(--ui0-cyan), #2d7fff);
+}
+
+.ui0-shell .section-card {
+  background: linear-gradient(180deg, rgba(35, 23, 86, 0.98), rgba(28, 19, 69, 0.98));
+  border: 1px solid var(--ui0-line);
+  border-radius: var(--ui0-radius-xl);
+  padding: 18px;
+  margin-top: 16px;
+}
+
+.ui0-shell .section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ui0-shell .section-head h2 {
+  font-size: 1.24rem;
+  letter-spacing: -0.03em;
+}
+
+.ui0-shell .tiny-tag {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff2bd;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.ui0-shell .mission-list,
+.ui0-shell .pack-list,
+.ui0-shell .badge-list {
+  display: grid;
+  gap: 12px;
+}
+
+.ui0-shell .mission,
+.ui0-shell .pack,
+.ui0-shell .profile-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--ui0-line);
+  border-radius: var(--ui0-radius-lg);
+  padding: 14px;
+}
+
+.ui0-shell .mission-top,
+.ui0-shell .pack-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.ui0-shell .mission-title,
+.ui0-shell .pack-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.ui0-shell .mission-meta,
+.ui0-shell .pack-meta {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #fff0c4;
+  font-size: 0.8rem;
+}
+
+.ui0-shell .start-btn,
+.ui0-shell .small-btn {
+  margin-top: 12px;
+  width: 100%;
+  border: 0;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font: inherit;
+  font-weight: 800;
+  color: white;
+  background: linear-gradient(135deg, var(--ui0-pink), var(--ui0-purple));
+  cursor: pointer;
+}
+
+.ui0-shell .battle-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.ui0-shell .battle-cta {
+  border: 0;
+  border-radius: 18px;
+  padding: 15px 16px;
+  font: inherit;
+  font-weight: 800;
+  color: white;
+  cursor: pointer;
+}
+
+.ui0-shell .battle-cta.random {
+  background: linear-gradient(135deg, var(--ui0-gold), #ff8a3d);
+}
+
+.ui0-shell .battle-cta.pin {
+  background: linear-gradient(135deg, var(--ui0-pink), var(--ui0-purple));
+}
+
+.ui0-shell .battle-cta.friend {
+  background: linear-gradient(135deg, var(--ui0-cyan), #2c85ff);
+}
+
+.ui0-shell .online {
+  margin-top: 12px;
+  color: #afffc6;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ui0-shell .profile-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ui0-shell .avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--ui0-gold), var(--ui0-pink));
+  font-weight: 800;
+}
+
+.ui0-shell .profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ui0-shell .badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--ui0-line);
+  border-radius: 16px;
+  padding: 12px;
+  text-align: center;
+  color: #fff3c6;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ui0-shell .badge-list.spaced {
+  margin-top: 14px;
+}
+
+.ui0-shell .bottom-nav {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 10px;
+  background: rgba(21, 15, 49, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  backdrop-filter: blur(12px);
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.ui0-shell .bottom-nav a {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ui0-text);
+  font-size: 0.72rem;
+  text-decoration: none;
+}
+
+.ui0-shell .bottom-nav a.active {
+  background: linear-gradient(135deg, rgba(255, 191, 60, 0.22), rgba(255, 94, 168, 0.2));
+}
