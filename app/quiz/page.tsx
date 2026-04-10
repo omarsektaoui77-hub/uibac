@@ -223,7 +223,7 @@ export default function QuizPage() {
       </h2>
 
       <div className="w-full max-w-md space-y-4">
-        {current.options.map((o) => (
+        {current.options.map((o: string) => (
           <motion.button
             key={o}
             whileTap={{ scale: 0.95 }}
