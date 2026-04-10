@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>BacQuest – Morocco's #1 Bac Prep Game</title>
+  <meta name="description" content="BacQuest – Gamified Bac preparation for Moroccan students. XP, streaks, live battles and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ===================================
+       DESIGN TOKENS
+    =================================== */
+    :root {
+      --bg-base:        #07060f;
+      --bg-card:        rgba(255,255,255,0.04);
+      --bg-card-hover:  rgba(255,255,255,0.08);
+      --border:         rgba(255,255,255,0.08);
+      --border-glow:    rgba(139,92,246,0.35);
+
+      --gold:   #f5c518;
+      --gold-2: #ffdc62;
+      --pink:   #f472b6;
+      --cyan:   #22d3ee;
+      --purple: #a855f7;
+      --indigo: #818cf8;
+      --green:  #4ade80;
+      --red:    #f87171;
+
+      --grad-hero:   linear-gradient(135deg,#1e1040 0%,#0f0820 50%,#060412 100%);
+      --grad-purple: linear-gradient(135deg,#7c3aed,#4f46e5);
+      --grad-gold:   linear-gradient(135deg,#f5c518,#ff9500);
+      --grad-cyan:   linear-gradient(135deg,#06b6d4,#6366f1);
+      --grad-pink:   linear-gradient(135deg,#ec4899,#8b5cf6);
+      --grad-green:  linear-gradient(135deg,#10b981,#06b6d4);
+
+      --text-1: #f0eeff;
+      --text-2: #a89cc8;
+      --text-3: #6b5f8a;
+
+      --radius-card: 22px;
+      --radius-btn:  14px;
+      --radius-pill: 999px;
+
+      --nav-h: 72px;
+      --top-h: 64px;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* ===================================
+       RESET & BASE
+    =================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-1);
+      min-height: 100dvh;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ===================================
+       APP SHELL  (max 460px)
+    =================================== */
+    #app {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      min-height: 100dvh;
+      background: var(--bg-base);
+      overflow: hidden;
+    }
+
+    /* Ambient background blobs */
+    #app::before {
+      content: '';
+      position: fixed;
+      top: -120px; left: -80px;
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    #app::after {
+      content: '';
+      position: fixed;
+      bottom: 100px; right: -100px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(34,211,238,0.12) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ===================================
+       PAGES & SCROLL CONTAINER
+    =================================== */
+    .page {
+      display: none;
+      flex-direction: column;
+      min-height: 100dvh;
+      padding-bottom: calc(var(--nav-h) + var(--safe-b) + 8px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      z-index: 1;
+    }
+    .page.active { display: flex; }
+
+    /* ===================================
+       TOP BAR
+    =================================== */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      height: var(--top-h);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(to bottom, rgba(7,6,15,0.95) 80%, transparent 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .top-bar .brand { display: flex; flex-direction: column; gap: 1px; }
+    .top-bar .logo-row { display: flex; align-items: center; gap: 8px; }
+    .top-bar .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--grad-purple);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 0 16px rgba(139,92,246,0.5);
+    }
+    .top-bar .app-name {
+      font-size: 20px; font-weight: 900;
+      background: linear-gradient(90deg, #c084fc, #818cf8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .top-bar .subtitle {
+      font-size: 10px; font-weight: 500; color: var(--text-3);
+      letter-spacing: 0.06em; text-transform: uppercase; margin-left: 40px;
+    }
+    .stream-tags { display: flex; gap: 6px; }
+    .stream-tag {
+      font-size: 10px; font-weight: 700;
+      padding: 4px 9px; border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .stream-tag:hover, .stream-tag.active {
+      background: rgba(139,92,246,0.25);
+      border-color: var(--purple);
+      color: #c4b5fd;
+    }
+
+    /* ===================================
+       SCROLL AREA  (below top bar)
+    =================================== */
+    .scroll-content { flex: 1; display: flex; flex-direction: column; gap: 20px; padding: 0 16px 16px; }
+
+    /* ===================================
+       SECTION HEADER
+    =================================== */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 16px; font-weight: 700; color: var(--text-1);
+    }
+    .section-link {
+      font-size: 12px; font-weight: 600; color: var(--purple);
+      cursor: pointer; text-decoration: none;
+    }
+
+    /* ===================================
+       HERO CARD
+    =================================== */
+    .hero-card {
+      border-radius: var(--radius-card);
+      background: var(--grad-hero);
+      border: 1px solid var(--border-glow);
+      padding: 28px 22px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(245,197,24,0.15); border: 1px solid rgba(245,197,24,0.3);
+      border-radius: var(--radius-pill);
+      padding: 4px 12px;
+      font-size: 11px; font-weight: 700; color: var(--gold-2);
+      margin-bottom: 14px;
+    }
+    .hero-headline {
+      font-size: 28px; font-weight: 900; line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .hero-headline span {
+      background: linear-gradient(90deg, #f5c518, #f472b6, #818cf8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub { font-size: 13px; color: var(--text-2); margin-bottom: 20px; line-height: 1.5; }
+
+    /* Stats strip */
+    .hero-stats {
+      display: flex; gap: 12px; margin-bottom: 22px;
+    }
+    .stat-chip {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .stat-chip .stat-label { font-size: 10px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-chip .stat-value { font-size: 20px; font-weight: 800; }
+    .stat-chip.streak .stat-value { color: var(--gold); }
+    .stat-chip.rank .stat-value { color: var(--cyan); }
+
+    /* CTAs */
+    .hero-ctas { display: flex; flex-direction: column; gap: 10px; }
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: var(--radius-btn);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 800;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: 0.02em;
+    }
+    .btn-primary.gold {
+      background: var(--grad-gold);
+      color: #1a0e00;
+      box-shadow: 0 4px 20px rgba(245,197,24,0.35);
+    }
+    .btn-primary.gold:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(245,197,24,0.5); }
+    .btn-primary.purple {
+      background: var(--grad-purple);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(139,92,246,0.35);
+    }
+    .btn-primary.purple:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(139,92,246,0.5); }
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(139,92,246,0.4);
+      border-radius: var(--radius-btn);
+      color: #c4b5fd;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-secondary:hover { background: rgba(139,92,246,0.15); }
+
+    /* ===================================
+       MISSION CARDS
+    =================================== */
+    .mission-list { display: flex; flex-direction: column; gap: 10px; }
+    .mission-card {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .mission-card:hover { background: var(--bg-card-hover); border-color: rgba(255,255,255,0.14); transform: translateX(2px); }
+    .mission-icon {
+      width: 46px; height: 46px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .mission-icon.easy   { background: linear-gradient(135deg,rgba(74,222,128,0.2),rgba(6,182,212,0.2)); }
+    .mission-icon.medium { background: linear-gradient(135deg,rgba(245,197,24,0.2),rgba(251,146,60,0.2)); }
+    .mission-icon.hard   { background: linear-gradient(135deg,rgba(244,114,182,0.2),rgba(139,92,246,0.2)); }
+
+    .mission-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .mission-name { font-size: 14px; font-weight: 700; }
+    .mission-meta { display: flex; gap: 8px; align-items: center; }
+    .diff-badge {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      padding: 2px 8px; border-radius: var(--radius-pill); letter-spacing: 0.06em;
+    }
+    .diff-badge.easy   { background: rgba(74,222,128,0.15); color: var(--green); }
+    .diff-badge.medium { background: rgba(245,197,24,0.15); color: var(--gold); }
+    .diff-badge.hard   { background: rgba(244,114,182,0.15); color: var(--pink); }
+    .mission-duration { font-size: 11px; color: var(--text-3); }
+    .mission-xp {
+      font-size: 11px; font-weight: 700; color: var(--gold-2);
+      display: flex; align-items: center; gap: 3px;
+    }
+    .mission-start {
+      background: var(--grad-purple);
+      border: none; border-radius: 10px;
+      color: #fff; font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 700;
+      padding: 8px 14px; cursor: pointer;
+      transition: all .2s;
+    }
+    .mission-start:hover { transform: scale(1.05); box-shadow: 0 4px 14px rgba(139,92,246,0.4); }
+
+    /* ===================================
+       LIVE BATTLES SECTION
+    =================================== */
+    .battles-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+    }
+    .online-pill {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 600; color: var(--green);
+      background: rgba(74,222,128,0.1);
+      border: 1px solid rgba(74,222,128,0.25);
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+    }
+    .online-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(1.4); }
+    }
+    .battle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .battle-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 12px;
+      cursor: pointer;
+      transition: all .2s;
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+    }
+    .battle-btn:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+    .battle-btn.full { grid-column: 1/-1; flex-direction: row; padding: 16px 20px; }
+    .battle-btn.full .battle-btn-icon { font-size: 28px; }
+    .battle-btn-icon { font-size: 30px; }
+    .battle-btn-text { font-size: 13px; font-weight: 700; text-align: center; }
+    .battle-btn-sub  { font-size: 11px; color: var(--text-3); text-align: center; }
+    .battle-btn.random { border-color: rgba(34,211,238,0.3); }
+    .battle-btn.random:hover { box-shadow: 0 0 20px rgba(34,211,238,0.15); border-color: var(--cyan); }
+    .battle-btn.pin { border-color: rgba(245,197,24,0.3); }
+    .battle-btn.pin:hover { box-shadow: 0 0 20px rgba(245,197,24,0.15); border-color: var(--gold); }
+    .battle-btn.friend { border-color: rgba(244,114,182,0.3); grid-column: 1/-1; }
+    .battle-btn.friend:hover { box-shadow: 0 0 20px rgba(244,114,182,0.15); border-color: var(--pink); }
+
+    /* ===================================
+       PRACTICE PACKS
+    =================================== */
+    .pack-scroll {
+      display: flex; gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+    .pack-scroll::-webkit-scrollbar { display: none; }
+    .pack-card {
+      min-width: 175px; flex-shrink: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px 16px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .pack-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+    .pack-emoji { font-size: 28px; }
+    .pack-name { font-size: 14px; font-weight: 700; }
+    .pack-ctx  { font-size: 11px; color: var(--text-3); }
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.07);
+      border-radius: var(--radius-pill);
+      height: 5px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: var(--radius-pill);
+      transition: width .6s ease;
+    }
+    .pack-footer { display: flex; align-items: center; justify-content: space-between; }
+    .pack-pct { font-size: 11px; font-weight: 700; color: var(--indigo); }
+    .pack-resume {
+      font-size: 11px; font-weight: 700;
+      background: rgba(139,92,246,0.2);
+      border: 1px solid rgba(139,92,246,0.35);
+      border-radius: 8px;
+      padding: 5px 11px;
+      color: #c4b5fd;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: 'Outfit', sans-serif;
+    }
+    .pack-resume:hover { background: rgba(139,92,246,0.35); }
+
+    /* ===================================
+       PROFILE PAGE
+    =================================== */
+    .profile-hero {
+      padding: 24px 20px 20px;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      position: relative;
+    }
+    .profile-hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 160px;
+      background: linear-gradient(to bottom, rgba(139,92,246,0.12), transparent);
+      pointer-events: none;
+    }
+    .avatar-wrap {
+      width: 90px; height: 90px; border-radius: 50%;
+      border: 3px solid transparent;
+      background: linear-gradient(var(--bg-base),var(--bg-base)) padding-box,
+                  var(--grad-purple) border-box;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 42px;
+      position: relative; z-index: 1;
+      box-shadow: 0 0 30px rgba(139,92,246,0.4);
+    }
+    .rank-badge-wrap {
+      position: absolute; bottom: -4px; right: -4px;
+      background: var(--grad-gold);
+      border-radius: var(--radius-pill);
+      padding: 2px 8px;
+      font-size: 10px; font-weight: 800; color: #1a0e00;
+    }
+    .profile-name { font-size: 22px; font-weight: 800; z-index: 1; }
+    .profile-title {
+      font-size: 12px; font-weight: 600; color: var(--purple);
+      background: rgba(139,92,246,0.12);
+      border: 1px solid rgba(139,92,246,0.25);
+      border-radius: var(--radius-pill);
+      padding: 4px 14px; z-index: 1;
+    }
+
+    .stats-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px; padding: 0 16px; margin-bottom: 20px;
+    }
+    .stats-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .stats-box .s-icon { font-size: 18px; }
+    .stats-box .s-val { font-size: 20px; font-weight: 800; }
+    .stats-box .s-label { font-size: 10px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .badges-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      padding: 0 16px;
+    }
+    .badge-item {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 8px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .badge-item:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+    .badge-item.locked { opacity: 0.35; filter: grayscale(1); }
+    .badge-emoji { font-size: 24px; }
+    .badge-name { font-size: 9px; font-weight: 600; color: var(--text-3); text-align: center; }
+
+    /* XP Bar */
+    .xp-section { padding: 0 16px; margin-bottom: 20px; }
+    .xp-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .xp-label { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .xp-count { font-size: 12px; font-weight: 700; color: var(--purple); }
+    .xp-bar-bg {
+      background: rgba(255,255,255,0.07);
+      border-radius: var(--radius-pill); height: 8px; overflow: hidden;
+    }
+    .xp-bar-fill {
+      height: 100%; width: 72%;
+      background: var(--grad-purple);
+      border-radius: var(--radius-pill);
+      position: relative;
+      box-shadow: 0 0 10px rgba(139,92,246,0.6);
+    }
+    .xp-bar-fill::after {
+      content: '';
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 6px; border-radius: var(--radius-pill);
+      background: rgba(255,255,255,0.6);
+    }
+
+    /* ===================================
+       PLAY PAGE
+    =================================== */
+    .play-hero {
+      text-align: center;
+      padding: 30px 20px 20px;
+    }
+    .play-big-icon {
+      font-size: 56px;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 0 20px rgba(139,92,246,0.5));
+    }
+    .play-title { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
+    .play-sub { font-size: 13px; color: var(--text-2); }
+
+    .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
+    .mode-card {
+      border-radius: 20px; padding: 20px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: all .25s;
+      position: relative; overflow: hidden;
+    }
+    .mode-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .mode-card:hover::before { opacity: 1; }
+    .mode-card:hover { transform: translateY(-3px); }
+    .mode-card.solo   { background: linear-gradient(145deg, rgba(129,140,248,0.12), rgba(79,70,229,0.08)); }
+    .mode-card.solo:hover   { border-color: var(--indigo); box-shadow: 0 8px 24px rgba(129,140,248,0.2); }
+    .mode-card.timed  { background: linear-gradient(145deg, rgba(245,197,24,0.12), rgba(251,146,60,0.08)); }
+    .mode-card.timed:hover  { border-color: var(--gold); box-shadow: 0 8px 24px rgba(245,197,24,0.2); }
+    .mode-card.boss   { background: linear-gradient(145deg, rgba(244,114,182,0.12), rgba(139,92,246,0.08)); }
+    .mode-card.boss:hover   { border-color: var(--pink); box-shadow: 0 8px 24px rgba(244,114,182,0.2); }
+    .mode-card.free   { background: linear-gradient(145deg, rgba(34,211,238,0.12), rgba(99,102,241,0.08)); }
+    .mode-card.free:hover   { border-color: var(--cyan); box-shadow: 0 8px 24px rgba(34,211,238,0.2); }
+    .mode-icon { font-size: 32px; }
+    .mode-name { font-size: 14px; font-weight: 700; }
+    .mode-desc { font-size: 11px; color: var(--text-3); line-height: 1.4; }
+    .mode-xp { font-size: 11px; font-weight: 700; color: var(--gold-2); }
+
+    /* Leaderboard mini */
+    .leaderboard { margin: 0 16px; }
+    .lb-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      transition: all .2s;
+    }
+    .lb-row:hover { background: var(--bg-card-hover); }
+    .lb-rank {
+      font-size: 14px; font-weight: 800; width: 24px; text-align: center;
+    }
+    .lb-rank.gold { color: var(--gold); }
+    .lb-rank.silver { color: #cbd5e1; }
+    .lb-rank.bronze { color: #cd7c2f; }
+    .lb-avatar { font-size: 22px; }
+    .lb-info { flex: 1; }
+    .lb-name { font-size: 13px; font-weight: 700; }
+    .lb-city { font-size: 11px; color: var(--text-3); }
+    .lb-score { font-size: 13px; font-weight: 800; color: var(--purple); }
+
+    /* ===================================
+       BOTTOM NAV
+    =================================== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 460px;
+      padding: 10px 8px calc(10px + var(--safe-b));
+      background: rgba(7,6,15,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; align-items: center;
+      z-index: 100;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer;
+      transition: all .2s;
+      flex: 1;
+      padding: 4px;
+    }
+    .nav-icon {
+      width: 40px; height: 40px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      transition: all .25s;
+    }
+    .nav-label {
+      font-size: 10px; font-weight: 600;
+      color: var(--text-3);
+      transition: color .2s;
+    }
+    .nav-item.active .nav-icon {
+      background: var(--grad-purple);
+      box-shadow: 0 4px 16px rgba(139,92,246,0.4);
+    }
+    .nav-item.active .nav-label { color: var(--indigo); }
+    .nav-item:hover .nav-icon { background: rgba(139,92,246,0.15); }
+
+    /* ===================================
+       BATTLE PAGE SPECIFICS
+    =================================== */
+    .battle-hero {
+      text-align: center; padding: 28px 20px 16px;
+    }
+    .battle-hero-icon { font-size: 54px; margin-bottom: 10px; }
+    .battle-hero-title { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
+    .battle-hero-sub { font-size: 13px; color: var(--text-2); }
+    .live-match-card {
+      margin: 0 16px 20px;
+      border-radius: var(--radius-card);
+      background: linear-gradient(135deg, rgba(34,211,238,0.08), rgba(99,102,241,0.05));
+      border: 1px solid rgba(34,211,238,0.2);
+      padding: 20px;
+    }
+    .live-match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .live-tag {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; color: var(--cyan);
+      background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.25);
+      border-radius: var(--radius-pill); padding: 3px 10px;
+    }
+    .match-vs { display: flex; align-items: center; gap: 14px; justify-content: center; margin-bottom: 16px; }
+    .player-side { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .player-av { font-size: 32px; }
+    .player-nm { font-size: 12px; font-weight: 700; }
+    .player-elo { font-size: 11px; color: var(--text-3); }
+    .vs-badge {
+      font-size: 18px; font-weight: 900;
+      background: var(--grad-pink);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .pin-input-wrap {
+      display: flex; gap: 8px; margin: 0 16px 16px;
+    }
+    .pin-input {
+      flex: 1; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px; font-weight: 700;
+      letter-spacing: 0.2em;
+      text-align: center; outline: none;
+    }
+    .pin-input::placeholder { color: var(--text-3); font-size: 14px; letter-spacing: 0; font-weight: 500; }
+    .pin-input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(139,92,246,0.2); }
+    .pin-go {
+      background: var(--grad-purple);
+      border: none; border-radius: 14px;
+      width: 56px; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; cursor: pointer; transition: all .2s;
+    }
+    .pin-go:hover { transform: scale(1.05); }
+
+    /* ===================================
+       HORIZONTAL SCROLL SUBJECTS
+    =================================== */
+    .subject-chips {
+      display: flex; gap: 8px;
+      overflow-x: auto; padding: 0 16px 4px;
+      scrollbar-width: none;
+    }
+    .subject-chips::-webkit-scrollbar { display: none; }
+    .subject-chip {
+      white-space: nowrap;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 12px; font-weight: 600; color: var(--text-2);
+      cursor: pointer; transition: all .2s;
+    }
+    .subject-chip.active {
+      background: rgba(139,92,246,0.2);
+      border-color: var(--purple);
+      color: #c4b5fd;
+    }
+    .subject-chip:hover { background: rgba(255,255,255,0.08); }
+
+    /* ===================================
+       UTILS
+    =================================== */
+    .spacer-12 { height: 12px; }
+    .spacer-20 { height: 20px; }
+    .pill-divider {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+    }
+    .pill-divider-line { flex: 1; height: 1px; background: var(--border); }
+    .pill-divider-text { font-size: 11px; color: var(--text-3); font-weight: 600; white-space: nowrap; }
+
+    /* ===================================
+       ANIMATIONS
+    =================================== */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .page.active > * { animation: fadeSlideUp .35s ease both; }
+    .page.active > *:nth-child(2) { animation-delay: .05s; }
+    .page.active > *:nth-child(3) { animation-delay: .10s; }
+    .page.active > *:nth-child(4) { animation-delay: .15s; }
+    .page.active > *:nth-child(5) { animation-delay: .20s; }
+
+    /* Glow button active state */
+    button:active { transform: scale(0.97) !important; }
+
+    /* Notification dot */
+    .notif-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--pink);
+      position: absolute; top: 4px; right: 4px;
+      box-shadow: 0 0 6px var(--pink);
+    }
+    .nav-icon { position: relative; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============================================================
+       PAGE: HOME
+  ============================================================ -->
+  <div id="page-home" class="page active">
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+      <div class="brand">
+        <div class="logo-row">
+          <div class="logo-icon">⚡</div>
+          <span class="app-name">BacQuest</span>
+        </div>
+        <span class="subtitle">Morocco mobile mode</span>
+      </div>
+      <div class="stream-tags">
+        <button class="stream-tag active" id="tag-sm" onclick="selectStream('SM')">SM</button>
+        <button class="stream-tag" id="tag-pc"  onclick="selectStream('PC')">PC</button>
+        <button class="stream-tag" id="tag-svt" onclick="selectStream('SVT')">SVT</button>
+      </div>
+    </header>
+
+    <div class="scroll-content">
+
+      <!-- HERO CARD -->
+      <div class="hero-card">
+        <div class="hero-badge">🔥 Streak Active &nbsp;·&nbsp; National Rank #347</div>
+        <h1 class="hero-headline">Crush the Bac.<br /><span>Level Up Daily.</span></h1>
+        <p class="hero-sub">3 minutes a day beats 3 hours in one shot. Yallah, let's go!</p>
+
+        <div class="hero-stats">
+          <div class="stat-chip streak">
+            <span class="stat-label">🔥 Streak</span>
+            <span class="stat-value">14 Days</span>
+          </div>
+          <div class="stat-chip rank">
+            <span class="stat-label">🏆 Rank</span>
+            <span class="stat-value">#347</span>
+          </div>
+        </div>
+
+        <div class="hero-ctas">
+          <button class="btn-primary gold" onclick="navigateTo('play')">⚡ Yallah Start 🔥 – 2 Min Challenge</button>
+          <button class="btn-secondary" onclick="navigateTo('battle')">⚔️ Join Live Battle</button>
+        </div>
+      </div>
+
+      <!-- TODAY'S MISSIONS -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">🎯 Today's Missions</span>
+          <a class="section-link" onclick="navigateTo('play')">See all</a>
+        </div>
+        <div class="mission-list">
+
+          <div class="mission-card" onclick="startMission('math')">
+            <div class="mission-icon easy">📐</div>
+            <div class="mission-info">
+              <span class="mission-name">Quick Math</span>
+              <div class="mission-meta">
+                <span class="diff-badge easy">Easy</span>
+                <span class="mission-duration">⏱ 2 min</span>
+                <span class="mission-xp">+40 XP</span>
+              </div>
+            </div>
+            <button class="mission-start">Go →</button>
+          </div>
+
+          <div class="mission-card" onclick="startMission('physics')">
+            <div class="mission-icon medium">⚗️</div>
+            <div class="mission-info">
+              <span class="mission-name">Physics Recall</span>
+              <div class="mission-meta">
+                <span class="diff-badge medium">Medium</span>
+                <span class="mission-duration">⏱ 4 min</span>
+                <span class="mission-xp">+80 XP</span>
+              </div>
+            </div>
+            <button class="mission-start">Go →</button>
+          </div>
+
+          <div class="mission-card" onclick="startMission('boss')">
+            <div class="mission-icon hard">💀</div>
+            <div class="mission-info">
+              <span class="mission-name">Boss Challenge</span>
+              <div class="mission-meta">
+                <span class="diff-badge hard">Hard</span>
+                <span class="mission-duration">⏱ 7 min</span>
+                <span class="mission-xp">+200 XP</span>
+              </div>
+            </div>
+            <button class="mission-start">Go →</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- LIVE BATTLES -->
+      <div>
+        <div class="battles-header">
+          <span class="section-title">⚔️ Live Battles</span>
+          <div class="online-pill"><div class="online-dot"></div>1 284 online</div>
+        </div>
+        <div class="battle-grid">
+          <div class="battle-btn random" onclick="navigateTo('battle')">
+            <span class="battle-btn-icon">🎲</span>
+            <span class="battle-btn-text">Random Match</span>
+            <span class="battle-btn-sub">Instant queue</span>
+          </div>
+          <div class="battle-btn pin" onclick="openPinModal()">
+            <span class="battle-btn-icon">🔑</span>
+            <span class="battle-btn-text">Enter PIN</span>
+            <span class="battle-btn-sub">Join room</span>
+          </div>
+          <div class="battle-btn friend" onclick="navigateTo('battle')">
+            <span class="battle-btn-icon">👾</span>
+            <div>
+              <div class="battle-btn-text">Challenge a Friend</div>
+              <div class="battle-btn-sub">Send invite link</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRACTICE PACKS -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">📚 Practice Packs</span>
+          <a class="section-link" onclick="navigateTo('practice')">All packs</a>
+        </div>
+        <div class="pack-scroll">
+
+          <div class="pack-card">
+            <span class="pack-emoji">📐</span>
+            <span class="pack-name">Intégrales & Limites</span>
+            <span class="pack-ctx">🗓 Bac 2023 · Weak topic</span>
+            <div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:68%; background: var(--grad-purple);"></div>
+              </div>
+            </div>
+            <div class="pack-footer">
+              <span class="pack-pct">68%</span>
+              <button class="pack-resume">Resume</button>
+            </div>
+          </div>
+
+          <div class="pack-card">
+            <span class="pack-emoji">⚛️</span>
+            <span class="pack-name">Mécanique Newton</span>
+            <span class="pack-ctx">🗓 Bac 2022 · High yield</span>
+            <div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:34%; background: var(--grad-cyan);"></div>
+              </div>
+            </div>
+            <div class="pack-footer">
+              <span class="pack-pct">34%</span>
+              <button class="pack-resume">Resume</button>
+            </div>
+          </div>
+
+          <div class="pack-card">
+            <span class="pack-emoji">🧬</span>
+            <span class="pack-name">Génétique SVT</span>
+            <span class="pack-ctx">🗓 Bac 2024 · Hot topic 🔥</span>
+            <div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:82%; background: var(--grad-green);"></div>
+              </div>
+            </div>
+            <div class="pack-footer">
+              <span class="pack-pct">82%</span>
+              <button class="pack-resume">Resume</button>
+            </div>
+          </div>
+
+          <div class="pack-card">
+            <span class="pack-emoji">🧪</span>
+            <span class="pack-name">Chimie Organique</span>
+            <span class="pack-ctx">🗓 Bac 2024 · Must do</span>
+            <div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:15%; background: var(--grad-pink);"></div>
+              </div>
+            </div>
+            <div class="pack-footer">
+              <span class="pack-pct">15%</span>
+              <button class="pack-resume">Start</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /scroll-content -->
+  </div><!-- /page-home -->
+
+
+  <!-- ============================================================
+       PAGE: PLAY
+  ============================================================ -->
+  <div id="page-play" class="page">
+    <header class="top-bar">
+      <div class="brand"><div class="logo-row"><div class="logo-icon">⚡</div><span class="app-name">BacQuest</span></div></div>
+      <div class="stream-tags">
+        <button class="stream-tag active">SM</button>
+        <button class="stream-tag">PC</button>
+        <button class="stream-tag">SVT</button>
+      </div>
+    </header>
+
+    <div class="play-hero">
+      <div class="play-big-icon">🎮</div>
+      <h2 class="play-title">Pick Your Mode</h2>
+      <p class="play-sub">Each correct answer = XP. Miss 3 = Game Over.</p>
+    </div>
+
+    <!-- Subject filter chips -->
+    <div class="subject-chips" style="margin-bottom:20px;">
+      <button class="subject-chip active">All</button>
+      <button class="subject-chip">Maths</button>
+      <button class="subject-chip">Physics</button>
+      <button class="subject-chip">SVT</button>
+      <button class="subject-chip">PC</button>
+      <button class="subject-chip">Fr / Phil</button>
+    </div>
+
+    <div class="mode-grid" style="margin-bottom:24px;">
+      <div class="mode-card solo" onclick="flashStart(this)">
+        <span class="mode-icon">🎯</span>
+        <span class="mode-name">Solo Sprint</span>
+        <span class="mode-desc">10 Qs, 60 sec each. Beat your top score.</span>
+        <span class="mode-xp">+50–100 XP</span>
+      </div>
+      <div class="mode-card timed" onclick="flashStart(this)">
+        <span class="mode-icon">⏱</span>
+        <span class="mode-name">Blitz Mode</span>
+        <span class="mode-desc">Answer as many as you can in 90 sec.</span>
+        <span class="mode-xp">+20 XP / Q</span>
+      </div>
+      <div class="mode-card boss" onclick="flashStart(this)">
+        <span class="mode-icon">💀</span>
+        <span class="mode-name">Boss Fight</span>
+        <span class="mode-desc">5 Qs, brutal difficulty. Earn rare badge.</span>
+        <span class="mode-xp">+300 XP</span>
+      </div>
+      <div class="mode-card free" onclick="flashStart(this)">
+        <span class="mode-icon">🌊</span>
+        <span class="mode-name">Free Practice</span>
+        <span class="mode-desc">No timer, no pressure. Review + learn.</span>
+        <span class="mode-xp">+10 XP / Q</span>
+      </div>
+    </div>
+
+    <!-- Mini leaderboard -->
+    <div class="scroll-content" style="padding-top:0; gap:0;">
+      <div>
+        <div class="section-header"><span class="section-title">🏆 Today's Top Players</span><a class="section-link">Full board</a></div>
+        <div class="leaderboard">
+          <div class="lb-row">
+            <span class="lb-rank gold">1</span>
+            <span class="lb-avatar">🦁</span>
+            <div class="lb-info"><div class="lb-name">Hamza_SM</div><div class="lb-city">Casablanca</div></div>
+            <span class="lb-score">4 820 XP</span>
+          </div>
+          <div class="lb-row">
+            <span class="lb-rank silver">2</span>
+            <span class="lb-avatar">🐺</span>
+            <div class="lb-info"><div class="lb-name">RaniaSM25</div><div class="lb-city">Rabat</div></div>
+            <span class="lb-score">4 310 XP</span>
+          </div>
+          <div class="lb-row">
+            <span class="lb-rank bronze">3</span>
+            <span class="lb-avatar">🦊</span>
+            <div class="lb-info"><div class="lb-name">Youssef_Bac</div><div class="lb-city">Marrakech</div></div>
+            <span class="lb-score">3 990 XP</span>
+          </div>
+          <div class="lb-row" style="border-color: rgba(139,92,246,0.3);">
+            <span class="lb-rank" style="color:var(--purple);">347</span>
+            <span class="lb-avatar">🐉</span>
+            <div class="lb-info"><div class="lb-name">You</div><div class="lb-city">Fès</div></div>
+            <span class="lb-score">1 240 XP</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-play -->
+
+
+  <!-- ============================================================
+       PAGE: BATTLE
+  ============================================================ -->
+  <div id="page-battle" class="page">
+    <header class="top-bar">
+      <div class="brand"><div class="logo-row"><div class="logo-icon">⚡</div><span class="app-name">BacQuest</span></div></div>
+      <div class="online-pill" style="margin-right:4px;"><div class="online-dot"></div>1 284</div>
+    </header>
+
+    <div class="battle-hero">
+      <div class="battle-hero-icon">⚔️</div>
+      <h2 class="battle-hero-title">Live Battle Arena</h2>
+      <p class="battle-hero-sub">1v1 real-time Q&A duels. Win = earn XP + trophies.</p>
+    </div>
+
+    <!-- Live match found card -->
+    <div class="live-match-card">
+      <div class="live-match-header">
+        <div class="live-tag"><div class="online-dot"></div>LIVE MATCH FOUND</div>
+        <span style="font-size:11px;color:var(--text-3);">Starting in 10s…</span>
+      </div>
+      <div class="match-vs">
+        <div class="player-side">
+          <span class="player-av">🐉</span>
+          <span class="player-nm">You</span>
+          <span class="player-elo">⭐ ELO 1 200</span>
+        </div>
+        <span class="vs-badge">VS</span>
+        <div class="player-side">
+          <span class="player-av">🦁</span>
+          <span class="player-nm">Hamza_SM</span>
+          <span class="player-elo">⭐ ELO 1 460</span>
+        </div>
+      </div>
+      <button class="btn-primary purple" style="margin-top:4px;">⚔️ Accept & Fight!</button>
+    </div>
+
+    <!-- PIN Entry -->
+    <div class="scroll-content" style="padding-top:0; gap:16px;">
+      <div>
+        <div class="pill-divider"><div class="pill-divider-line"></div><div class="pill-divider-text">OR JOIN WITH PIN</div><div class="pill-divider-line"></div></div>
+      </div>
+    </div>
+    <div class="pin-input-wrap">
+      <input class="pin-input" id="pin-input" type="text" maxlength="6" placeholder="Enter 6-digit PIN" />
+      <button class="pin-go" onclick="joinWithPin()" aria-label="Join">→</button>
+    </div>
+
+    <div class="scroll-content" style="padding-top:0; gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <button class="btn-primary purple" style="font-size:13px;" onclick="flashStart(this)">🎲 Random Match</button>
+        <button class="btn-secondary" style="font-size:13px;" onclick="flashStart(this)">👾 Challenge Friend</button>
+      </div>
+
+      <div>
+        <div class="section-header"><span class="section-title">🏅 Recent Battles</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="lb-row" style="border-color:rgba(74,222,128,0.2);">
+            <span style="font-size:18px;">✅</span>
+            <div class="lb-info"><div class="lb-name">vs RaniaSM25</div><div class="lb-city">Maths · 7-3 · +120 XP</div></div>
+            <span style="font-size:11px;font-weight:700;color:var(--green);">WIN</span>
+          </div>
+          <div class="lb-row" style="border-color:rgba(248,113,113,0.2);">
+            <span style="font-size:18px;">❌</span>
+            <div class="lb-info"><div class="lb-name">vs Hamza_SM</div><div class="lb-city">Physics · 3-8 · -40 XP</div></div>
+            <span style="font-size:11px;font-weight:700;color:var(--red);">LOSS</span>
+          </div>
+          <div class="lb-row" style="border-color:rgba(245,197,24,0.2);">
+            <span style="font-size:18px;">🤝</span>
+            <div class="lb-info"><div class="lb-name">vs Fatima_SVT</div><div class="lb-city">SVT · 5-5 · +30 XP</div></div>
+            <span style="font-size:11px;font-weight:700;color:var(--gold);">DRAW</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-battle -->
+
+
+  <!-- ============================================================
+       PAGE: PRACTICE
+  ============================================================ -->
+  <div id="page-practice" class="page">
+    <header class="top-bar">
+      <div class="brand"><div class="logo-row"><div class="logo-icon">⚡</div><span class="app-name">BacQuest</span></div></div>
+      <div class="stream-tags">
+        <button class="stream-tag active">SM</button>
+        <button class="stream-tag">PC</button>
+        <button class="stream-tag">SVT</button>
+      </div>
+    </header>
+
+    <div style="padding:20px 16px 8px;">
+      <h2 style="font-size:22px;font-weight:900;margin-bottom:6px;">📚 Practice Packs</h2>
+      <p style="font-size:13px;color:var(--text-2);">Study smart — weakest topics first.</p>
+    </div>
+
+    <div class="subject-chips" style="margin-bottom:16px;">
+      <button class="subject-chip active">All Subjects</button>
+      <button class="subject-chip">Maths</button>
+      <button class="subject-chip">Physics</button>
+      <button class="subject-chip">SVT</button>
+      <button class="subject-chip">French</button>
+      <button class="subject-chip">Philo</button>
+    </div>
+
+    <div class="scroll-content" style="padding-top:0; gap:10px;">
+
+      <!-- Pack rows (full width) -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+
+        <div class="pack-card" style="min-width:unset;flex-direction:row;gap:16px;align-items:center;">
+          <span style="font-size:32px;">📐</span>
+          <div style="flex:1; display:flex;flex-direction:column;gap:6px;">
+            <span class="pack-name">Intégrales & Limites</span>
+            <span class="pack-ctx">Bac 2023 · Weak topic ⚠️</span>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:68%; background:var(--grad-purple);"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+            <span class="pack-pct" style="font-size:14px;">68%</span>
+            <button class="pack-resume">Resume</button>
+          </div>
+        </div>
+
+        <div class="pack-card" style="min-width:unset;flex-direction:row;gap:16px;align-items:center;">
+          <span style="font-size:32px;">⚛️</span>
+          <div style="flex:1; display:flex;flex-direction:column;gap:6px;">
+            <span class="pack-name">Mécanique Newton</span>
+            <span class="pack-ctx">Bac 2022 · High yield 🎯</span>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:34%; background:var(--grad-cyan);"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+            <span class="pack-pct" style="font-size:14px;">34%</span>
+            <button class="pack-resume">Resume</button>
+          </div>
+        </div>
+
+        <div class="pack-card" style="min-width:unset;flex-direction:row;gap:16px;align-items:center;">
+          <span style="font-size:32px;">🧬</span>
+          <div style="flex:1; display:flex;flex-direction:column;gap:6px;">
+            <span class="pack-name">Génétique SVT</span>
+            <span class="pack-ctx">Bac 2024 · Hot topic 🔥</span>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:82%; background:var(--grad-green);"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+            <span class="pack-pct" style="font-size:14px;">82%</span>
+            <button class="pack-resume">Resume</button>
+          </div>
+        </div>
+
+        <div class="pack-card" style="min-width:unset;flex-direction:row;gap:16px;align-items:center;">
+          <span style="font-size:32px;">🧪</span>
+          <div style="flex:1; display:flex;flex-direction:column;gap:6px;">
+            <span class="pack-name">Chimie Organique</span>
+            <span class="pack-ctx">Bac 2024 · Must do ⚡</span>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:15%; background:var(--grad-pink);"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+            <span class="pack-pct" style="font-size:14px;">15%</span>
+            <button class="pack-resume">Start</button>
+          </div>
+        </div>
+
+        <div class="pack-card" style="min-width:unset;flex-direction:row;gap:16px;align-items:center;">
+          <span style="font-size:32px;">📖</span>
+          <div style="flex:1; display:flex;flex-direction:column;gap:6px;">
+            <span class="pack-name">Philo — Dissertation</span>
+            <span class="pack-ctx">Bac 2024 · Easy XP 💰</span>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:52%; background:var(--grad-gold);"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+            <span class="pack-pct" style="font-size:14px;">52%</span>
+            <button class="pack-resume">Resume</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /page-practice -->
+
+
+  <!-- ============================================================
+       PAGE: PROFILE
+  ============================================================ -->
+  <div id="page-profile" class="page">
+    <header class="top-bar">
+      <div class="brand"><div class="logo-row"><div class="logo-icon">⚡</div><span class="app-name">BacQuest</span></div></div>
+      <button style="background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:10px;color:var(--text-2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:6px 14px;cursor:pointer;">⚙️ Settings</button>
+    </header>
+
+    <!-- Avatar + Name -->
+    <div class="profile-hero">
+      <div class="avatar-wrap">
+        🐉
+        <div class="rank-badge-wrap">ELITE</div>
+      </div>
+      <div class="profile-name">Youssef_BAC25</div>
+      <div class="profile-title">🏆 Rank #347 · Dragon Scholar</div>
+    </div>
+
+    <!-- XP bar -->
+    <div class="xp-section">
+      <div class="xp-header">
+        <span class="xp-label">XP Progress to Legend</span>
+        <span class="xp-count">1 240 / 1 750 XP</span>
+      </div>
+      <div class="xp-bar-bg"><div class="xp-bar-fill"></div></div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stats-box">
+        <span class="s-icon">🔥</span>
+        <span class="s-val" style="color:var(--gold);">14</span>
+        <span class="s-label">Streak</span>
+      </div>
+      <div class="stats-box">
+        <span class="s-icon">⚡</span>
+        <span class="s-val" style="color:var(--purple);">1 240</span>
+        <span class="s-label">Total XP</span>
+      </div>
+      <div class="stats-box">
+        <span class="s-icon">⚔️</span>
+        <span class="s-val" style="color:var(--cyan);">23</span>
+        <span class="s-label">Battles</span>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div style="padding:0 16px; margin-bottom:16px;">
+      <div class="section-header"><span class="section-title">🎖️ Badges</span><a class="section-link">All badges</a></div>
+      <div class="badges-grid">
+        <div class="badge-item">
+          <span class="badge-emoji">🔥</span>
+          <span class="badge-name">7-Day Streak</span>
+        </div>
+        <div class="badge-item">
+          <span class="badge-emoji">⚡</span>
+          <span class="badge-name">Speed King</span>
+        </div>
+        <div class="badge-item">
+          <span class="badge-emoji">🏆</span>
+          <span class="badge-name">1st Victory</span>
+        </div>
+        <div class="badge-item">
+          <span class="badge-emoji">💀</span>
+          <span class="badge-name">Boss Slayer</span>
+        </div>
+        <div class="badge-item locked">
+          <span class="badge-emoji">👑</span>
+          <span class="badge-name">Top 100</span>
+        </div>
+        <div class="badge-item locked">
+          <span class="badge-emoji">🌟</span>
+          <span class="badge-name">Legend</span>
+        </div>
+        <div class="badge-item locked">
+          <span class="badge-emoji">🎯</span>
+          <span class="badge-name">100% Pack</span>
+        </div>
+        <div class="badge-item locked">
+          <span class="badge-emoji">🚀</span>
+          <span class="badge-name">Rocket Start</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="scroll-content" style="padding-top:0; gap:10px;">
+      <div>
+        <div class="section-header"><span class="section-title">📋 Recent Activity</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="lb-row">
+            <span style="font-size:18px;">✅</span>
+            <div class="lb-info"><div class="lb-name">Quick Math Mission</div><div class="lb-city">Today · 2 min</div></div>
+            <span style="font-size:12px;font-weight:700;color:var(--gold-2);">+40 XP</span>
+          </div>
+          <div class="lb-row">
+            <span style="font-size:18px;">⚔️</span>
+            <div class="lb-info"><div class="lb-name">Battle vs Hamza_SM</div><div class="lb-city">Yesterday · Lost</div></div>
+            <span style="font-size:12px;font-weight:700;color:var(--red);">-40 XP</span>
+          </div>
+          <div class="lb-row">
+            <span style="font-size:18px;">📐</span>
+            <div class="lb-info"><div class="lb-name">Intégrales Pack</div><div class="lb-city">2 days ago · 20 Qs</div></div>
+            <span style="font-size:12px;font-weight:700;color:var(--gold-2);">+80 XP</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-profile -->
+
+
+  <!-- ============================================================
+       BOTTOM NAVIGATION
+  ============================================================ -->
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-item active" id="nav-home" onclick="navigateTo('home')" role="button" tabindex="0" aria-label="Home">
+      <div class="nav-icon">🏠</div>
+      <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item" id="nav-play" onclick="navigateTo('play')" role="button" tabindex="0" aria-label="Play">
+      <div class="nav-icon">🎮<div class="notif-dot"></div></div>
+      <span class="nav-label">Play</span>
+    </div>
+    <div class="nav-item" id="nav-battle" onclick="navigateTo('battle')" role="button" tabindex="0" aria-label="Battle">
+      <div class="nav-icon">⚔️</div>
+      <span class="nav-label">Battle</span>
+    </div>
+    <div class="nav-item" id="nav-practice" onclick="navigateTo('practice')" role="button" tabindex="0" aria-label="Practice">
+      <div class="nav-icon">📚</div>
+      <span class="nav-label">Practice</span>
+    </div>
+    <div class="nav-item" id="nav-profile" onclick="navigateTo('profile')" role="button" tabindex="0" aria-label="Profile">
+      <div class="nav-icon">👤</div>
+      <span class="nav-label">Profile</span>
+    </div>
+  </nav>
+
+</div><!-- /app -->
+
+
+<!-- ===================================
+     JAVASCRIPT
+=================================== -->
+<script>
+  // ─── Navigation ──────────────────────────────
+  const pages  = ['home','play','battle','practice','profile'];
+
+  function navigateTo(page) {
+    pages.forEach(p => {
+      const pg  = document.getElementById('page-' + p);
+      const nav = document.getElementById('nav-' + p);
+      if (p === page) {
+        pg.classList.add('active');
+        if (nav) nav.classList.add('active');
+        pg.scrollTop = 0;
+      } else {
+        pg.classList.remove('active');
+        if (nav) nav.classList.remove('active');
+      }
+    });
+  }
+
+  // ─── Stream selection ────────────────────────
+  function selectStream(s) {
+    ['SM','PC','SVT'].forEach(t => {
+      const el = document.getElementById('tag-' + t.toLowerCase());
+      if (el) el.classList.toggle('active', t === s);
+    });
+  }
+
+  // ─── Subject chip toggle ─────────────────────
+  document.querySelectorAll('.subject-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const siblings = chip.parentElement.querySelectorAll('.subject-chip');
+      siblings.forEach(s => s.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  // ─── Start mission flash ─────────────────────
+  function startMission(type) {
+    const msgs = {
+      math:    '⚡ Quick Math started! Good luck!',
+      physics: '⚗️ Physics Recall started! Focus!',
+      boss:    '💀 Boss Challenge accepted! No mercy!'
+    };
+    showToast(msgs[type] || 'Starting…');
+  }
+
+  function flashStart(el) {
+    el.style.transform = 'scale(0.96)';
+    setTimeout(() => { el.style.transform = ''; }, 180);
+    showToast('⚡ Loading… Yallah!');
+  }
+
+  function openPinModal() {
+    navigateTo('battle');
+    setTimeout(() => {
+      const inp = document.getElementById('pin-input');
+      if (inp) inp.focus();
+    }, 300);
+  }
+
+  function joinWithPin() {
+    const val = document.getElementById('pin-input').value.trim();
+    if (val.length < 4) { showToast('⚠️ Enter a valid PIN!'); return; }
+    showToast('🔑 Joining room ' + val + '…');
+  }
+
+  // ─── Toast notification ───────────────────────
+  function showToast(msg) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      Object.assign(toast.style, {
+        position: 'fixed',
+        bottom: 'calc(var(--nav-h) + 20px)',
+        left: '50%',
+        transform: 'translateX(-50%) translateY(10px)',
+        background: 'rgba(30,20,60,0.95)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(139,92,246,0.35)',
+        borderRadius: '14px',
+        padding: '12px 22px',
+        color: '#e0d8ff',
+        fontFamily: 'Outfit,sans-serif',
+        fontSize: '13px',
+        fontWeight: '600',
+        zIndex: '200',
+        whiteSpace: 'nowrap',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        transition: 'all .3s cubic-bezier(.34,1.56,.64,1)',
+        opacity: '0',
+        maxWidth: '90vw',
+      });
+      document.getElementById('app').appendChild(toast);
+    }
+    toast.textContent = msg;
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(10px)';
+    }, 2600);
+  }
+
+  // ─── Keyboard nav support ─────────────────────
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') item.click();
+    });
+  });
+</script>
+</body>
+</html>
