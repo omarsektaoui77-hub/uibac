@@ -11,10 +11,12 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+# Default: manual runs only (avoids failed runs when secrets are not set).
+# To deploy on every push to main, add:
+#   push:
+#     branches: [main]
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy-production:

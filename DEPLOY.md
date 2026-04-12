@@ -50,13 +50,15 @@ Do not rely on `OLLAMA_HOST` on Vercel; Ollama must run on your machine.
 
 ### Option B — GitHub Actions
 
+Use this **instead of** Option A if you want CI to build and upload artifacts (e.g. GitHub Enterprise). If you already connected the repo under Vercel (Option A), **remove** `.github/workflows/vercel-production.yml` or you may get **two** production deploys per push.
+
 This repo includes [`.github/workflows/vercel-production.yml`](.github/workflows/vercel-production.yml). After you [create a Vercel access token](https://vercel.com/guides/how-do-i-use-a-vercel-api-access-token) and run `vercel link` once locally to read `orgId` and `projectId` from `.vercel/project.json`, add these [repository secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) in GitHub:
 
 - `VERCEL_TOKEN`
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
 
-Each push to `main` will then deploy via Actions. See the [Vercel guide](https://vercel.com/guides/how-can-i-use-github-actions-with-vercel).
+The workflow is set to **manual** (`workflow_dispatch`). In GitHub: **Actions** → **Vercel Production Deployment** → **Run workflow**. To run on every `main` push, edit the workflow file and add a `push` trigger as described in the YAML comments. See the [Vercel guide](https://vercel.com/guides/how-can-i-use-github-actions-with-vercel).
 
 ### Option C — CLI on your PC
 
