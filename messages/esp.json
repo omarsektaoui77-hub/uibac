@@ -1,0 +1,43 @@
+{
+  "Home": {
+    "title": "BacFlow",
+    "subtitle": "Modo Marruecos",
+    "yallah": "¡Empezar! 🔥",
+    "hero_title": "Juega rápido. Gana XP.",
+    "hero_subtitle": "Sin lectura. Solo acción.",
+    "stats": {
+      "streak": "Racha",
+      "rank": "Rango"
+    },
+    "cta": {
+      "challenge": "▶ Desafío 2 Min",
+      "battle": "⚔️ Batalla en Vivo"
+    },
+    "missions": {
+      "title": "🎯 Misiones",
+      "next": "Próxima en"
+    },
+    "practice": {
+      "title": "🧠 Práctica",
+      "resume": "Continuar"
+    },
+    "profile": {
+      "title": "👤 Perfil",
+      "elite": "Élite"
+    }
+  },
+  "Quiz": {
+    "loading": "Cargando motor de IA...",
+    "summary": {
+      "title": "Resumen de Batalla",
+      "subtitle": "¡Sesión Terminada!",
+      "accuracy": "Precisión",
+      "correct": "{count} Correctas",
+      "xp_earned": "puntos XP",
+      "total": "Total",
+      "play_again": "Jugar de Nuevo",
+      "back": "Volver"
+    },
+    "question_counter": "Pregunta {current} / {total}"
+  }
+}

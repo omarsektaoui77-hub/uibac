@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: bacquest-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app  # Maps the local directory so code changes auto-reload without rebuilding
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=development

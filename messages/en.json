@@ -1,0 +1,43 @@
+{
+  "Home": {
+    "title": "BacFlow",
+    "subtitle": "Morocco Mode",
+    "yallah": "Yallah Start 🔥",
+    "hero_title": "Play fast. Win XP.",
+    "hero_subtitle": "No reading. Just action.",
+    "stats": {
+      "streak": "Day Streak",
+      "rank": "Rank"
+    },
+    "cta": {
+      "challenge": "▶ Play 2-Min Challenge",
+      "battle": "⚔️ Join Live Battle"
+    },
+    "missions": {
+      "title": "🎯 Missions",
+      "next": "Next in"
+    },
+    "practice": {
+      "title": "🧠 Practice",
+      "resume": "Resume"
+    },
+    "profile": {
+      "title": "👤 Profile",
+      "elite": "Elite"
+    }
+  },
+  "Quiz": {
+    "loading": "Loading AI Generation Engine...",
+    "summary": {
+      "title": "Battle Summary",
+      "subtitle": "Session Complete!",
+      "accuracy": "Accuracy",
+      "correct": "{count} Correct",
+      "xp_earned": "XP Earned",
+      "total": "Total",
+      "play_again": "Play Again",
+      "back": "Back to Base"
+    },
+    "question_counter": "Question {current} / {total}"
+  }
+}

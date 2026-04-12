@@ -1,0 +1,43 @@
+{
+  "Home": {
+    "title": "BacFlow",
+    "subtitle": "Mode Maroc",
+    "yallah": "C'est parti ! 🔥",
+    "hero_title": "Joue vite. Gagne de l'XP.",
+    "hero_subtitle": "Pas de lecture. Que de l'action.",
+    "stats": {
+      "streak": "Série",
+      "rank": "Rang"
+    },
+    "cta": {
+      "challenge": "▶ Challenge 2 Min",
+      "battle": "⚔️ Bataille en Direct"
+    },
+    "missions": {
+      "title": "🎯 Missions",
+      "next": "Prochaine dans"
+    },
+    "practice": {
+      "title": "🧠 Pratique",
+      "resume": "Reprendre"
+    },
+    "profile": {
+      "title": "👤 Profil",
+      "elite": "Élite"
+    }
+  },
+  "Quiz": {
+    "loading": "Chargement de l'IA...",
+    "summary": {
+      "title": "Résumé de Bataille",
+      "subtitle": "Session Terminée !",
+      "accuracy": "Précision",
+      "correct": "{count} Correctes",
+      "xp_earned": "XP Gagnés",
+      "total": "Total",
+      "play_again": "Rejouer",
+      "back": "Retour"
+    },
+    "question_counter": "Question {current} / {total}"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "Home": {
+    "title": "BacFlow",
+    "subtitle": "Morocco Mode",
+    "yallah": "Yallah Bda 🔥",
+    "hero_title": "Lâab bzrba. Rba7 XP.",
+    "hero_subtitle": "Bla qraya. Gher Lâaction.",
+    "stats": {
+      "streak": "Silsila",
+      "rank": "Tartib"
+    },
+    "cta": {
+      "challenge": "▶ Lâab Tahadi 2 Dqayq",
+      "battle": "⚔️ Charek f Mâaraka Mobachira"
+    },
+    "missions": {
+      "title": "🎯 Missions",
+      "next": "Li jaya mn bêd"
+    },
+    "practice": {
+      "title": "🧠 Tamarin",
+      "resume": "Kemmel"
+    },
+    "profile": {
+      "title": "👤 L-Profile",
+      "elite": "Elite"
+    }
+  },
+  "Quiz": {
+    "loading": "Jarou l-i3dad dyal l-quiz...",
+    "summary": {
+      "title": "Khoulassat l-mou3araka",
+      "subtitle": "Salat l-7issa!",
+      "accuracy": "Diqqa",
+      "correct": "Sbi7 {count}",
+      "xp_earned": "Rba7ti XP",
+      "total": "Majmou3",
+      "play_again": "Lâab mra khora",
+      "back": "Rjê l-base"
+    },
+    "question_counter": "Soual {current} fayel {total}"
+  }
+}
