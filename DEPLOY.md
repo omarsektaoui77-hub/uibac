@@ -27,8 +27,12 @@ git commit -m "Stop tracking virtualenv directories"
 
 ## Vercel
 
+Repo: `https://github.com/omarsektaoui77-hub/uibac` (branch `main` is already pushed).
+
+### Option A — Vercel for Git (recommended)
+
 1. Sign in at [vercel.com](https://vercel.com) with GitHub.
-2. **Add New Project** → Import this repository.
+2. **Add New Project** → Import **uibac**.
 3. **Root directory:** leave default (repository root with `package.json`).
 4. **Environment variables** (Production and Preview as needed):
 
@@ -43,3 +47,24 @@ Do not rely on `OLLAMA_HOST` on Vercel; Ollama must run on your machine.
 5. Deploy, then open `https://YOUR_PROJECT.vercel.app/en` and test **Ask AI**.
 
 6. Optional: set `INGEST_API_BASE_URL` only if you host a public API; otherwise `/api/ingest` returns 503 with a clear JSON message.
+
+### Option B — GitHub Actions
+
+This repo includes [`.github/workflows/vercel-production.yml`](.github/workflows/vercel-production.yml). After you [create a Vercel access token](https://vercel.com/guides/how-do-i-use-a-vercel-api-access-token) and run `vercel link` once locally to read `orgId` and `projectId` from `.vercel/project.json`, add these [repository secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) in GitHub:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+Each push to `main` will then deploy via Actions. See the [Vercel guide](https://vercel.com/guides/how-can-i-use-github-actions-with-vercel).
+
+### Option C — CLI on your PC
+
+```powershell
+cd c:\Users\DELL\uibac
+npx vercel login
+npx vercel link
+npx vercel --prod
+```
+
+Complete the browser/device prompt when the CLI asks for authentication.
