@@ -19,43 +19,67 @@ export default function QuizPage() {
   const [showPop, setShowPop] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10);
   const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchQuestions = async () => {
       const params = new URLSearchParams(window.location.search);
-      const cat = params.get("category");
+      const trackId = params.get("trackId") || "common";
+      const subjectId = params.get("subjectId") || "advanced_math";
+      const difficulty = params.get("difficulty");
+      const language = locale || 'en';
 
       try {
-        const querySnapshot = await getDocs(collection(db, "QuestionBanks"));
-        let allQuestions: any[] = [];
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.questions && Array.isArray(data.questions)) {
-            allQuestions = [...allQuestions, ...data.questions];
+        // Fetch questions from the optimized API
+        const response = await fetch(`/api/questions/practice?trackId=${trackId}&subjectId=${subjectId}&difficulty=${difficulty || ''}&count=5&language=${language}`);
+        const data = await response.json();
+
+        if (response.ok && data.success && data.questions.length > 0) {
+          // Convert questions to the format expected by the quiz component
+          const formattedQuestions = data.questions.map((q: any) => ({
+            question: q.question,
+            options: q.choices,
+            correct_answer: q.answer,
+            correct: q.answer,
+            topic: q.concept || 'General',
+            time_estimate: Math.max(10, Math.floor(q.xp / 2)), // Estimate time based on XP
+            xp: q.xp,
+            difficulty: q.difficulty
+          }));
+
+          setQuestions(formattedQuestions);
+        } else {
+          // Check if pipeline needs to be triggered
+          if (data.needsProcessing) {
+            console.log("Question bank not found, triggering pipeline...");
+            // Trigger pipeline in background
+            fetch(`/api/pipeline/trigger`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ trackId, subjectId, language })
+            }).catch(console.error);
+            
+            // Show message to user
+            setError("Generating questions... Please refresh in a few minutes.");
+          } else {
+            // Fallback to static questions if API fails or no data
+            console.log("No questions from API, falling back to static data");
+            const fallbackQuestions = selectQuestions("math");
+            setQuestions(fallbackQuestions.slice(0, 5));
           }
-        });
-
-        if (cat && cat !== "boss") {
-          const filtered = allQuestions.filter(q => q.topic?.toLowerCase().includes(cat.toLowerCase()));
-          if (filtered.length > 0) allQuestions = filtered;
         }
 
-        // Fallback to static if db is empty
-        if (allQuestions.length === 0) {
-          allQuestions = selectQuestions(cat || "math");
-        }
-
-        setQuestions(allQuestions.slice(0, 5)); // 5 questions for MVP chunk size
         setLoadingDb(false);
       } catch (error) {
         console.error("Error fetching questions:", error);
-        setQuestions(selectQuestions(cat || "math"));
+        // Fallback to static questions
+        const fallbackQuestions = selectQuestions("math");
+        setQuestions(fallbackQuestions.slice(0, 5));
         setLoadingDb(false);
       }
     };
     fetchQuestions();
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     const loadXP = async () => {
@@ -118,9 +142,10 @@ export default function QuizPage() {
 
   const answer = (opt: string) => {
     let newXp = xp;
+    const questionXP = current.xp || 10;
 
     if (opt === current.correct_answer || opt === current.correct) {
-      newXp = xp + 10;
+      newXp = xp + questionXP;
       setXp(newXp);
       setCorrectAnswers((prev) => prev + 1);
       setShowPop(true);
@@ -139,6 +164,9 @@ export default function QuizPage() {
 
   if (done) {
     const accuracy = Math.round((correctAnswers / questions.length) * 100);
+    const totalXpEarned = questions.slice(0, index + 1).reduce((sum, q, i) => {
+      return i < correctAnswers ? sum + (q.xp || 10) : sum;
+    }, 0);
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 to-black text-white p-6">
         <motion.div 
@@ -177,7 +205,7 @@ export default function QuizPage() {
               className="bg-gray-800/50 p-4 rounded-2xl border border-gray-700 flex flex-col items-center justify-center"
             >
               <p className="text-sm text-gray-400 mb-1">{t("summary.xp_earned")}</p>
-              <p className="text-3xl font-bold text-yellow-400">+{correctAnswers * 10}</p>
+              <p className="text-3xl font-bold text-yellow-400">+{totalXpEarned}</p>
               <p className="text-xs text-gray-400 mt-1">{t("summary.total")}: {xp}</p>
             </motion.div>
           </div>
@@ -213,7 +241,12 @@ export default function QuizPage() {
   if (loadingDb || !current) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <p className="animate-pulse">{t("loading")}</p>
+        <div className="text-center">
+          <p className="animate-pulse mb-4">{t("loading")}</p>
+          {error && (
+            <p className="text-yellow-400 text-sm max-w-md">{error}</p>
+          )}
+        </div>
       </div>
     );
   }
@@ -234,7 +267,7 @@ export default function QuizPage() {
               exit={{ scale: 0, opacity: 0 }}
               className="text-green-400 font-bold absolute -bottom-6 right-0"
             >
-              +10 XP
+              +{current.xp || 10} XP
             </motion.div>
           )}
         </AnimatePresence>

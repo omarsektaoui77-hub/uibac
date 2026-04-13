@@ -161,3 +161,35 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ response });
 }
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const folderId = searchParams.get("folderId");
+
+    if (!folderId) {
+      return Response.json({ error: "Missing folderId" }, { status: 400 });
+    }
+
+    const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
+
+    if (!apiKey) {
+      return Response.json({ error: "Missing API key" }, { status: 500 });
+    }
+
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType)`
+    );
+
+    const data = await res.json();
+
+    const pdfs = (data.files || []).filter(
+      (file: any) => file.mimeType === "application/pdf"
+    );
+
+    return Response.json({ files: pdfs });
+
+  } catch (error) {
+    console.error(error);
+    return Response.json({ error: "Something went wrong" }, { status: 500 });
+  }
+}

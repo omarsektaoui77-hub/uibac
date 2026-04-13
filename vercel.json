@@ -1,0 +1,111 @@
+{
+  "crons": [
+    {
+      "path": "/api/pipeline/run",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/jobs",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/analytics/cleanup",
+      "schedule": "0 1 * * *"
+    }
+  ],
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "app/api/progress/update/route.ts": {
+      "maxDuration": 10,
+      "memory": 512
+    },
+    "app/api/analytics/route.ts": {
+      "maxDuration": 15,
+      "memory": 512
+    },
+    "app/api/jobs/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, must-revalidate"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/dashboard",
+      "destination": "/[locale]/dashboard",
+      "permanent": true
+    },
+    {
+      "source": "/profile",
+      "destination": "/[locale]/profile",
+      "permanent": true
+    },
+    {
+      "source": "/analytics",
+      "destination": "/[locale]/analytics",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/health",
+      "destination": "/api/health"
+    },
+    {
+      "source": "/api/status",
+      "destination": "/api/status"
+    }
+  ],
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "@api_url",
+      "NEXT_PUBLIC_APP_VERSION": "@app_version",
+      "FIREBASE_PROJECT_ID": "@firebase_project_id",
+      "FIREBASE_CLIENT_EMAIL": "@firebase_client_email",
+      "FIREBASE_PRIVATE_KEY": "@firebase_private_key",
+      "FIREBASE_DATABASE_URL": "@firebase_database_url",
+      "REDIS_URL": "@redis_url",
+      "SENTRY_DSN": "@sentry_dsn",
+      "JWT_SECRET": "@jwt_secret",
+      "RATE_LIMIT_SECRET": "@rate_limit_secret"
+    }
+  }
+}
