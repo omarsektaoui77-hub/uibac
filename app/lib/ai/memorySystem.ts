@@ -1,5 +1,5 @@
 // AI Memory System
-* Tracks user interactions with AI recommendations for continuous learning
+// Tracks user interactions with AI recommendations for continuous learning
 
 import { AIRecommendation } from './decisionEngine';
 import { AIContext } from './contextEngine';

@@ -72,7 +72,7 @@ function SubjectsSection({ title, subjects, trackId }: {
         <h2 className="text-2xl font-semibold mb-6">{title}</h2>
         <div className="bg-yellow-50 dark:bg-yellow-900 p-6 rounded-lg border border-yellow-200 dark:border-yellow-700">
           <p className="text-yellow-800 dark:text-yellow-200">
-            {trackId === 'common' ? 'No common subjects available at the moment.' : 'No SM subjects available at the moment.'}
+            {trackId === 'common' ? 'No common subjects available at moment.' : 'No SM subjects available at the moment.'}
           </p>
         </div>
       </section>
@@ -246,7 +246,7 @@ export default function Home() {
     // Test recovery
     setTimeout(() => {
       logger.info('Recovering from data corruption');
-      loadSubjects();
+      // Function will reload data automatically
     }, 2000);
   }
 
@@ -286,7 +286,9 @@ export default function Home() {
             AI-Powered Moroccan Baccalaureate Learning Platform
           </p>
         </div>
-        <LanguageSwitcher />
+        <Suspense fallback={<div>Loading language switcher...</div>}>
+          <LanguageSwitcher />
+        </Suspense>
       </header>
 
       {/* Data Error State */}
@@ -305,13 +307,56 @@ export default function Home() {
         </div>
       )}
 
+      {/* Subjects Data */}
+      {!dataLoading && !dataError && (
+        <>
+          <SubjectsSection 
+            title="Common Subjects" 
+            subjects={commonSubjects} 
+            trackId="common" 
+          />
+          <SubjectsSection 
+            title="Mathematical Sciences (SM)" 
+            subjects={smSubjects} 
+            trackId="sm" 
+          />
+        </>
+      )}
+
+      {/* Debug Controls */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mb-12 bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+          <h3 className="text-lg font-semibold mb-4">Debug Controls</h3>
+          <div className="space-y-3">
+            <button
+              onClick={testDataCorruption}
+              className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+            >
+              Test Data Corruption
+            </button>
+            <button
+              onClick={() => chaosEngine.enable({ failureRate: 0.5 })}
+              className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              Enable Chaos Mode (50% failures)
+            </button>
+            <button
+              onClick={() => chaosEngine.disable()}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Disable Chaos Mode
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* AI Tutor Section */}
       <section className="mb-12 bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">AI Tutor</h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2" htmlFor="prompt">
-              Ask the AI Tutor anything
+              Ask AI Tutor anything
             </label>
             <textarea
               id="prompt"
@@ -320,6 +365,7 @@ export default function Home() {
               rows={3}
               className="bg-background w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
               placeholder="Get help with any Moroccan Baccalaureate topic..."
+              disabled={loading}
             />
           </div>
           <button
@@ -328,24 +374,26 @@ export default function Home() {
             disabled={loading}
             className="rounded-md bg-neutral-900 px-6 py-2 text-sm font-medium text-white disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900"
           >
-            {loading ? "Loading..." : "Ask AI Tutor"}
+            {loading ? "Thinking..." : "Ask AI Tutor"}
           </button>
         </div>
 
-        {error ? (
-          <p className="mt-4 text-sm text-red-600" role="alert">
-            {error}
-          </p>
-        ) : null}
+        {error && (
+          <div className="mt-4 bg-red-50 dark:bg-red-900 p-4 rounded-lg border border-red-200 dark:border-red-700">
+            <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+              {error}
+            </p>
+          </div>
+        )}
 
-        {response ? (
+        {response && (
           <div className="mt-6">
             <h3 className="text-sm font-medium text-neutral-600 mb-2">AI Response</h3>
             <div className="whitespace-pre-wrap rounded-md border border-neutral-200 bg-neutral-50 p-4 text-sm dark:border-neutral-700 dark:bg-neutral-900">
               {response}
             </div>
           </div>
-        ) : null}
+        )}
       </section>
 
       {/* Pipeline Status */}

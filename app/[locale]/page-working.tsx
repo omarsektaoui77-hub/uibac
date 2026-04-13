@@ -13,15 +13,6 @@ import { chaosEngine } from "../lib/testing/chaosEngine";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Enable chaos mode for production testing
-if (process.env.NODE_ENV === 'production') {
-  chaosEngine.enable({
-    failureRate: 0.2, // 20% failure rate
-    delayRange: [500, 2000],
-    slowNetwork: true
-  });
-}
-
 // Loading skeleton component
 function SubjectSkeleton() {
   return (
@@ -33,22 +24,14 @@ function SubjectSkeleton() {
   );
 }
 
-// Subject card component with error handling
+// Subject card component
 function SubjectCard({ subject, trackId }: { subject: any; trackId: string }) {
-  const [imageError, setImageError] = useState(false);
-
-  const handleError = () => {
-    setImageError(true);
-  };
-
   return (
     <Link
       href={generateQuizLink(useLocale(), trackId, subject.id)}
       className="block p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
     >
-      <div className="text-3xl mb-3">
-        {imageError ? '?' : subject.icon}
-      </div>
+      <div className="text-3xl mb-3">{subject.icon}</div>
       <h3 className="font-semibold text-lg mb-2">{subject.name}</h3>
       <p className="text-sm text-gray-600 dark:text-gray-400">
         {trackId === 'common' 
@@ -72,7 +55,7 @@ function SubjectsSection({ title, subjects, trackId }: {
         <h2 className="text-2xl font-semibold mb-6">{title}</h2>
         <div className="bg-yellow-50 dark:bg-yellow-900 p-6 rounded-lg border border-yellow-200 dark:border-yellow-700">
           <p className="text-yellow-800 dark:text-yellow-200">
-            {trackId === 'common' ? 'No common subjects available at the moment.' : 'No SM subjects available at the moment.'}
+            {trackId === 'common' ? 'No common subjects available.' : 'No SM subjects available.'}
           </p>
         </div>
       </section>
@@ -111,7 +94,7 @@ export default function Home() {
   const [dataLoading, setDataLoading] = useState(true);
   const [dataError, setDataError] = useState("");
 
-  // Load subjects data with chaos testing
+  // Load subjects data
   useEffect(() => {
     let mounted = true;
 
@@ -122,22 +105,17 @@ export default function Home() {
 
         logger.info('Loading subjects data', { locale });
 
-        // Use chaos engine for testing
         const [common, sm] = await Promise.all([
-          chaosEngine.simulateApiCall(() => getCommonSubjects(), 'load-common-subjects'),
-          chaosEngine.simulateApiCall(() => getSMSubjects(), 'load-sm-subjects')
+          getCommonSubjects(),
+          getSMSubjects()
         ]);
 
-        // Validate data
-        const validatedCommon = common.filter(subject => subject && subject.id && subject.name);
-        const validatedSM = sm.filter(subject => subject && subject.id && subject.name);
-
         if (mounted) {
-          setCommonSubjects(validatedCommon);
-          setSmSubjects(validatedSM);
+          setCommonSubjects(common);
+          setSmSubjects(sm);
           logger.info('Subjects loaded successfully', { 
-            commonCount: validatedCommon.length, 
-            smCount: validatedSM.length 
+            commonCount: common.length, 
+            smCount: sm.length 
           });
         }
       } catch (err) {
@@ -146,13 +124,6 @@ export default function Home() {
         
         if (mounted) {
           setDataError("Failed to load subjects. Retrying...");
-          
-          // Retry after delay
-          setTimeout(() => {
-            if (mounted) {
-              loadSubjects();
-            }
-          }, 3000);
         }
       } finally {
         if (mounted) {
@@ -168,7 +139,7 @@ export default function Home() {
     };
   }, [locale]);
 
-  // AI Tutor functionality with chaos testing
+  // AI Tutor functionality
   async function askAi() {
     setError("");
     setResponse("");
@@ -182,14 +153,11 @@ export default function Home() {
     logger.info('AI request started', { promptLength: prompt.length });
     
     try {
-      const res = await chaosEngine.simulateApiCall(
-        () => fetch("/api/ai", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, lang: locale }),
-        }),
-        'ai-tutor-request'
-      );
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, lang: locale }),
+      });
       
       const data = (await res.json()) as { response?: string; error?: string };
       
@@ -221,33 +189,10 @@ export default function Home() {
     setDataLoading(true);
     logger.info('Manual retry triggered');
     
-    // Trigger reload
-    chaosEngine.simulateApiCall(() => getCommonSubjects(), 'retry-common')
-      .then(setCommonSubjects)
-      .catch(() => {});
-    
-    chaosEngine.simulateApiCall(() => getSMSubjects(), 'retry-sm')
-      .then(setSmSubjects)
-      .catch(() => {});
+    getCommonSubjects().then(setCommonSubjects).catch(() => {});
+    getSMSubjects().then(setSmSubjects).catch(() => {});
     
     setTimeout(() => setDataLoading(false), 1000);
-  }
-
-  // Test data corruption manually
-  function testDataCorruption() {
-    logger.warn('Manual data corruption test triggered');
-    
-    // Inject malformed data
-    setCommonSubjects([
-      { id: '', name: undefined, icon: null },
-      { id: 'test', name: 'Test Subject', icon: '???' }
-    ]);
-    
-    // Test recovery
-    setTimeout(() => {
-      logger.info('Recovering from data corruption');
-      loadSubjects();
-    }, 2000);
   }
 
   if (dataLoading) {
@@ -286,7 +231,9 @@ export default function Home() {
             AI-Powered Moroccan Baccalaureate Learning Platform
           </p>
         </div>
-        <LanguageSwitcher />
+        <Suspense fallback={<div>Loading language switcher...</div>}>
+          <LanguageSwitcher />
+        </Suspense>
       </header>
 
       {/* Data Error State */}
@@ -305,13 +252,29 @@ export default function Home() {
         </div>
       )}
 
+      {/* Subjects Data */}
+      {!dataLoading && !dataError && (
+        <>
+          <SubjectsSection 
+            title="Common Subjects" 
+            subjects={commonSubjects} 
+            trackId="common" 
+          />
+          <SubjectsSection 
+            title="Mathematical Sciences (SM)" 
+            subjects={smSubjects} 
+            trackId="sm" 
+          />
+        </>
+      )}
+
       {/* AI Tutor Section */}
       <section className="mb-12 bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">AI Tutor</h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2" htmlFor="prompt">
-              Ask the AI Tutor anything
+              Ask AI Tutor anything
             </label>
             <textarea
               id="prompt"
@@ -320,6 +283,7 @@ export default function Home() {
               rows={3}
               className="bg-background w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
               placeholder="Get help with any Moroccan Baccalaureate topic..."
+              disabled={loading}
             />
           </div>
           <button
@@ -328,17 +292,19 @@ export default function Home() {
             disabled={loading}
             className="rounded-md bg-neutral-900 px-6 py-2 text-sm font-medium text-white disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900"
           >
-            {loading ? "Loading..." : "Ask AI Tutor"}
+            {loading ? "Thinking..." : "Ask AI Tutor"}
           </button>
         </div>
 
-        {error ? (
-          <p className="mt-4 text-sm text-red-600" role="alert">
-            {error}
-          </p>
+        {error && (
+          <div className="mt-4 bg-red-50 dark:bg-red-900 p-4 rounded-lg border border-red-200 dark:border-red-700">
+            <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+              {error}
+            </p>
+          </div>
         ) : null}
 
-        {response ? (
+        {response && (
           <div className="mt-6">
             <h3 className="text-sm font-medium text-neutral-600 mb-2">AI Response</h3>
             <div className="whitespace-pre-wrap rounded-md border border-neutral-200 bg-neutral-50 p-4 text-sm dark:border-neutral-700 dark:bg-neutral-900">

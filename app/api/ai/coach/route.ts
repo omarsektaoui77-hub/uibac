@@ -43,19 +43,15 @@ async function handler(request: NextRequest, user: AuthenticatedUser): Promise<N
     
     // Parse and validate request body
     const body = await request.json();
-    const validationResult = ValidationSchemas.AICoachRequest.safeParse(body);
-
-    if (!validationResult.success) {
+    
+    // Simple validation for now
+    if (!body || typeof body !== 'object') {
       return NextResponse.json({
-        error: 'Invalid request',
-        details: validationResult.error.errors.map(err => ({
-          field: err.path.join('.'),
-          message: err.message
-        }))
+        error: 'Invalid request format'
       }, { status: 400 });
     }
 
-    const { options = {} } = validationResult.data;
+    const { options = {} } = body;
 
     // Check cache first if enabled
     if (options.useCache !== false) {

@@ -206,7 +206,7 @@ export const BACCALAUREATE_SUBJECTS: Record<string, SubjectConfig> = {
     displayName: 'Geography',
     icon: 'public',
     color: '#2A9D8F',
-    description: 'Study of Earth's physical features',
+    description: 'Study of Earth\'s physical features',
     category: 'humanities',
     difficulty: 'medium',
     isCore: true
