@@ -10,6 +10,9 @@ import { ValidationSchemas, ProgressUpdateInput } from '@/app/lib/validation/sch
 import { ProgressCalculationInput } from '@/app/lib/gamification/progressCalculator';
 import { ProgressCalculator } from '@/app/lib/gamification/progressCalculator';
 import { EventSystem } from '@/app/lib/events/eventSystem';
+import { metrics } from '@/app/lib/monitoring/metrics';
+import { logger } from '@/app/lib/monitoring/logger';
+import { alertManager } from '@/app/lib/monitoring/alerts';
 
 // =========================
 // 🔒 Standardized Response Helpers
@@ -71,19 +74,28 @@ async function handler(
   request: NextRequest,
   user: AuthenticatedUser
 ): Promise<NextResponse> {
+  const startTime = Date.now();
+  const route = '/api/progress/update';
+
   try {
     // ---------- Parse Body ----------
     let body: unknown;
     try {
       body = await request.json();
     } catch {
+      const duration = Date.now() - startTime;
+      metrics.recordRequest(route, 400, duration);
+      logger.log(route, 400, duration);
       return errorResponse('Invalid JSON in request body', 'INVALID_JSON', 400);
     }
 
     // ---------- Validate Input ----------
     const validationResult = ValidationSchemas.ProgressUpdate.safeParse(body);
-    
+
     if (!validationResult.success) {
+      const duration = Date.now() - startTime;
+      metrics.recordRequest(route, 400, duration);
+      logger.log(route, 400, duration);
       return errorResponse(
         'Invalid input',
           'VALIDATION_ERROR',
@@ -103,6 +115,9 @@ async function handler(
     // ---------- Security Checks ----------
     // XP abuse protection (already enforced in AtomicOperationsManager)
     if (input.earnedXP > 1000) {
+      const duration = Date.now() - startTime;
+      metrics.recordRequest(route, 400, duration);
+      logger.log(route, 400, duration);
       return errorResponse('XP amount exceeds maximum allowed', 'XP_EXCEEDED', 400);
     }
 
@@ -136,6 +151,9 @@ async function handler(
     if (!result.success) {
       // Handle different error types
       if (result.error?.includes('blocked')) {
+        const duration = Date.now() - startTime;
+        metrics.recordRequest(route, 403, duration);
+        logger.log(route, 403, duration);
         return errorResponse(
           'Activity blocked by anti-cheat system',
             'CHEAT_DETECTED',
@@ -145,13 +163,22 @@ async function handler(
       }
 
       if (result.error?.includes('User not found')) {
+        const duration = Date.now() - startTime;
+        metrics.recordRequest(route, 404, duration);
+        logger.log(route, 404, duration);
         return errorResponse('User profile not found', 'USER_NOT_FOUND', 404);
       }
 
       if (result.error?.includes('Rate limit exceeded')) {
+        const duration = Date.now() - startTime;
+        metrics.recordRequest(route, 429, duration);
+        logger.log(route, 429, duration);
         return errorResponse('Too many requests', 'RATE_LIMITED', 429);
       }
 
+      const duration = Date.now() - startTime;
+      metrics.recordRequest(route, 500, duration);
+      logger.log(route, 500, duration);
       return errorResponse(
         'Failed to update progress',
           'UPDATE_FAILED',
@@ -184,6 +211,14 @@ async function handler(
     });
 
     // ---------- Return Success Response ----------
+    const duration = Date.now() - startTime;
+    metrics.recordRequest(route, 200, duration);
+    logger.log(route, 200, duration);
+
+    // Check alerts after recording metrics (non-blocking)
+    const stats = metrics.getStats();
+    alertManager.checkAlerts(stats.successRate, stats.averageResponseTime);
+
     return successResponse({
       user: result.user,
       events: result.events,
@@ -196,11 +231,15 @@ async function handler(
 
   } catch (error) {
     console.error('Progress update API error:', error);
+    const duration = Date.now() - startTime;
+    metrics.recordRequest(route, 500, duration);
+    logger.log(route, 500, duration);
+    logger.error(route, 'Internal server error');
     return errorResponse(
       'Internal server error',
       'INTERNAL_ERROR',
       500,
-      { 
+      {
         requestId: crypto.randomUUID(),
         timestamp: new Date().toISOString()
       }
