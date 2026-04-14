@@ -25,17 +25,17 @@ function SubjectSkeleton() {
 }
 
 // Subject card component
-function SubjectCard({ subject, trackId }: { subject: any; trackId: string }) {
+function SubjectCard({ subject, trackId, locale }: { subject: any; trackId: string; locale: string }) {
   return (
     <Link
-      href={generateQuizLink(useLocale(), trackId, subject.id)}
+      href={generateQuizLink(locale, trackId, subject.id)}
       className="block p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
     >
       <div className="text-3xl mb-3">{subject.icon}</div>
       <h3 className="font-semibold text-lg mb-2">{subject.name}</h3>
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        {trackId === 'common' 
-          ? `Start practicing ${subject.name.toLowerCase()}` 
+        {trackId === 'common'
+          ? `Start practicing ${subject.name.toLowerCase()}`
           : `Advanced ${subject.name.toLowerCase()} practice`
         }
       </p>
@@ -44,10 +44,11 @@ function SubjectCard({ subject, trackId }: { subject: any; trackId: string }) {
 }
 
 // Subjects section component
-function SubjectsSection({ title, subjects, trackId }: { 
-  title: string; 
-  subjects: any[]; 
-  trackId: string; 
+function SubjectsSection({ title, subjects, trackId, locale }: {
+  title: string;
+  subjects: any[];
+  trackId: string;
+  locale: string;
 }) {
   if (!subjects || subjects.length === 0) {
     return (
@@ -73,7 +74,7 @@ function SubjectsSection({ title, subjects, trackId }: {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <SubjectCard subject={subject} trackId={trackId} />
+            <SubjectCard subject={subject} trackId={trackId} locale={locale} />
           </motion.div>
         ))}
       </div>
@@ -255,15 +256,17 @@ export default function Home() {
       {/* Subjects Data */}
       {!dataLoading && !dataError && (
         <>
-          <SubjectsSection 
-            title="Common Subjects" 
-            subjects={commonSubjects} 
-            trackId="common" 
+          <SubjectsSection
+            title="Common Subjects"
+            subjects={commonSubjects}
+            trackId="common"
+            locale={locale}
           />
-          <SubjectsSection 
-            title="Mathematical Sciences (SM)" 
-            subjects={smSubjects} 
-            trackId="sm" 
+          <SubjectsSection
+            title="Mathematical Sciences (SM)"
+            subjects={smSubjects}
+            trackId="sm"
+            locale={locale}
           />
         </>
       )}
