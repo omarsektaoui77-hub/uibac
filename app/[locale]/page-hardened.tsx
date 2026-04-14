@@ -7,10 +7,6 @@ import { motion } from "framer-motion";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { getSubjects, getCommonSubjects, getSMSubjects, generateQuizLink } from "../lib/data/subjectsService";
 
-// Force dynamic rendering to prevent build/deployment mismatches
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 // Loading skeleton component
 function SubjectSkeleton() {
   return (

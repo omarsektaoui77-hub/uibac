@@ -5,10 +5,6 @@ import { motion } from 'framer-motion';
 import { runProductionValidation, ValidationReport } from '../lib/testing/productionValidator';
 import { logger } from '../lib/logging/logger';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export default function ValidationTestPage() {
   const [report, setReport] = useState<ValidationReport | null>(null);
   const [loading, setLoading] = useState(false);

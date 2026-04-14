@@ -9,9 +9,6 @@ import { getSubjects, getCommonSubjects, getSMSubjects, generateQuizLink } from 
 import { logger } from "../lib/logging/logger";
 import { chaosEngine } from "../lib/testing/chaosEngine";
 
-// Force dynamic rendering to prevent build/deployment mismatches
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 // Loading skeleton component
 function SubjectSkeleton() {

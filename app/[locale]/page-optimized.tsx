@@ -17,10 +17,6 @@ import { getSubjects, getCommonSubjects, getSMSubjects, generateQuizLink } from 
 import { logger } from "../lib/logging/logger";
 import { chaosEngine } from "../lib/testing/chaosEngine";
 
-// Force dynamic rendering to prevent build/deployment mismatches
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 // Enable chaos mode for production testing
 if (process.env.NODE_ENV === 'production') {
   chaosEngine.enable({
