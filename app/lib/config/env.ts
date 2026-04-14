@@ -53,6 +53,7 @@ export const clientEnvSchema = z.object({
   // Firebase Public Config
   NEXT_PUBLIC_FIREBASE_API_KEY: nonEmptyString.describe('Firebase public API key'),
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: nonEmptyString.describe('Firebase auth domain'),
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: nonEmptyString.describe('Firebase project ID'),
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: nonEmptyString.describe('Firebase storage bucket name'),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: nonEmptyString.describe('Firebase messaging sender ID'),
   NEXT_PUBLIC_FIREBASE_APP_ID: nonEmptyString.describe('Firebase app ID'),
@@ -87,7 +88,7 @@ export function validateEnv(): { server: ServerEnv; client: ClientEnv } {
   const serverEnvResult = serverEnvSchema.safeParse(process.env);
   
   if (!serverEnvResult.success) {
-    const errorMessages = serverEnvResult.error.errors.map(err => 
+    const errorMessages = serverEnvResult.error.issues.map(err => 
       `${err.path.join('.')}: ${err.message}`
     ).join('\n');
     
@@ -103,7 +104,7 @@ export function validateEnv(): { server: ServerEnv; client: ClientEnv } {
   const clientEnvResult = clientEnvSchema.safeParse(process.env);
   
   if (!clientEnvResult.success) {
-    const errorMessages = clientEnvResult.error.errors.map(err => 
+    const errorMessages = clientEnvResult.error.issues.map(err => 
       `${err.path.join('.')}: ${err.message}`
     ).join('\n');
     

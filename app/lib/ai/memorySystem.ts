@@ -4,7 +4,7 @@
 import { AIRecommendation } from './decisionEngine';
 import { AIContext } from './contextEngine';
 import { db } from '@/app/lib/firebase';
-import { collection, query, where, orderBy, limit, getDocs, setDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs, getDoc, setDoc, doc, Timestamp } from 'firebase/firestore';
 
 export interface AIMemoryEntry {
   id: string;
@@ -144,13 +144,13 @@ export class AIMemorySystem {
   static async getUserMemory(
     userId: string,
     options: {
-      limit?: number;
+      limitCount?: number;
       days?: number;
       includeOutcomes?: boolean;
     } = {}
   ): Promise<AIMemoryEntry[]> {
     try {
-      const { limit = 50, days = 30, includeOutcomes = true } = options;
+      const { limitCount = 50, days = 30, includeOutcomes = true } = options;
       
       let q = query(
         collection(db, 'aiMemory'),
@@ -164,8 +164,8 @@ export class AIMemorySystem {
         q = query(q, where('timestamp', '>=', Timestamp.fromDate(cutoffDate)));
       }
 
-      if (limit) {
-        q = query(q, limit(limit));
+      if (limitCount) {
+        q = query(q, limit(limitCount));
       }
 
       const querySnapshot = await getDocs(q);
@@ -187,7 +187,7 @@ export class AIMemorySystem {
    */
   static async getMemoryAnalytics(userId: string, days: number = 30): Promise<MemoryAnalytics> {
     try {
-      const memories = await this.getUserMemory(userId, { days, limit: 100 });
+      const memories = await this.getUserMemory(userId, { days, limitCount: 100 });
       
       if (memories.length === 0) {
         return this.getDefaultAnalytics();
@@ -489,7 +489,7 @@ export class AIMemorySystem {
     format: 'json' | 'csv' = 'json'
   ): Promise<string> {
     try {
-      const memories = await this.getUserMemory(userId, { days: 90, limit: 1000 });
+      const memories = await this.getUserMemory(userId, { days: 90, limitCount: 1000 });
       
       if (format === 'csv') {
         const headers = [

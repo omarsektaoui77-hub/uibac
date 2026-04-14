@@ -151,6 +151,3 @@ export async function subjectExists(subjectId: string): Promise<boolean> {
   const subject = await getSubjectById(subjectId);
   return subject !== null;
 }
-
-// Export types for use in components
-export type { BranchData };

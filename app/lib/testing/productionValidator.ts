@@ -1,5 +1,5 @@
 // Production Validation System
-* Comprehensive testing for production readiness
+// Comprehensive testing for production readiness
 
 import { logger } from '../logging/logger';
 import { chaosEngine, ChaosConfig } from './chaosEngine';
@@ -27,6 +27,7 @@ export interface ValidationReport {
     warnings: number;
     score: number; // 0-100
   };
+  totalDuration?: number;
 }
 
 export class ProductionValidator {

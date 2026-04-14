@@ -58,8 +58,7 @@ export class CacheManager {
         const redis = Redis.createClient({
           url: process.env.REDIS_URL,
           socket: {
-            connectTimeout: 5000,
-            lazyConnect: true
+            connectTimeout: 5000
           }
         });
 

@@ -53,7 +53,8 @@ export const AnalyticsQuerySchema = z.object({
   subjectId: subjectId.optional(),
   activityType: activityType.optional(),
   limit: z.number().positive().max(1000).default(100),
-  offset: z.number().nonnegative().max(10000).default(0)
+  offset: z.number().nonnegative().max(10000).default(0),
+  includeInsights: z.boolean().default(false)
 });
 
 // Leaderboard Query Schema
@@ -100,7 +101,7 @@ export const AdminActionSchema = z.object({
   action: z.enum(['reset_xp', 'reset_streak', 'ban', 'unban', 'add_xp', 'remove_xp']),
   reason: z.string().min(1).max(500),
   amount: positiveNumber.optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.any(), z.any()).optional()
 });
 
 // Report Generation Schema
@@ -122,7 +123,7 @@ export const NotificationSchema = z.object({
   subjectId: subjectId.optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']).default('medium'),
   scheduledAt: z.string().datetime().optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.any(), z.any()).optional()
 });
 
 // Batch User Creation Schema

@@ -108,7 +108,7 @@ export function ProgressProvider({ children, userId }: ProgressProviderProps) {
   const getOptimisticProgress = (subjectId?: string) => {
     if (!state.user) return null;
 
-    let optimisticUser = { ...state.user };
+    const optimisticUser = { ...state.user };
 
     // Apply all optimistic updates
     for (const [key, update] of Object.entries(state.optimisticUpdates)) {

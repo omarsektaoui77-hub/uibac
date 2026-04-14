@@ -317,17 +317,10 @@ export class ErrorHandler {
    */
   private static async logToExternalService(logEntry: any): Promise<void> {
     // Integration with services like Sentry, DataDog, etc.
+    // Note: Sentry integration disabled - @sentry/node not installed
+    // To enable, install @sentry/node and uncomment the integration code
     if (process.env.SENTRY_DSN) {
-      // Example: Sentry integration
-      try {
-        const Sentry = await import('@sentry/node');
-        Sentry.captureException(new Error(logEntry.message), {
-          tags: { code: logEntry.code },
-          extra: logEntry
-        });
-      } catch (sentryError) {
-        console.error('Sentry logging failed:', sentryError);
-      }
+      console.warn('Sentry integration configured but @sentry/node not installed');
     }
   }
 
@@ -355,9 +348,9 @@ export class ErrorHandler {
       timestamp: new Date().toISOString()
     };
 
-    // Include additional context in development
+    // Include additional context in development (optional)
     if (process.env.NODE_ENV === 'development' && apiError.context) {
-      responseBody.context = apiError.context;
+      (responseBody as any).context = apiError.context;
     }
 
     return new Response(JSON.stringify(responseBody), {

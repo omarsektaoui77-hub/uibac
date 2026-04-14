@@ -120,7 +120,7 @@ async function processFolderProduction(folder: any, results: any) {
       const config = {
         trackId: folder.trackId,
         subjectId: 'general',
-        language: 'en',
+        language: 'en' as const,
         qualityThreshold: 70,
         enableRetry: true,
         enableFallback: true,

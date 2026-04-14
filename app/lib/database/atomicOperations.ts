@@ -182,8 +182,7 @@ export class AtomicOperationsManager {
           events.push({
             type: 'STREAK_MILESTONE' as const,
             data: {
-              streak: progressResult.user.globalStats.streak,
-              rewards: progressResult.changes.rewards
+              streak: progressResult.user.globalStats.streak
             }
           });
         }

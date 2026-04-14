@@ -61,7 +61,7 @@ export async function generateQuestionsFromText(text: string) {
     }
 
     const data = await response.json();
-    let questionsContent = data.choices[0].message.content;
+    const questionsContent = data.choices[0].message.content;
     
     // Safety parse: in case the model returns an object wrapping an array
     const parsed = JSON.parse(questionsContent);

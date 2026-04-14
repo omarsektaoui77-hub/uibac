@@ -38,7 +38,7 @@ export function AICoachInterface({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [feedback, setFeedback] = useState({ helpful: true, relevant: true, difficulty: 'just_right' as const, comments: '' });
+  const [feedback, setFeedback] = useState({ helpful: true, relevant: true, difficulty: 'just_right' as 'too_easy' | 'just_right' | 'too_hard', comments: '' });
 
   // Fetch AI recommendation
   const fetchRecommendation = async () => {
@@ -113,7 +113,7 @@ export function AICoachInterface({
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({
-          memoryId: recommendation?.metadata?.memoryId,
+          memoryId: `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           userAction: recommendation ? 'accepted' : 'rejected',
           actualOutcome: {
             subjectStudied: recommendation?.focus_subject,

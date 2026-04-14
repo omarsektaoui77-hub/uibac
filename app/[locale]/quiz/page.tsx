@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { getUserXP, saveUserXP } from "../../actions";
 import { useEffect, useState } from "react";
 import { selectQuestions } from "../../lib/questions";
 import { useLocale, useTranslations } from "next-intl";
@@ -84,11 +83,8 @@ export default function QuizPage() {
   useEffect(() => {
     const loadXP = async () => {
       try {
-        const ref = doc(db, "users", "omar");
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          setXp(snap.data().xp);
-        }
+        const xp = await getUserXP("omar");
+        setXp(xp);
       } catch (error) {
         console.error("Error loading XP:", error);
       }
@@ -129,11 +125,7 @@ export default function QuizPage() {
 
   const saveXP = async (newXp: number) => {
     try {
-      await setDoc(doc(db, "users", "omar"), {
-        name: "Omar",
-        xp: newXp,
-        lastUpdated: new Date().toISOString(),
-      });
+      await saveUserXP("omar", newXp, "Omar");
       console.log("XP saved successfully!");
     } catch (error) {
       console.error("Error saving XP:", error);

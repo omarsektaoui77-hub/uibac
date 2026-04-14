@@ -1,5 +1,5 @@
 // AI Data Adapter - Abstracts AI-generated data
-* Provides safe, validated access to AI-generated content
+// Provides safe, validated access to AI-generated content
 
 import { z } from 'zod';
 import { logger } from '../logging/logger';

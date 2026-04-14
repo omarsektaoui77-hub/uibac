@@ -1,5 +1,5 @@
 // AI Analytics & Intelligence Tracking
-* Comprehensive analytics for AI coaching system performance
+// Comprehensive analytics for AI coaching system performance
 
 import { AIMemorySystem, MemoryAnalytics } from './memorySystem';
 import { AICacheManager } from './aiCache';
@@ -311,7 +311,18 @@ export class AIAnalyticsManager {
       };
     } catch (error) {
       console.error('System performance analysis error:', error);
-      return this.getDefaultSystemPerformance();
+      return {
+        totalRequests: 0,
+        successfulRequests: 0,
+        averageResponseTime: 0,
+        cacheHitRate: 0,
+        modelUsage: {},
+        costAnalysis: {
+          totalCost: 0,
+          averageCostPerRequest: 0,
+          costSavingsFromCache: 0
+        }
+      };
     }
   }
 
@@ -381,7 +392,13 @@ export class AIAnalyticsManager {
       };
     } catch (error) {
       console.error('User engagement analysis error:', error);
-      return this.getDefaultUserEngagement();
+      return {
+        totalUsers: 0,
+        activeUsers: 0,
+        averageRequestsPerUser: 0,
+        userSatisfactionScore: 0,
+        retentionRate: 0
+      };
     }
   }
 
@@ -438,7 +455,13 @@ export class AIAnalyticsManager {
       };
     } catch (error) {
       console.error('Recommendation quality analysis error:', error);
-      return this.getDefaultRecommendationQuality();
+      return {
+        averageEffectiveness: 0,
+        acceptanceRate: 0,
+        topPerformingModels: [],
+        improvementAreas: [],
+        subjectPerformance: {}
+      };
     }
   }
 
@@ -471,7 +494,13 @@ export class AIAnalyticsManager {
       };
     } catch (error) {
       console.error('System intelligence analysis error:', error);
-      return this.getDefaultSystemIntelligence();
+      return {
+        learningRate: 0,
+        adaptationSpeed: 0,
+        predictionAccuracy: 0,
+        personalizationLevel: 0,
+        autoImprovementScore: 0
+      };
     }
   }
 
@@ -490,7 +519,9 @@ export class AIAnalyticsManager {
       const fallbackUsageRate = totalRequests > 0 ? (fallbackRequests / totalRequests) * 100 : 0;
 
       return {
-        modelCostEfficiency: modelPerformance,
+        modelCostEfficiency: Object.fromEntries(
+          Object.entries(modelPerformance).map(([key, value]) => [key, value.averageCost || 0])
+        ) as Record<string, number>,
         cacheEfficiency: cacheStats.hitRate,
         fallbackUsageRate,
         potentialSavings: costOptimizations.potentialSavings,
@@ -498,7 +529,13 @@ export class AIAnalyticsManager {
       };
     } catch (error) {
       console.error('Cost optimization analysis error:', error);
-      return this.getDefaultCostOptimization();
+      return {
+        modelCostEfficiency: {},
+        cacheEfficiency: 0,
+        fallbackUsageRate: 0,
+        potentialSavings: 0,
+        recommendedOptimizations: []
+      };
     }
   }
 
@@ -671,62 +708,6 @@ export class AIAnalyticsManager {
     return {
       errorRate: 2.5,
       averageLatency: 150
-    };
-  }
-
-  // Default methods for error handling
-  private static getDefaultSystemPerformance(): AIAnalytics['systemPerformance']> {
-    return {
-      totalRequests: 0,
-      successfulRequests: 0,
-      averageResponseTime: 0,
-      cacheHitRate: 0,
-      modelUsage: {},
-      costAnalysis: {
-        totalCost: 0,
-        averageCostPerRequest: 0,
-        costSavingsFromCache: 0
-      }
-    };
-  }
-
-  private static getDefaultUserEngagement(): AIAnalytics['userEngagement']> {
-    return {
-      totalUsers: 0,
-      activeUsers: 0,
-      averageRequestsPerUser: 0,
-      userSatisfactionScore: 0,
-      retentionRate: 0
-    };
-  }
-
-  private static getDefaultRecommendationQuality(): AIAnalytics['recommendationQuality']> {
-    return {
-      averageEffectiveness: 0,
-      acceptanceRate: 0,
-      topPerformingModels: [],
-      improvementAreas: [],
-      subjectPerformance: {}
-    };
-  }
-
-  private static getDefaultSystemIntelligence(): AIAnalytics['systemIntelligence']> {
-    return {
-      learningRate: 0,
-      adaptationSpeed: 0,
-      predictionAccuracy: 0,
-      personalizationLevel: 0,
-      autoImprovementScore: 0
-    };
-  }
-
-  private static getDefaultCostOptimization(): AIAnalytics['costOptimization']> {
-    return {
-      modelCostEfficiency: {},
-      cacheEfficiency: 0,
-      fallbackUsageRate: 0,
-      potentialSavings: 0,
-      recommendedOptimizations: []
     };
   }
 }

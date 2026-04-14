@@ -2,7 +2,7 @@
 // Comprehensive logging for AI insights and behavioral analysis
 
 import { db } from '@/app/lib/firebase';
-import { doc, setDoc, getDoc, collection, query, where, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore';
 
 export interface ProgressLog {
   userId: string;
@@ -361,7 +361,7 @@ export class ProgressAnalytics {
             averageXP: subjectEntries.reduce((sum, [, perf]) => sum + perf.xp, 0) / subjectEntries.length
           },
           generatedAt: Timestamp.now(),
-          expiresAt
+          expiresAt: Timestamp.fromDate(expiresAt)
         });
         
         insights.push({
@@ -374,7 +374,7 @@ export class ProgressAnalytics {
             subjectPerformance: strongestSubject[1]
           },
           generatedAt: Timestamp.now(),
-          expiresAt
+          expiresAt: Timestamp.fromDate(expiresAt)
         });
       }
       
@@ -390,7 +390,7 @@ export class ProgressAnalytics {
             mostActiveHour: analytics.learningPatterns.mostActiveHour
           },
           generatedAt: Timestamp.now(),
-          expiresAt
+          expiresAt: Timestamp.fromDate(expiresAt)
         });
       }
       
@@ -406,7 +406,7 @@ export class ProgressAnalytics {
             targetAccuracy: 85
           },
           generatedAt: Timestamp.now(),
-          expiresAt
+          expiresAt: Timestamp.fromDate(expiresAt)
         });
       }
       
@@ -422,7 +422,7 @@ export class ProgressAnalytics {
             milestone: '1000 XP'
           },
           generatedAt: Timestamp.now(),
-          expiresAt
+          expiresAt: Timestamp.fromDate(expiresAt)
         });
       }
       
@@ -443,14 +443,14 @@ export class ProgressAnalytics {
   /**
    * Get user insights
    */
-  static async getUserInsights(userId: string, limit: number = 10): Promise<LearningInsight[]> {
+  static async getUserInsights(userId: string, limitCount: number = 10): Promise<LearningInsight[]> {
     try {
       const q = query(
         collection(db, 'learningInsights'),
         where('userId', '==', userId),
         where('expiresAt', '>', Timestamp.now()),
         orderBy('generatedAt', 'desc'),
-        limit(limit)
+        limit(limitCount)
       );
       
       const querySnapshot = await getDocs(q);
@@ -468,7 +468,7 @@ export class ProgressAnalytics {
   static async getLeaderboard(
     type: 'xp' | 'level' | 'streak' | 'accuracy',
     subjectId?: string,
-    limit: number = 50
+    limitCount: number = 50
   ): Promise<Array<{
     userId: string;
     value: number;
@@ -479,15 +479,15 @@ export class ProgressAnalytics {
       // This would typically use a more efficient query with proper indexing
       const q = query(
         collection(db, 'userAnalytics'),
-        limit(limit * 2) // Get more to allow for filtering
+        limit(limitCount * 2) // Get more to allow for filtering
       );
-      
+
       const querySnapshot = await getDocs(q);
       const analytics = querySnapshot.docs.map(doc => doc.data() as UserAnalytics);
-      
+
       // Filter and sort based on type
       let sortedAnalytics = analytics;
-      
+
       switch (type) {
         case 'xp':
           sortedAnalytics = analytics.sort((a, b) => b.totalXP - a.totalXP);
@@ -499,19 +499,19 @@ export class ProgressAnalytics {
           sortedAnalytics = analytics.sort((a, b) => b.currentStreak - a.currentStreak);
           break;
       }
-      
+
       // Filter by subject if specified
       if (subjectId) {
         sortedAnalytics = sortedAnalytics.filter(a => a.subjectPerformance[subjectId]);
       }
-      
+
       // Create leaderboard
-      return sortedAnalytics.slice(0, limit).map((analytics, index) => ({
+      return sortedAnalytics.slice(0, limitCount).map((analytics, index) => ({
         userId: analytics.userId,
         value: type === 'xp' ? analytics.totalXP :
                type === 'accuracy' ? analytics.averageAccuracy :
                type === 'streak' ? analytics.currentStreak :
-               analytics.subjectPerformance[subjectId]?.xp || 0,
+               (subjectId && analytics.subjectPerformance[subjectId] && typeof analytics.subjectPerformance[subjectId] === 'object' && 'xp' in analytics.subjectPerformance[subjectId]) ? analytics.subjectPerformance[subjectId].xp : 0,
         rank: index + 1,
         metadata: {
           subjectPerformance: analytics.subjectPerformance,

@@ -28,7 +28,7 @@ export class XPLedgerService {
         limit(1)
       );
 
-      const existing = await tx.get(idempotencyQuery);
+      const existing = await getDocs(idempotencyQuery);
       if (!existing.empty) {
         return;
       }
@@ -44,8 +44,8 @@ export class XPLedgerService {
       const updatedProjection: XPProjection = {
         userId: event.userId,
         totalXP: nextXP,
-        level: xpResult.currentLevel,
-        rank: XPSystem.getRankForLevel(xpResult.currentLevel).name,
+        level: xpResult.level,
+        rank: XPSystem.getRankForLevel(xpResult.level)?.name || 'Novice',
         migrated: projectionDoc.exists() ? Boolean(projectionDoc.data().migrated) : false,
         migrationVersion: projectionDoc.exists() ? Number(projectionDoc.data().migrationVersion || MIGRATION_VERSION) : MIGRATION_VERSION,
         lastLedgerEventAt: payload.createdAt,
@@ -119,8 +119,8 @@ export class XPLedgerService {
       tx.set(projectionRef, {
         userId,
         totalXP: computedXP,
-        level: xpResult.currentLevel,
-        rank: XPSystem.getRankForLevel(xpResult.currentLevel).name,
+        level: xpResult.level,
+        rank: XPSystem.getRankForLevel(xpResult.level)?.name || 'Novice',
         migrated: projectionDoc.exists() ? Boolean(projectionDoc.data().migrated) : true,
         migrationVersion: projectionDoc.exists() ? Number(projectionDoc.data().migrationVersion || MIGRATION_VERSION) : MIGRATION_VERSION,
         lastLedgerEventAt: events[0]?.createdAt,
@@ -130,8 +130,8 @@ export class XPLedgerService {
       tx.set(doc(db, 'users', userId), {
         globalStats: {
           xp: computedXP,
-          level: xpResult.currentLevel,
-          rank: XPSystem.getRankForLevel(xpResult.currentLevel).name
+          level: xpResult.level,
+          rank: XPSystem.getRankForLevel(xpResult.level)?.name || 'Novice'
         },
         syncMeta: {
           ledgerBacked: true,

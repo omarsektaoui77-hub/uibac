@@ -1,5 +1,5 @@
 // Multi-Model Strategy
-* Cost-optimized AI model selection with fallback mechanisms
+// Cost-optimized AI model selection with fallback mechanisms
 
 export interface ModelConfig {
   name: string;
@@ -211,7 +211,7 @@ export class MultiModelStrategy {
   }> {
     const startTime = Date.now();
     let attempts = 0;
-    let totalCost = 0;
+    const totalCost = 0;
 
     // Select primary model
     const primaryModel = this.selectModel(criteria);

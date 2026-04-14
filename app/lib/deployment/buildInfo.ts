@@ -1,5 +1,5 @@
 // Build Information for Deployment Validation
-* Provides build-time metadata for debugging and version tracking
+// Provides build-time metadata for debugging and version tracking
 
 export interface BuildInfo {
   commitSha: string;
@@ -46,6 +46,3 @@ export function validateDeployment(expectedCommitSha?: string): boolean {
   console.log('✅ Deployment validation passed');
   return true;
 }
-
-// Export for use in components
-export { BuildInfo };

@@ -27,7 +27,7 @@ async function handler(request: NextRequest, user: AuthenticatedUser): Promise<N
     const stats = BackgroundJobManager.getJobStats();
 
     // Filter jobs if requested
-    let filteredJobs: any[] = [];
+    const filteredJobs: any[] = [];
     
     if (status || type) {
       // In a real implementation, we'd filter the jobs
@@ -87,7 +87,7 @@ async function postHandler(request: NextRequest, user: AuthenticatedUser): Promi
     if (!validationResult.success) {
       return NextResponse.json({
         error: 'Invalid input',
-        details: validationResult.error.errors.map(err => ({
+        details: validationResult.error.issues.map(err => ({
           field: err.path.join('.'),
           message: err.message
         }))

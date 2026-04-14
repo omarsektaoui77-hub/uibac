@@ -89,7 +89,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       className={`progress-bar-container ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ '--progress-height': `${config.height}px` }}
+      style={{ '--progress-height': `${config.height}px` } as React.CSSProperties}
     >
       {/* Main Progress Bar */}
       <motion.div
@@ -113,7 +113,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         {/* Animated progress fill */}
         <motion.div
           className="progress-fill"
-          variants={progressVariants}
+          variants={progressVariants as any}
           initial="initial"
           animate="animate"
           style={{

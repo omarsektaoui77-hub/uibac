@@ -151,7 +151,8 @@ async function processFile(file: any, trackId: string, language: string) {
       difficulty: analysis.difficulty
     })),
     concepts: analysis.keyConcepts,
-    summary: analysis.summary
+    summary: analysis.summary,
+    version: 1
   };
 
   const bankId = await QuestionBankService.saveQuestionBank(questionBankData);

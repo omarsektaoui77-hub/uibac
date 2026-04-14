@@ -108,7 +108,7 @@ export class RateLimitMiddleware {
 
     // Fall back to IP address
     const forwarded = request.headers.get('x-forwarded-for');
-    const ip = forwarded ? forwarded.split(',')[0] : request.ip || 'unknown';
+    const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
     return `${prefix}:ip:${ip}`;
   }
 
@@ -182,6 +182,12 @@ export class RateLimitMiddleware {
     general: {
       requests: 1000,
       window: 3600 // 1000 requests per hour
+    },
+
+    // AI Coach endpoints - moderate restriction
+    ai_coach: {
+      requests: 500,
+      window: 3600 // 500 requests per hour
     },
 
     // Admin endpoints - very restrictive

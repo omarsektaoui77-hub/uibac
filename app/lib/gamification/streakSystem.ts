@@ -227,7 +227,7 @@ export class StreakSystem {
       newStreak,
       milestone: !!milestone,
       rewards,
-      message: this.generateStreakMessage(streakExtended, streakReset, newStreak, milestone),
+      message: this.generateStreakMessage(streakExtended, streakReset, newStreak, milestone || undefined),
       nextMilestone: this.getNextMilestone(newStreak)
     };
   }
@@ -377,14 +377,14 @@ export class StreakSystem {
     
     // Current month activity
     const now = new Date();
-    const thisMonth = history.filter(day => {
+    const thisMonth = history.filter((day: any) => {
       const dayDate = new Date(day.date);
       return dayDate.getMonth() === now.getMonth() && dayDate.getFullYear() === now.getFullYear();
     }).length;
     
     // Best month
     const monthCounts: Record<string, number> = {};
-    history.forEach(day => {
+    history.forEach((day: any) => {
       if (day.maintained) {
         const monthKey = day.date.substring(0, 7); // YYYY-MM
         monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
@@ -437,7 +437,7 @@ export class StreakSystem {
     // Calculate confidence based on recent activity
     const history = user.globalStats.streakHistory || [];
     const recentActivity = history.slice(-7); // Last 7 days
-    const maintainedDays = recentActivity.filter(day => day.maintained).length;
+    const maintainedDays = recentActivity.filter((day: any) => day.maintained).length;
     
     let confidence: 'high' | 'medium' | 'low';
     if (maintainedDays >= 6) confidence = 'high';

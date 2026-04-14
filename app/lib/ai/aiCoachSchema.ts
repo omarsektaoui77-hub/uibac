@@ -1,5 +1,5 @@
 // AI Coach Schema - Stream-Safe Validation
-* Handles partial, inconsistent, and malformed LLM responses
+// Handles partial, inconsistent, and malformed LLM responses
 
 import { z } from "zod";
 
@@ -9,7 +9,7 @@ export const AICoachSchema = z.object({
   suggestions: z.array(z.string()).optional(),
   confidence: z.number().min(0).max(1).optional(),
   source: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.any(), z.any()).optional(),
 }).passthrough().catch({
   message: "AI temporarily unavailable",
   suggestions: ["Try rephrasing your question", "Check your internet connection"],
@@ -41,7 +41,7 @@ export function safeParseAI(data: any) {
     const result = AIResponseSchema.parse(data);
     
     // Log successful parsing
-    if (result.source !== 'fallback' && result.source !== 'validation-fallback') {
+    if ('source' in result && result.source !== 'fallback' && result.source !== 'validation-fallback') {
       console.log('✅ AI response parsed successfully', { 
         source: result.source,
         confidence: result.confidence,

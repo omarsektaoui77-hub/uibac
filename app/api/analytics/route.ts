@@ -41,7 +41,7 @@ async function handler(request: NextRequest, user: AuthenticatedUser): Promise<N
     if (!validationResult.success) {
       return NextResponse.json({
         error: 'Invalid query parameters',
-        details: validationResult.error.errors.map(err => ({
+        details: validationResult.error.issues.map(err => ({
           field: err.path.join('.'),
           message: err.message
         }))
@@ -63,8 +63,8 @@ async function handler(request: NextRequest, user: AuthenticatedUser): Promise<N
     const userAnalytics = await ProgressAnalytics.getUserAnalytics(user.uid);
 
     // Get insights if requested
-    let insights = [];
-    if (validatedQuery.includeInsights) {
+    let insights: any[] = [];
+    if (queryData.includeInsights) {
       insights = await ProgressAnalytics.getUserInsights(user.uid, 10);
     }
 

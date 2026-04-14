@@ -47,7 +47,7 @@ export interface FeedbackInsights {
   };
   adaptiveAdjustments: {
     promptModifications: Record<string, any>;
-    modelPreferences: Record<string, number>;
+    modelPreferences: Record<string, any>;
     contextWeighting: Record<string, number>;
   };
 }
@@ -179,7 +179,7 @@ export class AIFeedbackLoop {
 
       // Improve based on subject preferences
       if (Object.keys(insights.userPatterns.preferredSubjects).length > 0) {
-        improvements.subject_weighting = insights.userPatterns.preferredSubjects.reduce((acc, subject) => {
+        improvements.subject_weighting = insights.userPatterns.preferredSubjects.reduce((acc: Record<string, number>, subject) => {
           acc[subject] = analytics.subjectPreferences[subject] || 1.0;
           return acc;
         }, {});

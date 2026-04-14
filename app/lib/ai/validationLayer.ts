@@ -419,7 +419,7 @@ export class AIValidationLayer {
    */
   static quickValidate(recommendation: AIRecommendation): boolean {
     try {
-      return (
+      return !!(
         recommendation.focus_subject &&
         recommendation.reason &&
         recommendation.study_plan &&

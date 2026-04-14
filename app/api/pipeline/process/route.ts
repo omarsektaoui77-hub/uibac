@@ -109,7 +109,9 @@ export async function POST(request: NextRequest) {
       concepts: Array.from(allConcepts),
       summary: combinedSummary.trim(),
       fileId: driveFiles[0].id,
-      fileName: `${driveFiles.length} files processed`
+      fileName: `${driveFiles.length} files processed`,
+      language: 'en',
+      version: 1
     };
 
     const bankId = await QuestionBankService.saveQuestionBank(questionBank);

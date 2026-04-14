@@ -302,7 +302,7 @@ export default function Home() {
               {error}
             </p>
           </div>
-        ) : null}
+        )}
 
         {response && (
           <div className="mt-6">
@@ -311,7 +311,7 @@ export default function Home() {
               {response}
             </div>
           </div>
-        ) : null}
+        )}
       </section>
 
       {/* Pipeline Status */}

@@ -1,5 +1,5 @@
 // Production Chaos Testing - Real-World Failure Simulation
-* Tests system resilience under adverse conditions
+// Tests system resilience under adverse conditions
 
 import { chaosEngine } from './chaosEngine';
 import { logger } from '../logging/logger';

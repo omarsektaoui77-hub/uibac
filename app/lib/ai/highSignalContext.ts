@@ -1,11 +1,11 @@
 // High-Signal Context Engine
-* Focus on quality signals that drive real AI intelligence
+// Focus on quality signals that drive real AI intelligence
 
 export interface HighSignalContext {
   // High-signal performance data
   accuracy: {
     recent: number; // Last 5 sessions
-    trend: 'improving' | 'declining' | 'stable';
+    trend: 'increasing' | 'decreasing' | 'stable';
     volatility: number; // Consistency measure
   };
   
@@ -72,7 +72,7 @@ export class HighSignalContextBuilder {
       const performance = await this.getPerformanceSignals(userId);
       
       // Get engagement patterns
-      const engagement = await this.getEngagementSignals(userId);
+      const engagement = await this.getBehaviorSignals(userId);
       
       // Get learning momentum
       const learning = await this.getLearningSignals(userId);
@@ -213,7 +213,7 @@ export class HighSignalContextBuilder {
     ];
   }
   
-  private static calculateTrend(values: number[]): 'improving' | 'declining' | 'stable' {
+  private static calculateTrend(values: number[]): 'increasing' | 'decreasing' | 'stable' {
     if (values.length < 2) return 'stable';
     
     const recent = values.slice(-3);
@@ -224,8 +224,8 @@ export class HighSignalContextBuilder {
     
     const diff = (recentAvg - olderAvg) / olderAvg;
     
-    if (diff > 0.1) return 'improving';
-    if (diff < -0.1) return 'declining';
+    if (diff > 0.1) return 'increasing';
+    if (diff < -0.1) return 'decreasing';
     return 'stable';
   }
   
@@ -264,9 +264,9 @@ export class HighSignalContextBuilder {
   }
   
   private static calculateMomentum(progressRate: number): HighSignalContext['learning']['momentum'] {
-    let speed = progressRate / 10; // Normalize to 0-3 scale
+    const speed = progressRate / 10; // Normalize to 0-3 scale
     let direction: 'accelerating' | 'decelerating' | 'steady' = 'steady';
-    let quality = Math.min(speed / 2, 1); // Learning efficiency
+    const quality = Math.min(speed / 2, 1); // Learning efficiency
     
     if (speed > 2) direction = 'accelerating';
     else if (speed < 1) direction = 'decelerating';

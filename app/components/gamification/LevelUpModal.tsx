@@ -186,7 +186,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
                 {rankUp ? (
                   <span>
                     Level {fromLevel} → Level {toLevel}
-                    {rankInfo.newRank && (
+                    {rankInfo?.newRank && (
                       <span className="rank-name">
                         ({rankInfo.newRank.name} Rank)
                       </span>
@@ -216,7 +216,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
                 </div>
                 
                 <h2 className="milestone-title">
-                  {milestone.name}
+                  {milestone.rank}
                 </h2>
                 
                 <p className="milestone-message">
@@ -314,7 +314,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
                 </div>
               </div>
               
-              {rankUp && rankInfo.newRank && (
+              {rankUp && rankInfo?.newRank && (
                 <div className="stat-item">
                   <div className="stat-label">New Perks</div>
                   <div className="stat-value perks">

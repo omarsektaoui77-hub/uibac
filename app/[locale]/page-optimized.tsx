@@ -1,14 +1,21 @@
 "use client";
 
+// Next.js and React imports
 import Link from "next/link";
 import { useLocale } from "next-intl";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+
+// Third-party imports
 import { motion } from "framer-motion";
+
+// Local component imports
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import { AICoach } from "../components/dynamic/DynamicComponents";
+
+// Service imports
 import { getSubjects, getCommonSubjects, getSMSubjects, generateQuizLink } from "../lib/data/subjectsService";
 import { logger } from "../lib/logging/logger";
 import { chaosEngine } from "../lib/testing/chaosEngine";
-import { AICoach } from "../components/dynamic/DynamicComponents";
 
 // Force dynamic rendering to prevent build/deployment mismatches
 export const dynamic = 'force-dynamic';
@@ -113,61 +120,39 @@ export default function Home() {
   const [dataError, setDataError] = useState("");
 
   // Load subjects data with chaos testing
-  useEffect(() => {
-    let mounted = true;
+  const loadSubjects = useCallback(async () => {
+    try {
+      setDataLoading(true);
+      setDataError("");
 
-    async function loadSubjects() {
-      try {
-        setDataLoading(true);
-        setDataError("");
+      logger.info('Loading subjects data', { locale });
 
-        logger.info('Loading subjects data', { locale });
+      // Use chaos engine for testing
+      const [common, sm] = await Promise.all([
+        chaosEngine.simulateApiCall(() => getCommonSubjects(), 'load-common-subjects'),
+        chaosEngine.simulateApiCall(() => getSMSubjects(), 'load-sm-subjects')
+      ]);
 
-        // Use chaos engine for testing
-        const [common, sm] = await Promise.all([
-          chaosEngine.simulateApiCall(() => getCommonSubjects(), 'load-common-subjects'),
-          chaosEngine.simulateApiCall(() => getSMSubjects(), 'load-sm-subjects')
-        ]);
+      // Validate data
+      const validatedCommon = common.filter(subject => subject && subject.id && subject.name);
+      const validatedSM = sm.filter(subject => subject && subject.id && subject.name);
 
-        // Validate data
-        const validatedCommon = common.filter(subject => subject && subject.id && subject.name);
-        const validatedSM = sm.filter(subject => subject && subject.id && subject.name);
-
-        if (mounted) {
-          setCommonSubjects(validatedCommon);
-          setSmSubjects(validatedSM);
-          logger.info('Subjects loaded successfully', { 
-            commonCount: validatedCommon.length, 
-            smCount: validatedSM.length 
-          });
-        }
-      } catch (err) {
-        console.error('Failed to load subjects:', err);
-        logger.error('Subjects loading failed', err as Error, { locale });
-        
-        if (mounted) {
-          setDataError("Failed to load subjects. Retrying...");
-          
-          // Retry after delay
-          setTimeout(() => {
-            if (mounted) {
-              loadSubjects();
-            }
-          }, 3000);
-        }
-      } finally {
-        if (mounted) {
-          setDataLoading(false);
-        }
-      }
+      setCommonSubjects(validatedCommon);
+      setSmSubjects(validatedSM);
+      logger.info('Subjects loaded successfully', { 
+        commonCount: validatedCommon.length, 
+        smCount: validatedSM.length 
+      });
+    } catch (err) {
+      console.error('Failed to load subjects:', err);
+      setDataError("Failed to load subjects. Please try again.");
+      setDataLoading(false);
     }
-
-    loadSubjects();
-
-    return () => {
-      mounted = false;
-    };
   }, [locale]);
+
+  useEffect(() => {
+    loadSubjects();
+  }, [loadSubjects]);
 
   // AI Tutor functionality with chaos testing
   async function askAi() {
@@ -385,7 +370,7 @@ export default function Home() {
               {error}
             </p>
           </div>
-        ) : null}
+        )}
 
         {response && (
           <div className="mt-6">
@@ -394,7 +379,7 @@ export default function Home() {
               {response}
             </div>
           </div>
-        ) : null}
+        )}
       </section>
 
       {/* Pipeline Status */}

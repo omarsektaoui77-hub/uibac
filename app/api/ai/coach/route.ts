@@ -177,7 +177,7 @@ async function getHandler(request: NextRequest, user: AuthenticatedUser): Promis
     if (history) {
       const memories = await AIMemorySystem.getUserMemory(user.uid, {
         days,
-        limit,
+        limitCount: limit,
         includeOutcomes: true
       });
       response.history = memories;
@@ -272,7 +272,7 @@ async function putHandler(request: NextRequest, user: AuthenticatedUser): Promis
     if (!validationResult.success) {
       return NextResponse.json({
         error: 'Invalid feedback data',
-        details: validationResult.error.errors.map(err => ({
+        details: validationResult.error.issues.map(err => ({
           field: err.path.join('.'),
           message: err.message
         }))

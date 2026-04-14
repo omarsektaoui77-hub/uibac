@@ -2,7 +2,8 @@
 // Integrates all four robustness layers: Sanitization, Validation, Resiliency, and Concept Storage
 
 import { DataSanitization } from './dataSanitization';
-import { ValidationSystem, ContextObject, QuestionValidation } from './validation';
+import { ValidationSystem, QuestionValidation } from './validation';
+import { ContextObject } from './productionSchema';
 import { ResiliencySystem, RetryConfigs, CircuitBreakerConfigs } from './resiliency';
 import { ProductionDatabaseService, ProductionQuestionBank, ProductionQuestion } from './productionSchema';
 import { localAI } from './localAI';
@@ -136,7 +137,7 @@ export class ProductionPipeline {
       processingMetrics.validationTime = Date.now() - startTime - processingMetrics.generationTime - processingMetrics.analysisTime - processingMetrics.sanitizationTime;
 
       if (!validationResult.isValid) {
-        throw new Error(`Validation failed: ${validationResult.errors.join(', ')}`);
+        throw new Error(`Validation failed: context object validation did not pass`);
       }
 
       // Step 6: Store with metadata
@@ -364,8 +365,8 @@ Difficulty: ${difficulty}`;
       throw new Error(`All generation methods failed: ${result.error?.message}`);
     }
 
-    const rawQuestions = result.result;
-    
+    const rawQuestions = result.result || [];
+
     // Validate and filter questions
     const validationResults: any[] = [];
     const validQuestions: ProductionQuestion[] = [];

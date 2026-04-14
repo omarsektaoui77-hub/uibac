@@ -109,10 +109,10 @@ export class CachedOperationsManager {
     metadata?: any;
   }>> {
     const cacheKey = CacheKeys.leaderboard(type, subjectId);
-    
+
     // Try cache first
     const cached = await CacheManager.get(cacheKey);
-    if (cached !== null) {
+    if (cached !== null && Array.isArray(cached)) {
       return cached;
     }
 
@@ -134,10 +134,10 @@ export class CachedOperationsManager {
    */
   static async getUserInsights(userId: string, limit: number = 10): Promise<any[]> {
     const cacheKey = CacheKeys.insights(userId);
-    
+
     // Try cache first
     const cached = await CacheManager.get(cacheKey);
-    if (cached !== null) {
+    if (cached !== null && Array.isArray(cached)) {
       return cached;
     }
 

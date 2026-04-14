@@ -205,7 +205,7 @@ export class ProductionDatabaseService {
       lastAccessed: Timestamp.now()
     });
 
-    return { id: docSnapshot.id, ...data };
+    return { ...data, id: docSnapshot.id };
   }
 
   /**
