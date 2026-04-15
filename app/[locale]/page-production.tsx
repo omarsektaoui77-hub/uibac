@@ -9,14 +9,7 @@ import { getSubjects, getCommonSubjects, getSMSubjects, generateQuizLink } from 
 import { logger } from "../lib/logging/logger";
 import { chaosEngine } from "../lib/testing/chaosEngine";
 
-// Enable chaos mode for production testing
-if (process.env.NODE_ENV === 'production') {
-  chaosEngine.enable({
-    failureRate: 0.2, // 20% failure rate
-    delayRange: [500, 2000],
-    slowNetwork: true
-  });
-}
+// Chaos mode disabled in production for stability
 
 // Loading skeleton component
 function SubjectSkeleton() {
