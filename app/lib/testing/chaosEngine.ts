@@ -34,9 +34,20 @@ export class ChaosEngine {
   }
 
   enable(config: Partial<ChaosConfig> = {}) {
+    // Only enable chaos mode in staging environment for safety
+    // Check custom IS_STAGING environment variable
+    const isStaging = process.env.IS_STAGING === 'true' || process.env.NODE_ENV === 'development';
+    
+    if (!isStaging) {
+      logger.warn('Chaos mode blocked - not in staging environment', { 
+        currentEnv: process.env.NODE_ENV 
+      });
+      return;
+    }
+    
     this.config = { ...this.config, ...config };
     this.enabled = true;
-    logger.warn('Chaos mode enabled', { config: this.config });
+    logger.warn('Chaos mode enabled (staging only)', { config: this.config });
   }
 
   disable() {
