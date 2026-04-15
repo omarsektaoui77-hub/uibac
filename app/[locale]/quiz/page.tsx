@@ -83,7 +83,7 @@ export default function QuizPage() {
   useEffect(() => {
     const loadXP = async () => {
       try {
-        const xp = await getUserXP("omar");
+        const xp = await getUserXP("Sektaoui");
         setXp(xp);
       } catch (error) {
         console.error("Error loading XP:", error);
