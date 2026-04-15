@@ -1,5 +1,5 @@
 "use client";
-import PageProduction from '../page-production';
+import PageProduction from '../../page-production';
 
 export default PageProduction;
 export const dynamic = 'force-dynamic';
