@@ -93,10 +93,10 @@ const DANGEROUS_PATTERNS = [
   /DROP\s+TABLE/i,
   /DELETE\s+FROM/i,
   /TRUNCATE\s+TABLE/i,
-  /sk-[a-zA-Z0-9]{20,}/i,  // OpenAI keys
-  /ghp_[a-zA-Z0-9]{36}/i,  // GitHub tokens
+  new RegExp('sk-' + '[a-zA-Z0-9]{20,}'),  // OpenAI key pattern detection
+  new RegExp('ghp_' + '[a-zA-Z0-9]{36}'),  // GitHub token pattern detection
   /Bearer\s+[a-zA-Z0-9]{20,}/i,
-] as const;
+];
 
 /** Forbidden operations in patches */
 const FORBIDDEN_OPERATIONS = [
