@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "diagnose": "node scripts/diagnose.js"
+    "diagnose": "node scripts/diagnose.js",
+    "test:prod": "node scripts/test-edge-cases.js"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.48.0",
