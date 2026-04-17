@@ -58,7 +58,7 @@ Add to `.env.local`:
 
 ```bash
 # Required for Auto-Fix PRs
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=ghp_your_token_here
 GITHUB_OWNER=your-github-username
 GITHUB_REPO=uibac
 

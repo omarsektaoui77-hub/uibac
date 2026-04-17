@@ -35,14 +35,14 @@ Add to `.env.local`:
 
 ```bash
 # GitHub Integration (Required for Auto-Fix)
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=ghp_your_token_here
 GITHUB_OWNER=your-github-username
 GITHUB_REPO=uibac
 ```
 
 **Example:**
 ```bash
-GITHUB_TOKEN=ghp_abc123def456ghi789
+GITHUB_TOKEN=ghp_your_token_here
 GITHUB_OWNER=omarsektaoui
 GITHUB_REPO=uibac
 ```
@@ -226,7 +226,7 @@ Edit `/lib/ai/patchAgent.ts` to:
 
 ```bash
 # Set production env vars
-export GITHUB_TOKEN=ghp_xxx
+export GITHUB_TOKEN=ghp_your_token_here
 export GITHUB_OWNER=your-org
 export GITHUB_REPO=production-repo
 

@@ -636,11 +636,11 @@ export async function generateMonthlyReport() {
 
 ```bash
 # LLM API Keys (one required)
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-your-key-here
+ANTHROPIC_API_KEY=sk-ant-your-key-here
 
 # For auto-PR creation
-GITHUB_TOKEN=ghp_...
+GITHUB_TOKEN=ghp_your_token_here
 
 # For Slack notifications
 SLACK_WEBHOOK_URL=https://hooks.slack.com/...
