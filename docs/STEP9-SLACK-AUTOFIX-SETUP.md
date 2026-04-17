@@ -47,7 +47,7 @@ Transform observability into a self-healing system.
 
 **Example URL:**
 ```
-REMOVED
+REMOVED_WEBHOOK_URL_HERE
 ```
 
 ---
@@ -58,12 +58,12 @@ Add to `.env.local`:
 
 ```bash
 # Required for Auto-Fix PRs
-GITHUB_TOKEN=ghp_your_token_here
+GITHUB_TOKEN=your_github_token_here
 GITHUB_OWNER=your-github-username
 GITHUB_REPO=uibac
 
 # Required for Slack notifications
-SLACK_WEBHOOK_URL=REMOVED
+SLACK_WEBHOOK_URL=your_slack_webhook_url_here
 ```
 
 ---
