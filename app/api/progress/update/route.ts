@@ -14,6 +14,7 @@ import { EventSystem } from '@/app/lib/events/eventSystem';
 import { metrics } from '@/app/lib/monitoring/metrics';
 import { logger } from '@/app/lib/monitoring/logger';
 import { alertManager } from '@/app/lib/monitoring/alerts';
+import { TelemetryService } from '@/app/lib/telemetry/telemetryService';
 
 // =========================
 // 🔒 Standardized Response Helpers
@@ -112,6 +113,23 @@ async function handler(
     }
 
     const input: ProgressUpdateInput = validationResult.data;
+
+    // ---------- Telemetry Tracking (Non-blocking) ----------
+    const telemetryEvent = {
+      userId: user.uid,
+      subjectId: input.subjectId || 'unknown',
+      isCorrect: input.isCorrect,
+      timeToAnswer: input.timeSpent || 0,
+      difficulty: input.difficulty || 'medium',
+      timestamp: new Date().toISOString(),
+      dropOff: (input.timeSpent || 0) > 60,
+      failureTag: !input.isCorrect ? 'LOGIC_ERROR' as const : undefined,
+    };
+
+    // Non-blocking - don't await
+    TelemetryService.track(telemetryEvent).catch(() => {
+      // Ignore telemetry errors
+    });
 
     // Enrich Sentry context with API-specific metadata
     Sentry.setContext('progress_update', {

@@ -37,5 +37,5 @@ export function clearSentryUser() {
 export function getSentryUserId(): string | null {
   const scope = Sentry.getCurrentScope();
   const user = scope.getUser();
-  return user?.id || null;
+  return user?.id ? String(user.id) : null;
 }

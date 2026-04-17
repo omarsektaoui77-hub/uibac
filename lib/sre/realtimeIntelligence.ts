@@ -341,7 +341,7 @@ function generateAIInsights(
   }
 
   // Insight 3: Security pattern (high error rate from single source)
-  const errorEvents = events.filter(e => e.metadata?.error);
+  const errorEvents = events.filter(e => (e as any).metadata?.error);
   if (errorEvents.length > 10) {
     const uniqueTypes = new Set(errorEvents.map(e => e.eventType)).size;
     if (uniqueTypes === 1) {

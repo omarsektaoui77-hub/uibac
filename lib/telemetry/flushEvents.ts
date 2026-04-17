@@ -3,29 +3,6 @@ import { dequeueBatch, requeueBatch } from "./eventQueue";
 
 const ENDPOINT = "/api/telemetry";
 
-export async function flushEvents() {
-  const batch = dequeueBatch();
-
-  if (batch.length === 0) return;
-
-  try {
-    const res = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ events: batch })
-    });
-
-    if (!res.ok) {
-      throw new Error("Request failed");
-    }
-
-  } catch (err) {
-    console.warn("Flush failed, retrying...");
-    requeueBatch(batch);
-  }
-}
 export async function flushEvents(): Promise<void> {
   if (eventQueue.isFlushing || eventQueue.queue.length === 0) {
     if (DEBUG_TELEMETRY) {

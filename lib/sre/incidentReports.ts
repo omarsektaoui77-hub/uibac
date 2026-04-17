@@ -148,15 +148,15 @@ function generateDescription(anomaly: AnomalyDetection, events: TelemetryEvent[]
   if (events.length > 0) {
     parts.push(`\n## Recent Activity`);
     parts.push(`Analysis based on ${events.length} recent telemetry events.`);
-    
-    const recentFailures = events.slice(-5).filter(e => 
-      e.metadata?.status === 'failed' || e.metadata?.error
+
+    const recentFailures = events.slice(-5).filter(e =>
+      e.status === 'failed'
     );
-    
+
     if (recentFailures.length > 0) {
       parts.push(`\n### Recent Failures (last 5 events):`);
       recentFailures.forEach((event, i) => {
-        parts.push(`${i + 1}. ${event.eventType} - ${event.metadata?.error?.toString() || 'Unknown error'}`);
+        parts.push(`${i + 1}. ${event.eventType} - Status: ${event.status}`);
       });
     }
   }
@@ -239,10 +239,8 @@ function identifyAffectedSystems(anomaly: AnomalyDetection, events: TelemetryEve
 
   typeSystems[anomaly.type]?.forEach(s => systems.add(s));
 
-  // Add based on event metadata
+  // Add based on event type
   events.forEach(event => {
-    if (event.metadata?.system) systems.add(event.metadata.system);
-    if (event.metadata?.service) systems.add(event.metadata.service);
     if (event.eventType?.includes('circuit')) systems.add('Circuit Breaker');
     if (event.eventType?.includes('telemetry')) systems.add('Telemetry');
     if (event.eventType?.includes('incident')) systems.add('Incident Management');
@@ -256,8 +254,7 @@ function identifyAffectedSystems(anomaly: AnomalyDetection, events: TelemetryEve
  */
 function assessImpact(anomaly: AnomalyDetection, events: TelemetryEvent[]): ImpactAssessment {
   const failureRate = anomaly.features.failure_rate;
-  const isUserFacing = events.some(e => 
-    e.metadata?.userFacing || 
+  const isUserFacing = events.some(e =>
     e.eventType?.includes('user') ||
     e.eventType?.includes('request')
   );
@@ -277,7 +274,6 @@ function assessImpact(anomaly: AnomalyDetection, events: TelemetryEvent[]): Impa
 
   // Data integrity risk
   const data_integrity_risk = events.some(e =>
-    e.metadata?.dataIntegrity ||
     e.eventType?.includes('database') ||
     e.eventType?.includes('write')
   );
@@ -343,8 +339,8 @@ function createTelemetrySnapshot(
   let peak_error_rate = 0;
   for (let i = 0; i <= recent.length - 5; i++) {
     const window = recent.slice(i, i + 5);
-    const windowFailureRate = window.filter(e => 
-      e.metadata?.status === 'failed' || e.metadata?.error
+    const windowFailureRate = window.filter(e =>
+      e.status === 'failed'
     ).length / window.length;
     peak_error_rate = Math.max(peak_error_rate, windowFailureRate);
   }

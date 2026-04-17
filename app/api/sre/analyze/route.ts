@@ -139,11 +139,11 @@ function extractFileReference(stackTrace: string): string {
 // Format telemetry for LLM context
 function formatTelemetryContext(events: TelemetryEvent[]): string {
   if (events.length === 0) return "No telemetry events available";
-  
+
   return events.slice(-10).map((event, i) => {
-    const time = new Date(event.timestamp).toISOString();
-    const status = event.metadata?.status || event.metadata?.error ? 'FAIL' : 'OK';
-    return `${i + 1}. [${time}] ${event.eventType} - ${status}`;
+    const time = new Date(event.serverTimestamp).toISOString();
+    const status = event.status === 'failed' ? 'FAIL' : 'OK';
+    return `${i + 1}. [${time}] ${event.eventType} - ${status} (retries: ${event.retries})`;
   }).join('\n');
 }
 

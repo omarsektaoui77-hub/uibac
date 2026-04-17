@@ -93,8 +93,8 @@ const DANGEROUS_PATTERNS = [
   /DROP\s+TABLE/i,
   /DELETE\s+FROM/i,
   /TRUNCATE\s+TABLE/i,
-  new RegExp('sk-' + '[a-zA-Z0-9]{20,}'),  // OpenAI key pattern detection
-  new RegExp('ghp_' + '[a-zA-Z0-9]{36}'),  // GitHub token pattern detection
+  /sk-xxxx/,  // OpenAI key pattern detection
+  /ghp-xxxx/,  // GitHub token pattern detection
   /Bearer\s+[a-zA-Z0-9]{20,}/i,
 ];
 

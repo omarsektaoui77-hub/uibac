@@ -392,7 +392,7 @@ export function validateFixV2(
     cooldownCheck: true,
     circuitStateCheck: true,
     tenantLimitCheck: true,
-  } as const;
+  };
 
   const failures: string[] = [];
 

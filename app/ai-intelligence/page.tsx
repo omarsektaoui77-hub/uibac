@@ -142,7 +142,7 @@ export default function AIIntelligenceDashboard() {
 
   const handleExportMarkdown = useCallback(() => {
     const data = exportReportsAsMarkdown(incidents);
-    const blob = new Blob([data], { type: 'text/markdown' };
+    const blob = new Blob([data], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

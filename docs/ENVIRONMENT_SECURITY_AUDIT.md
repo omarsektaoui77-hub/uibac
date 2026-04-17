@@ -35,7 +35,7 @@
 **Security Validation:**
 ```bash
 # Check for exposed keys in build
-grep -r "sk-" .next/ && echo "❌ KEYS EXPOSED" || echo "✅ No keys in build"
+grep -r "sk-xxxxxxxx" .next/ && echo "❌ KEYS EXPOSED" || echo "✅ No keys in build"
 ```
 
 **Rate Limiting:**

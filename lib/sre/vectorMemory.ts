@@ -163,20 +163,20 @@ function hashStackTrace(stackTrace: string): string {
     .join('->');
   
   // Simple hash
-  return hashString(relevant);
+  return hashString(relevant).toString();
 }
 
 /**
  * Simple string hash function
  */
-function hashString(str: string): string {
+function hashString(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash;
   }
-  return Math.abs(hash).toString(36);
+  return Math.abs(hash);
 }
 
 // ============================================================================

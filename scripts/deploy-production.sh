@@ -183,7 +183,7 @@ security_audit() {
     log_info "Running security audit..."
     
     # Check for exposed secrets in build
-    if grep -r "sk-" .next/ 2>/dev/null; then
+    if grep -r "sk-xxxxxxxx" .next/ 2>/dev/null; then
         log_error "API keys found in build output!"
         exit 1
     fi

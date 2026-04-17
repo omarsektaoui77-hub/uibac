@@ -82,27 +82,26 @@ export function extractFeatures(
   }
 
   // Calculate failure rate
-  const failures = recent.filter(e => 
-    e.metadata?.status === 'failed' || 
-    e.eventType?.includes('FAIL') ||
-    e.metadata?.error === true
+  const failures = recent.filter(e =>
+    e.status === 'failed' ||
+    e.eventType?.includes('FAIL')
   );
   const failure_rate = failures.length / recent.length;
 
   // Calculate average duration
   const durations = recent
-    .map(e => e.metadata?.duration || e.metadata?.latency || 0)
+    .map(e => e.serverTimestamp - e.timestamp)
     .filter(d => d > 0);
   const avg_duration = durations.length > 0
     ? durations.reduce((a, b) => a + b, 0) / durations.length
     : 0;
 
   // Error frequency (per 5 minutes)
-  const recentTimeWindow = recent.filter(e => 
-    (now - new Date(e.timestamp).getTime()) < timeWindow
+  const recentTimeWindow = recent.filter(e =>
+    (now - e.serverTimestamp) < timeWindow
   );
   const error_frequency = recentTimeWindow.filter(e =>
-    e.metadata?.status === 'failed' || e.metadata?.error
+    e.status === 'failed'
   ).length;
 
   // Recent failures count
@@ -118,13 +117,13 @@ export function extractFeatures(
   const half = Math.floor(recent.length / 2);
   const firstHalf = recent.slice(0, half);
   const secondHalf = recent.slice(half);
-  
-  const firstHalfFailures = firstHalf.filter(e => 
-    e.metadata?.status === 'failed' || e.metadata?.error
+
+  const firstHalfFailures = firstHalf.filter(e =>
+    e.status === 'failed'
   ).length / (firstHalf.length || 1);
-  
-  const secondHalfFailures = secondHalf.filter(e => 
-    e.metadata?.status === 'failed' || e.metadata?.error
+
+  const secondHalfFailures = secondHalf.filter(e =>
+    e.status === 'failed'
   ).length / (secondHalf.length || 1);
 
   const trend_direction: 'improving' | 'stable' | 'degrading' =
@@ -244,15 +243,12 @@ function runAnomalyChecks(
   const checks = [];
 
   // Check 1: Failure Rate Spike
-  const failureThreshold = baseline 
-    ? baseline.avgFailureRate + (2 * Math.sqrt(baseline.avgFailureRate * (1 - baseline.avgFailureRate) / baseline.sampleSize))
-    : 0.3;
-  
+  const failureThreshold = baseline ? baseline.avgFailureRate * 1.5 : 0.1;
   if (features.failure_rate > failureThreshold && features.failure_rate > 0.15) {
     checks.push({
       detected: true,
       type: 'FAILURE_SPIKE' as AnomalyType,
-      severity: features.failure_rate > 0.5 ? 'critical' : features.failure_rate > 0.3 ? 'high' : 'medium',
+      severity: (features.failure_rate > 0.5 ? 'critical' : features.failure_rate > 0.3 ? 'high' : 'medium') as 'low' | 'medium' | 'high' | 'critical',
       confidence: Math.min(0.95, features.failure_rate + 0.5),
       reason: `Failure rate spike detected: ${(features.failure_rate * 100).toFixed(1)}% (baseline: ${baseline ? (baseline.avgFailureRate * 100).toFixed(1) : 'N/A'}%)`,
     });
@@ -264,7 +260,7 @@ function runAnomalyChecks(
     checks.push({
       detected: true,
       type: 'LATENCY_DEGRADATION' as AnomalyType,
-      severity: features.avg_duration > 3000 ? 'high' : 'medium',
+      severity: (features.avg_duration > 3000 ? 'high' : 'medium') as 'low' | 'medium' | 'high' | 'critical',
       confidence: Math.min(0.9, features.avg_duration / 3000),
       reason: `Latency degradation: ${features.avg_duration.toFixed(0)}ms avg (threshold: ${durationThreshold.toFixed(0)}ms)`,
     });
@@ -275,7 +271,7 @@ function runAnomalyChecks(
     checks.push({
       detected: true,
       type: 'ERROR_BURST' as AnomalyType,
-      severity: features.error_frequency > 10 ? 'high' : 'medium',
+      severity: (features.error_frequency > 10 ? 'high' : 'medium') as 'low' | 'medium' | 'high' | 'critical',
       confidence: Math.min(0.92, 0.5 + features.burst_intensity * 0.2),
       reason: `Error burst detected: ${features.error_frequency} errors in 5min window (burst intensity: ${features.burst_intensity.toFixed(2)})`,
     });
@@ -286,7 +282,7 @@ function runAnomalyChecks(
     checks.push({
       detected: true,
       type: 'PATTERN_ANOMALY' as AnomalyType,
-      severity: features.pattern_deviation > 3 ? 'high' : 'medium',
+      severity: (features.pattern_deviation > 3 ? 'high' : 'medium') as 'low' | 'medium' | 'high' | 'critical',
       confidence: Math.min(0.88, 0.5 + features.pattern_deviation * 0.1),
       reason: `Statistical pattern anomaly: ${features.pattern_deviation.toFixed(2)}σ deviation from baseline`,
     });
@@ -297,7 +293,7 @@ function runAnomalyChecks(
     checks.push({
       detected: true,
       type: 'TREND_DEGRADATION' as AnomalyType,
-      severity: features.failure_rate > 0.4 ? 'high' : 'medium',
+      severity: (features.failure_rate > 0.4 ? 'high' : 'medium') as 'low' | 'medium' | 'high' | 'critical',
       confidence: 0.75,
       reason: `Degrading trend detected with ${(features.failure_rate * 100).toFixed(1)}% failure rate`,
     });
@@ -309,7 +305,7 @@ function runAnomalyChecks(
     checks.push({
       detected: true,
       type: 'STABILITY_DROP' as AnomalyType,
-      severity: stabilityScore < 40 ? 'critical' : 'high',
+      severity: (stabilityScore < 40 ? 'critical' : 'high') as 'low' | 'medium' | 'high' | 'critical',
       confidence: (100 - stabilityScore) / 100,
       reason: `System stability dropped to ${stabilityScore.toFixed(1)}%`,
     });

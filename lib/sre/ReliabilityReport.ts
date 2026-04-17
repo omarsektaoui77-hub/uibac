@@ -142,7 +142,7 @@ export function computeErrorFreeSessionRate(
   // Count sessions with errors
   const errorSessions = new Set(
     events
-      .filter(e => e.metadata?.error || e.metadata?.status === 'failed')
+      .filter(e => (e as any).metadata?.error || (e as any).metadata?.status === 'failed')
       .map(e => e.sessionId)
       .filter(Boolean)
   );

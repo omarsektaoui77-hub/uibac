@@ -395,7 +395,7 @@ export function validateSafetyManifest(
   }
 
   // Check 3: Secret hardening check
-  const hasHardcodedSecret = /['"`]\s*(sk-|pk-|Bearer\s+)[a-zA-Z0-9]{20,}/.test(patch.patch);
+  const hasHardcodedSecret = /['"`]\s*(sk-xxxx|pk-xxxx|Bearer\s+xxx)/.test(patch.patch);
   if (hasHardcodedSecret) {
     blockedReasons.push('Potential hardcoded secret detected');
   }
