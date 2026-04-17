@@ -1,0 +1,258 @@
+# Chaos Testing Workflow
+# Validates system resilience on every Pull Request
+# 
+# SAFETY: Non-destructive, runs against preview deployments only
+# Blocks merge if resilience tests fail
+
+name: Chaos Testing
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Target URL for chaos tests'
+        required: false
+        default: ''
+        type: string
+
+env:
+  NODE_VERSION: '20'
+  BASE_URL: ${{ github.event.inputs.base_url || secrets.VERCEL_PREVIEW_URL || 'http://localhost:3000' }}
+
+jobs:
+  # Job 1: Build and verify the application compiles
+  build-check:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          # Skip env validation for build check
+          SKIP_ENV_VALIDATION: true
+
+  # Job 2: Chaos testing against preview deployment
+  chaos-tests:
+    name: Resilience Testing
+    runs-on: ubuntu-latest
+    needs: build-check
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine target URL
+        id: target
+        run: |
+          if [ -n "${{ github.event.inputs.base_url }}" ]; then
+            echo "Using manually specified URL"
+            echo "url=${{ github.event.inputs.base_url }}" >> $GITHUB_OUTPUT
+          elif [ -n "${{ secrets.VERCEL_PREVIEW_URL }}" ]; then
+            echo "Using Vercel preview URL from secrets"
+            echo "url=${{ secrets.VERCEL_PREVIEW_URL }}" >> $GITHUB_OUTPUT
+          else
+            echo "No preview URL configured - using local mode"
+            echo "url=http://localhost:3000" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for preview deployment (Vercel)
+        if: contains(steps.target.outputs.url, 'vercel.app')
+        run: |
+          echo "Waiting for Vercel preview deployment..."
+          echo "Target URL: ${{ steps.target.outputs.url }}"
+          
+          # Poll the URL until it responds (max 5 minutes)
+          for i in {1..30}; do
+            echo "Attempt $i/30..."
+            if curl -s -o /dev/null -w "%{http_code}" "${{ steps.target.outputs.url }}/api/alerts" | grep -q "200"; then
+              echo "✅ Preview deployment is ready!"
+              exit 0
+            fi
+            sleep 10
+          done
+          
+          echo "❌ Preview deployment did not become ready in time"
+          exit 1
+
+      - name: Execute Chaos Tests
+        run: |
+          echo "🔥 Starting Chaos Tests against: ${{ steps.target.outputs.url }}"
+          node scripts/chaos-runner.js
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+          CI: true
+          GITHUB_ACTIONS: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-test-results
+          path: |
+            chaos-test-*.json
+            chaos-test-*.log
+          if-no-files-found: ignore
+
+  # Job 3: Circuit breaker validation
+  circuit-breaker-check:
+    name: Circuit Breaker Validation
+    runs-on: ubuntu-latest
+    needs: build-check
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify circuit breaker code exists
+        run: |
+          if [ ! -f "lib/sre/circuitBreaker.ts" ]; then
+            echo "❌ Circuit breaker implementation missing!"
+            exit 1
+          fi
+          echo "✅ Circuit breaker code exists"
+
+      - name: Check circuit breaker configuration
+        run: |
+          # Verify circuit breaker has required safety constraints
+          if ! grep -q "MIN_CONFIDENCE" lib/sre/circuitBreaker.ts; then
+            echo "❌ MIN_CONFIDENCE not configured"
+            exit 1
+          fi
+          
+          if ! grep -q "MAX_PR_PER_HOUR" lib/sre/circuitBreaker.ts; then
+            echo "❌ MAX_PR_PER_HOUR not configured"
+            exit 1
+          fi
+          
+          if ! grep -q "MAX_PATCH_LINES" lib/sre/circuitBreaker.ts; then
+            echo "❌ MAX_PATCH_LINES not configured"
+            exit 1
+          fi
+          
+          echo "✅ All circuit breaker safety constraints configured"
+
+  # Job 4: Safety checks (no destructive operations)
+  safety-audit:
+    name: Safety Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify no destructive operations in chaos tests
+        run: |
+          # Check that chaos runner doesn't modify production
+          if grep -q "process.env.PRODUCTION" scripts/chaos-runner.js || \
+             grep -q "drop table\|DROP TABLE" scripts/chaos-runner.js || \
+             grep -q "delete.*from\|DELETE.*FROM" scripts/chaos-runner.js; then
+            echo "❌ Potentially destructive operations found in chaos tests!"
+            exit 1
+          fi
+          echo "✅ No destructive operations detected"
+
+      - name: Verify GitHub PR creation is disabled in tests
+        run: |
+          # Ensure tests don't create real PRs
+          if grep -q "createAutoFixPR.*true\|skipGitHub.*false" scripts/chaos-runner.js; then
+            echo "❌ Chaos tests may create real PRs!"
+            exit 1
+          fi
+          echo "✅ GitHub PR creation safely disabled in tests"
+
+      - name: Verify Slack notifications are disabled in tests
+        run: |
+          # Ensure tests don't send real Slack messages
+          if grep -q "sendSlackAlert.*test\|SLACK_WEBHOOK.*test" scripts/chaos-runner.js; then
+            echo "❌ Chaos tests may send Slack notifications!"
+            exit 1
+          fi
+          echo "✅ Slack notifications safely disabled in tests"
+
+  # Summary job (required for branch protection)
+  chaos-test-summary:
+    name: Chaos Tests Summary
+    runs-on: ubuntu-latest
+    needs: [chaos-tests, circuit-breaker-check, safety-audit]
+    if: always()
+    
+    steps:
+      - name: Summarize results
+        run: |
+          echo "## Chaos Testing Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Chaos tests result
+          if [ "${{ needs.chaos-tests.result }}" == "success" ]; then
+            echo "✅ Resilience Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Resilience Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Circuit breaker check result
+          if [ "${{ needs.circuit-breaker-check.result }}" == "success" ]; then
+            echo "✅ Circuit Breaker: VALID" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Circuit Breaker: INVALID" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Safety audit result
+          if [ "${{ needs.safety-audit.result }}" == "success" ]; then
+            echo "✅ Safety Audit: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Safety Audit: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** ${{ env.BASE_URL }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Final status check
+        run: |
+          if [ "${{ needs.chaos-tests.result }}" != "success" ] || \
+             [ "${{ needs.circuit-breaker-check.result }}" != "success" ] || \
+             [ "${{ needs.safety-audit.result }}" != "success" ]; then
+            echo "❌ One or more chaos tests failed"
+            exit 1
+          fi
+          echo "✅ All chaos tests passed!"

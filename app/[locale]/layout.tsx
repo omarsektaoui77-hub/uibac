@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "../globals.css";
+import { TelemetryProvider } from "@/components/TelemetryProvider";
 
 export const metadata: Metadata = {
   title: "UIBAC",
@@ -19,7 +20,9 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={direction} className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-[#171035]">
-        {children}
+        <TelemetryProvider>
+          {children}
+        </TelemetryProvider>
       </body>
     </html>
   );
