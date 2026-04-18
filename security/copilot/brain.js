@@ -4,6 +4,7 @@
 const { predictiveScore } = require("../predict/score");
 const { computeTrend } = require("../predict/trend");
 const { forecastRisk } = require("../predict/forecast");
+const { runMultiAgent } = require("../multi-agent/brain");
 
 const { classifyTier, getTierDescription } = require("./tier");
 const { proposeActions, getActionDescription } = require("./propose");
@@ -21,7 +22,7 @@ const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
  * Co-pilot brain - full flow
  */
 async function copilotBrain(events, options = {}) {
-  const { silent = false, autoApprove = false, override = false } = options;
+  const { silent = false, autoApprove = false, override = false, multiAgent = false } = options;
   
   if (!silent) {
     console.log("🧠 ZeroLeak Co-Pilot Mode");
@@ -39,13 +40,43 @@ async function copilotBrain(events, options = {}) {
     };
   }
   
-  // Compute predictive signals
-  const score = predictiveScore(events);
-  const trend = computeTrend(events);
-  const forecast = forecastRisk(events);
+  // Compute predictive signals (or use multi-agent)
+  let score, tier, actions, explanation, formattedExplanation;
   
-  // Classify tier
-  const tier = classifyTier(score);
+  if (multiAgent) {
+    // Use multi-agent system
+    const multiAgentResult = await runMultiAgent(events, { silent, enableDebate: true });
+    score = multiAgentResult.score;
+    tier = multiAgentResult.tier;
+    actions = multiAgentResult.actions;
+    
+    // Format explanation from multi-agent results
+    formattedExplanation = {
+      summary: multiAgentResult.reasoning,
+      confidence: multiAgentResult.consensus.unanimous ? "HIGH" : "MEDIUM",
+      metrics: {
+        score,
+        consensus: multiAgentResult.consensus.consensus,
+        agentCount: multiAgentResult.decisions.length
+      },
+      reasons: multiAgentResult.decisions.map(d => `[${d.agent}] ${d.score}`)
+    };
+  } else {
+    // Use predictive system
+    score = predictiveScore(events);
+    const trend = computeTrend(events);
+    const forecast = forecastRisk(events);
+    
+    // Classify tier
+    tier = classifyTier(score);
+    
+    // Propose actions
+    actions = proposeActions(score);
+    
+    // Explain decision
+    const explanation = explainDecision({ score, trend, forecast, events });
+    formattedExplanation = formatExplanation(explanation);
+  }
   
   // Safety rule: AI cannot bypass approval for CRITICAL
   if (tier === "CRITICAL" && !override) {
@@ -53,9 +84,6 @@ async function copilotBrain(events, options = {}) {
       console.log("🔒 Safety rule: CRITICAL tier requires human approval");
     }
   }
-  
-  // Propose actions
-  const actions = proposeActions(score);
   
   // Safety: Check cooldown on repeated actions
   const actionsInCooldown = actions.filter(a => {
