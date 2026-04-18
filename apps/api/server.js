@@ -2,14 +2,14 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 
-const { runMultiAgent } = require("../../security/multi-agent/brain");
-const { runMarketplace } = require("../../security/marketplace/brain");
-const { copilotBrain } = require("../../security/copilot/brain");
-const { generateToken, authMiddleware } = require("./auth");
-const { users } = require("./users");
-const { requireRole, requireAnyRole } = require("./rbac");
-const { logAudit, getAudit } = require("./audit");
-const { broadcast } = require("./ws");
+const { runMultiAgent } = require(path.join(__dirname, "../../security/multi-agent/brain"));
+const { runMarketplace } = require(path.join(__dirname, "../../security/marketplace/brain"));
+const { copilotBrain } = require(path.join(__dirname, "../../security/copilot/brain"));
+const { generateToken, authMiddleware } = require(path.join(__dirname, "./auth"));
+const { users } = require(path.join(__dirname, "./users"));
+const { requireRole, requireAnyRole } = require(path.join(__dirname, "./rbac"));
+const { logAudit, getAudit } = require(path.join(__dirname, "./audit"));
+const { broadcast } = require(path.join(__dirname, "./ws"));
 
 const app = express();
 app.use(express.json());
