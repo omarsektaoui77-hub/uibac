@@ -6,12 +6,13 @@ const { computeOrgRisk, computeOrgWideRisk, getRiskLevel, computeRiskByRepo } = 
 const { orgPolicy, validatePolicy } = require("./policy");
 const { execute } = require("./actions");
 const { log } = require("../soc/audit");
+const { runPredictive } = require("../predict/brain");
 
 /**
  * Run org brain on events
  */
 function runOrgBrain(events, options = {}) {
-  const { silent = false, autoAct = false } = options;
+  const { silent = false, autoAct = false, predictive = true } = options;
   
   if (!silent) {
     console.log("🏢 ZeroLeak Org Brain");
@@ -57,6 +58,24 @@ function runOrgBrain(events, options = {}) {
       console.log(`  Risk Score: ${risk} → ${riskLevel}`);
     }
     
+    // Run predictive analysis (if enabled)
+    let predictiveResult = null;
+    if (predictive && inc.events.length >= 5) {
+      if (!silent) console.log(`  Running predictive analysis...`);
+      predictiveResult = runPredictive(inc.events, { silent: true });
+      
+      if (!silent) {
+        console.log(`  Predictive Score: ${predictiveResult.score} → ${predictiveResult.level}`);
+        console.log(`  Predictive Actions: ${predictiveResult.actions.join(", ")}`);
+      }
+      
+      // If predictive suggests BLOCK_DEPLOY, add to actions
+      if (predictiveResult.actions.includes("BLOCK_DEPLOY") && !actions.includes("FREEZE_DEPLOYS")) {
+        actions.push("FREEZE_DEPLOYS");
+        if (!silent) console.log(`  ⚠️ Predictive action added: FREEZE_DEPLOYS`);
+      }
+    }
+    
     // Get policy actions
     const actions = orgPolicy(inc, risk);
     
@@ -79,6 +98,7 @@ function runOrgBrain(events, options = {}) {
       riskLevel,
       repos: inc.repos,
       actions,
+      predictive: predictiveResult,
       time: new Date().toISOString()
     });
     
@@ -97,6 +117,7 @@ function runOrgBrain(events, options = {}) {
       riskLevel,
       actions,
       actionResults,
+      predictive: predictiveResult,
       autoActed: autoAct
     });
     
