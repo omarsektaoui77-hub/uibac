@@ -9,6 +9,9 @@ const path = require("path");
 // SOC Integration
 const { runSOC } = require("../soc/brain");
 
+// Org Brain Integration
+const { runOrgBrain } = require("../org-brain/brain");
+
 const app = express();
 app.use(express.json());
 
@@ -231,6 +234,16 @@ app.use((req, res, next) => {
       console.warn(`[SECURE] Untrusted source attempt: ${source}`);
       return res.status(403).json({ error: "Untrusted source" });
     }
+    
+    // Zero trust: validate org/repo ownership
+    const org = req.headers["x-org"] || req.body?.org;
+    const repo = req.headers["x-repo"] || req.body?.repo;
+    
+    if (org && repo) {
+      // In production, verify repo ownership via GitHub API
+      // For now, just log the check
+      console.log(`[ZERO-TRUST] Validating ownership: ${org}/${repo}`);
+    }
   }
   next();
 });
@@ -374,6 +387,15 @@ app.post("/ingest", authorize("developer"), (req, res) => {
     })
     .catch(err => {
       console.error(`[SOC] Error:`, err.message);
+    });
+  
+  // Trigger Org brain (async, non-blocking)
+  runOrgBrain(events, { silent: true, autoAct: false })
+    .then(result => {
+      console.log(`[ORG] Processed ${result.incidents} org incidents, org-wide risk: ${result.orgWideRisk.toFixed(1)}`);
+    })
+    .catch(err => {
+      console.error(`[ORG] Error:`, err.message);
     });
   
   res.json({ ok: true, id: e.id, policies: triggeredPolicies });
