@@ -7,12 +7,14 @@ const { classify, getDescription } = require("./classify");
 const { decide, getActionDescription } = require("./decide");
 const { act } = require("./act");
 const { log, read } = require("./audit");
+const { adaptiveClassify } = require("./adaptive-classify");
+const { safeLearn } = require("./safe-learn");
 
 /**
  * Run SOC analysis on raw events
  */
 async function runSOC(rawEvents, options = {}) {
-  const { silent = false, autoAct = false } = options;
+  const { silent = false, autoAct = false, adaptive = true } = options;
   
   if (!silent) {
     console.log("🧠 ZeroLeak AI SOC Mode");
@@ -49,8 +51,16 @@ async function runSOC(rawEvents, options = {}) {
       console.log(`  Time window: ${incident.start} → ${incident.end}`);
     }
     
-    // Step 4: Classify incident
-    const classification = classify(incident);
+    // Step 4: Classify incident (adaptive if enabled)
+    let classification;
+    if (adaptive) {
+      classification = adaptiveClassify(incident);
+      if (!silent && classification.isAnomalous) {
+        console.log(`  🔍 Anomaly detected: ${classification.anomalyHits} events anomalous`);
+      }
+    } else {
+      classification = classify(incident);
+    }
     
     if (!silent) {
       console.log(`  Classification: ${getDescription(classification)}`);
@@ -70,6 +80,8 @@ async function runSOC(rawEvents, options = {}) {
       category: classification.category,
       riskScore: classification.riskScore,
       confidence: classification.confidence,
+      isAnomalous: classification.isAnomalous || false,
+      anomalyHits: classification.anomalyHits || 0,
       actions,
       time: new Date().toISOString()
     });
@@ -83,12 +95,21 @@ async function runSOC(rawEvents, options = {}) {
       if (!silent) console.log(`  Auto-act disabled (actions logged only)`);
     }
     
+    // Step 8: Safe learning (if adaptive enabled)
+    if (adaptive) {
+      if (!silent) console.log(`  Learning from incident...`);
+      for (const e of incident.events) {
+        safeLearn(e, classification);
+      }
+    }
+    
     results.push({
       incident: incident.id,
       classification,
       actions,
       actionResults,
-      autoActed: autoAct
+      autoActed: autoAct,
+      learned: adaptive
     });
     
     if (!silent) console.log();
@@ -98,6 +119,7 @@ async function runSOC(rawEvents, options = {}) {
     console.log(`✅ SOC analysis complete`);
     console.log(`   Incidents processed: ${incidents.length}`);
     console.log(`   Actions taken: ${autoAct ? "YES" : "NO (auto-act disabled)"}`);
+    console.log(`   Adaptive learning: ${adaptive ? "ENABLED" : "DISABLED"}`);
   }
   
   return {

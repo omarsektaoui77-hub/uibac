@@ -10,6 +10,7 @@ async function main() {
   const args = process.argv.slice(2);
   const silent = args.includes("--silent");
   const autoAct = args.includes("--auto-act");
+  const adaptive = !args.includes("--no-adaptive");
   const ingest = args.includes("--ingest");
 
   // Get event file from argument
@@ -25,11 +26,13 @@ async function main() {
     console.log("📡 Ingesting events from command center...");
     console.log(`   Host: ${ccHost}:${ccPort}`);
     console.log(`   Role: ${ccRole}`);
+    console.log(`   Adaptive Learning: ${adaptive ? "ENABLED" : "DISABLED"}`);
     console.log();
     
     const result = await runSOCWithIngestion({
       silent,
       autoAct,
+      adaptive,
       ccHost,
       ccPort,
       ccToken,
@@ -53,7 +56,7 @@ async function main() {
     try {
       const events = JSON.parse(fs.readFileSync(eventFile, "utf8"));
       
-      const result = await runSOC(events, { silent, autoAct });
+      const result = await runSOC(events, { silent, autoAct, adaptive });
       
       if (!silent) {
         console.log(`\n📊 Results:`);
@@ -109,7 +112,7 @@ async function main() {
       }
     ];
     
-    const result = await runSOC(sampleEvents, { silent, autoAct });
+    const result = await runSOC(sampleEvents, { silent, autoAct, adaptive });
     
     if (!silent) {
       console.log(`\n📊 Results:`);

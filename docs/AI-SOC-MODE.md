@@ -335,6 +335,138 @@ SOC_SECRET=your-hmac-secret
 - Inherited from command center
 - 100 requests per minute per IP
 
+## 🧠 Adaptive Learning Mode
+
+### Overview
+
+Adaptive Learning Mode adds intelligent anomaly detection and baseline learning to the SOC system. It learns normal patterns per repo/env/type and detects deviations automatically.
+
+### Principles
+
+- 📊 Learn normal behavior per repo/env/type
+- 🧮 Use simple statistics (no black-box AI)
+- 🐢 Adapt slowly (avoid drift)
+- 🚫 Never override critical security rules
+
+### Baseline Model
+
+**Tracks per key:** `repo:env:type`
+
+**Stores:**
+- Event frequency
+- Average risk
+- Variance
+- Min/max risk
+- Last updated
+
+**Example:**
+```json
+{
+  "frontend:prod:CODE_SCAN": {
+    "count": 120,
+    "avgRisk": 3.2,
+    "variance": 1.1,
+    "minRisk": 1,
+    "maxRisk": 8,
+    "lastUpdated": "2026-04-18T10:00:00Z"
+  }
+}
+```
+
+### Anomaly Detection
+
+**Z-score style detection:**
+- Requires 10+ events for baseline
+- Detects anomalies at 3+ standard deviations
+- Returns severity: NONE, LOW, MEDIUM, HIGH, CRITICAL
+
+**Example:**
+```javascript
+const { detectAnomaly, getAnomalySeverity } = require("./soc/anomaly");
+
+const isAnomalous = detectAnomaly(event, baseline);
+const severity = getAnomalySeverity(event, baseline);
+```
+
+### Adaptive Classification
+
+**Combines rule-based with anomaly detection:**
+- Rule-based classification as base
+- Anomaly detection upgrades severity
+- 3+ anomalies → CRITICAL
+- 1+ anomalies → Upgrade severity
+
+**Example:**
+```javascript
+const { adaptiveClassify } = require("./soc/adaptive-classify");
+
+const classification = adaptiveClassify(incident);
+// Returns: { severity, category, riskScore, isAnomalous, anomalyHits, ... }
+```
+
+### Safe Learning
+
+**Controlled learning safeguards:**
+- ❌ Do NOT learn from CRITICAL incidents
+- ⚠️ Only learn LOW/MEDIUM (optional)
+- ⏳ Delayed learning with cooldown
+- 🎲 Sampled learning for rate control
+
+**Example:**
+```javascript
+const { safeLearn, delayedLearn, sampledLearn } = require("./soc/safe-learn");
+
+// Basic safe learning
+safeLearn(event, classification);
+
+// Delayed learning (60s cooldown)
+delayedLearn(event, classification, 60 * 1000);
+
+// Sampled learning (50% sample rate)
+sampledLearn(event, classification, 0.5);
+```
+
+### Drift Protection
+
+**Prevents baseline poisoning:**
+- Decays old data after 10,000 events
+- Resets count to 1,000
+- Decays variance by 10%
+
+**Prevents:**
+- Attackers slowly shifting baseline
+- Long-term drift
+- Data poisoning attacks
+
+### Usage
+
+**Enable adaptive learning (default):**
+```bash
+node security/soc/brain-runner.js
+```
+
+**Disable adaptive learning:**
+```bash
+node security/soc/brain-runner.js --no-adaptive
+```
+
+**View baseline data:**
+```javascript
+const { getAllBaselines } = require("./soc/learn");
+const baselines = getAllBaselines();
+console.log(baselines);
+```
+
+### Critical Safeguards
+
+**Never allow adaptive system to:**
+- Override secret leak detection
+- Ignore auth failures
+- Reduce CRITICAL thresholds
+- Learn from CRITICAL incidents
+
+**Hard rules stay hard.**
+
 ## 📊 What You Now Have
 
 - 🔗 Event correlation (real SOC behavior)
@@ -342,6 +474,9 @@ SOC_SECRET=your-hmac-secret
 - ⚖️ Automated decision making
 - 🛠️ Controlled auto-response
 - 📜 Full audit trail
+- 📚 Adaptive baseline learning
+- 🚨 Anomaly detection
+- 🛡️ Safe learning with safeguards
 
 ## ⚠️ Reality Check
 
@@ -350,14 +485,17 @@ This is opinionated, minimal, and deployable:
 - **Opinionated:** Fixed correlation strategies, severity thresholds
 - **Minimal:** No over-engineering, clear pipeline
 - **Deployable:** Works with existing infrastructure
+- **Adaptive:** Simple statistics, no black-box AI
 
 **Not:**
 - Full SIEM replacement
 - ML-based anomaly detection
 - Complex alert routing
+- Unsupervised learning
 
 ## 🔗 Related Documentation
 
 - [Enterprise Mode](./ENTERPRISE-MODE.md)
 - [Production Hardening](./PRODUCTION-HARDENING.md)
 - [Zero Trust Mode](./ZERO-TRUST-MODE.md)
+

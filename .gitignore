@@ -55,3 +55,9 @@ backend/**/venv*/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# security
+security/soc/baseline.json
+security/soc-audit.json
+security/brain-db.json
+security/brain-memory.json
