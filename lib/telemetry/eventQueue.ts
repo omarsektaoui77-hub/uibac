@@ -3,6 +3,7 @@ type EventStatus = 'queued' | 'sending' | 'sent' | 'confirmed' | 'failed';
 
 // Event Schema (TypeScript)
 export interface TelemetryEvent {
+  metadata: any;
   id: string; // crypto.randomUUID() for deduplication
   eventType: 'STREAK_UPDATED' | 'QUIZ_COMPLETED' | 'REWARD_GRANTED' | 'ENGAGEMENT_UPDATED';
   timestamp: number; // High-resolution (performance.now())
