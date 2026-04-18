@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZeroLeak AI SOC
 
-## Getting Started
+A Living Security Intelligence Platform with autonomous detection, prediction, decision-making, and continuous learning.
 
-First, run the development server:
+## 🧠 Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+[ Sensors ]
+   ↓
+[ Event Stream ]
+   ↓
+[ Multi-Agent + Marketplace ]
+   ↓
+[ Judge + Co-pilot ]
+   ↓
+[ Action Layer ]
+   ↓
+[ Evaluation Engine ]
+   ↓
+[ Learning + Evolution Engine ]
+   ↓
+[ Governance Layer ]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📁 Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+zero-leak-ai-soc/
+│
+├── apps/
+│   ├── api/                 # Express API (brain entrypoint)
+│   ├── dashboard/          # UI (future)
+│
+├── security/
+│   ├── agents/             # Specialized security agents
+│   ├── multi-agent/        # Multi-agent orchestrator
+│   ├── marketplace/        # Agent marketplace with evolution
+│   ├── predict/            # Predictive security
+│   ├── copilot/            # Human-AI collaboration
+│   ├── self-heal/          # Self-healing production
+│   ├── evolution/          # Learning and adaptation
+│   ├── governance/         # Safety rules and guardrails
+│   ├── soc/                # AI SOC core
+│   └── org-brain/          # Organization-wide intelligence
+│
+├── data/
+│   ├── events.json         # Event storage
+│   ├── memory.json         # Adaptive memory
+│
+├── scripts/
+│   ├── setup.sh            # One-command setup
+│   ├── run.sh              # Run the system
+│
+├── docs/                   # Documentation
+├── lib/                    # Shared libraries
+└── README.md
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Quick Start
 
-## Learn More
+### One-Command Setup
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+chmod +x scripts/setup.sh
+./scripts/setup.sh
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Run the System
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+chmod +x scripts/run.sh
+./scripts/run.sh
+```
 
-## Deploy on Vercel
+The AI SOC will start on `http://localhost:3000`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧪 Test It
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+curl -X POST http://localhost:3000/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"type":"SECRET_LEAK","risk":9}'
+```
+
+## 📊 API Endpoints
+
+- `POST /ingest` - Ingest security events
+- `GET /status` - Get system status
+- `GET /health` - Health check
+
+## 📚 Documentation
+
+- [AI SOC Mode](docs/AI-SOC-MODE.md)
+- [Org Brain](docs/ORG-BRAIN.md)
+- [Predictive Security](docs/PREDICTIVE-SECURITY.md)
+- [Co-Pilot Mode](docs/COPILOT-MODE.md)
+- [Multi-Agent System](docs/MULTI-AGENT.md)
+- [Agent Marketplace](docs/AGENT-MARKETPLACE.md)
+- [Living Security Intelligence](docs/LIVING-SECURITY-INTELLIGENCE.md)
+
+## 🧠 Features
+
+- 🔍 Continuous sensing from multiple sources
+- 🤖 Multi-agent decision making
+- 🏆 Performance-based agent selection
+- 🔮 Predictive security with trend detection
+- ✋ Human-in-the-loop co-pilot mode
+- 🧬 Continuous learning and evolution
+- ⚖️ Governance layer with safety rules
+- 📊 Self-awareness and health monitoring
+
+## 🔒 Safety
+
+- 🧪 Sandbox execution for all agents
+- 🚫 No direct system access
+- ✋ Human approval for critical actions
+- 📜 Full audit trail
+- 🧯 Kill switch for emergency stop
+- ⏱️ Rate limiting on autonomous actions
+
+## 🚀 Next Steps
+
+- Add Slack approval (real co-pilot)
+- Add dashboard (Next.js)
+- Add Redis (real-time events)
+- Add auth + API keys
+- Deploy on Vercel / Railway

@@ -74,7 +74,7 @@ async function copilotBrain(events, options = {}) {
     actions = proposeActions(score);
     
     // Explain decision
-    const explanation = explainDecision({ score, trend, forecast, events });
+    explanation = explainDecision({ score, trend, forecast, events });
     formattedExplanation = formatExplanation(explanation);
   }
   
@@ -97,10 +97,6 @@ async function copilotBrain(events, options = {}) {
       console.log(`⏱️ Cooldown active for: ${actionsInCooldown.join(", ")}`);
     }
   }
-  
-  // Explain decision
-  const explanation = explainDecision({ score, trend, forecast, events });
-  const formattedExplanation = formatExplanation(explanation);
   
   if (!silent) {
     console.log("📊 Analysis:");
