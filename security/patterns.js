@@ -41,6 +41,15 @@ module.exports = {
   // API keys with common prefixes
   apiKeyPrefix: /(api_key|apikey|api-key)\s*[=:]\s*['"]?[a-zA-Z0-9_-]{20,}['"]?/gi,
   
+  // Heuristic: String concatenation with env vars (fragmentation attack)
+  envConcatenation: /['"](https?:\/\/[^'"]+)['"]\s*\+\s*(process\.env|process\.getenv)/gi,
+  
+  // Heuristic: Outbound exfiltration (fetch/axios with env vars)
+  exfiltration: /(fetch|axios|http\.request)\s*\(\s*['"]https?:\/\/[^'"]*['"]\s*\+\s*process\.env/gi,
+  
+  // Heuristic: External domain with env var (potential exfiltration)
+  externalDomainEnv: /['"]https?:\/\/[^'"]*['"]\s*\+\s*process\.env/gi,
+  
   // All patterns combined
   allPatterns: function() {
     return [
@@ -56,7 +65,10 @@ module.exports = {
       this.databaseUrl,
       this.jwtToken,
       this.privateKey,
-      this.apiKeyPrefix
+      this.apiKeyPrefix,
+      this.envConcatenation,
+      this.exfiltration,
+      this.externalDomainEnv
     ];
   },
   
@@ -75,7 +87,10 @@ module.exports = {
       [this.databaseUrl]: 'Database URL',
       [this.jwtToken]: 'JWT Token',
       [this.privateKey]: 'Private Key',
-      [this.apiKeyPrefix]: 'API Key'
+      [this.apiKeyPrefix]: 'API Key',
+      [this.envConcatenation]: 'Suspicious: URL + Env Var (Fragmentation)',
+      [this.exfiltration]: 'Suspicious: Exfiltration Attempt',
+      [this.externalDomainEnv]: 'Suspicious: External Domain + Env Var'
     };
     return names[pattern] || 'Unknown Pattern';
   }
