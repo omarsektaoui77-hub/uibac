@@ -1,11 +1,13 @@
-// ZeroLeak Autonomous Security Brain - Main Runner
-// Analyzes code changes for behavioral risk
+// ZeroLeak Evolved Security Brain - Main Runner
+// Analyzes code changes for behavioral risk with anomaly detection
 
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { extractSignals } = require("./brain-signals");
 const { score, classify, getRiskDescription, getRiskColor, exceedsBaseline, updateBaseline } = require("./brain-core");
+const { updateProfile, getProfile } = require("./brain-learn");
+const { isAnomalous, getAnomalyScore, getAnomalyExplanation } = require("./brain-anomaly");
 const { log, logPR } = require("./audit-log");
 
 // Brain memory file
@@ -39,14 +41,25 @@ function saveMemory(memory) {
 }
 
 /**
+ * Get git author
+ */
+function getGitAuthor() {
+  try {
+    return execSync("git config user.name", { encoding: "utf8" }).trim();
+  } catch (e) {
+    return "unknown";
+  }
+}
+
+/**
  * Main brain analysis
  */
 function analyze(options = {}) {
   const { silent = false, staged = false } = options;
   
   if (!silent) {
-    console.log("🧠 ZeroLeak Security Brain");
-    console.log("========================\n");
+    console.log("🧠 ZeroLeak Evolved Security Brain");
+    console.log("===================================\n");
   }
   
   let diff = "";
@@ -61,14 +74,14 @@ function analyze(options = {}) {
     if (!silent) {
       console.log("No diff to analyze");
     }
-    return { level: "LOW", risk: 0, signals: {} };
+    return { level: "LOW", risk: 0, signals: {}, anomalyScore: 0 };
   }
   
   if (!diff || diff.trim() === "") {
     if (!silent) {
       console.log("No changes to analyze");
     }
-    return { level: "LOW", risk: 0, signals: {} };
+    return { level: "LOW", risk: 0, signals: {}, anomalyScore: 0 };
   }
   
   // Extract signals
@@ -78,11 +91,22 @@ function analyze(options = {}) {
   const risk = score(signals);
   const level = classify(risk);
   
+  // Get author
+  const author = getGitAuthor();
+  
   // Load memory
   const memory = loadMemory();
   
   // Check if exceeds baseline
   const exceeds = exceedsBaseline(risk, memory);
+  
+  // Check for anomalies
+  const anomalous = isAnomalous(author, risk);
+  const anomalyScore = getAnomalyScore(author, risk, signals);
+  const anomalyExplanation = getAnomalyExplanation(author, risk, signals);
+  
+  // Check for pattern drift
+  const drift = risk > memory.avgRisk * 1.5;
   
   if (!silent) {
     console.log("📊 Signal Analysis:");
@@ -104,6 +128,15 @@ function analyze(options = {}) {
     console.log(`Description: ${getRiskDescription(level)}`);
     console.log(`Baseline: ${memory.avgRisk.toFixed(2)} (max: ${memory.maxAllowed})`);
     console.log(`Exceeds baseline: ${exceeds ? "⚠️ YES" : "✗ NO"}`);
+    console.log();
+    
+    console.log(`👤 Developer: ${author}`);
+    console.log(`Anomaly Score: ${(anomalyScore * 100).toFixed(0)}%`);
+    console.log(`Anomalous: ${anomalous ? "🚨 YES" : "✗ NO"}`);
+    if (anomalous) {
+      console.log(`Explanation: ${anomalyExplanation}`);
+    }
+    console.log(`Pattern Drift: ${drift ? "⚠️ YES" : "✗ NO"}`);
   }
   
   // Log the analysis
@@ -111,12 +144,37 @@ function analyze(options = {}) {
     risk,
     level,
     signals,
+    author,
+    anomalyScore,
+    anomalous,
+    drift,
     exceedsBaseline: exceeds
   });
   
   // Update memory
   updateBaseline(memory, risk);
   saveMemory(memory);
+  
+  // Update developer profile
+  updateProfile(author, risk, signals);
+  
+  // Block anomalous changes
+  if (anomalous) {
+    if (!silent) {
+      console.error("\n🚨 Behavioral anomaly detected. Blocking.");
+    }
+    
+    logPR("BLOCKED", {
+      reason: "ANOMALY_DETECTED",
+      risk,
+      level,
+      author,
+      anomalyScore,
+      anomalyExplanation
+    });
+    
+    process.exit(1);
+  }
   
   // Block high-risk changes
   if (level === "CRITICAL" || (level === "HIGH" && exceeds)) {
@@ -134,11 +192,16 @@ function analyze(options = {}) {
     process.exit(1);
   }
   
+  // Warn about pattern drift
+  if (drift && !silent) {
+    console.warn("\n⚠️ Pattern drift detected: behavior changing");
+  }
+  
   if (!silent) {
     console.log("\n✅ Change accepted");
   }
   
-  return { level, risk, signals };
+  return { level, risk, signals, anomalyScore, anomalous, drift };
 }
 
 // Run if called directly

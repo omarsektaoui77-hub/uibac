@@ -1,0 +1,82 @@
+{
+  "commits": [
+    {
+      "author": "Your Name",
+      "risk": 1,
+      "timestamp": "2026-04-18T01:40:46.453Z",
+      "signals": {
+        "usesEnv": true,
+        "addsFetch": false,
+        "addsAxios": false,
+        "addsExternalUrl": false,
+        "touchesSecurity": true,
+        "touchesCI": true,
+        "addsConsoleLog": true,
+        "addsProcessEnvDirect": true,
+        "addsEnvConcatenation": false,
+        "fileCount": 7,
+        "lineCount": 491,
+        "isSecuritySystemUpdate": true
+      }
+    }
+  ],
+  "devProfiles": {
+    "Your Name": {
+      "avgRisk": 1,
+      "count": 1,
+      "maxRisk": 1,
+      "minRisk": 1,
+      "signals": {
+        "usesEnv": {
+          "count": 1,
+          "percentage": 100
+        },
+        "addsFetch": {
+          "count": 0,
+          "percentage": 0
+        },
+        "addsAxios": {
+          "count": 0,
+          "percentage": 0
+        },
+        "addsExternalUrl": {
+          "count": 0,
+          "percentage": 0
+        },
+        "touchesSecurity": {
+          "count": 1,
+          "percentage": 100
+        },
+        "touchesCI": {
+          "count": 1,
+          "percentage": 100
+        },
+        "addsConsoleLog": {
+          "count": 1,
+          "percentage": 100
+        },
+        "addsProcessEnvDirect": {
+          "count": 1,
+          "percentage": 100
+        },
+        "addsEnvConcatenation": {
+          "count": 0,
+          "percentage": 0
+        },
+        "fileCount": {
+          "count": 1,
+          "percentage": 100
+        },
+        "lineCount": {
+          "count": 1,
+          "percentage": 100
+        },
+        "isSecuritySystemUpdate": {
+          "count": 1,
+          "percentage": 100
+        }
+      }
+    }
+  },
+  "lastUpdated": "2026-04-18T01:40:46.453Z"
+}

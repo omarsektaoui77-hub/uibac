@@ -1,8 +1,9 @@
 // ZeroLeak Network Guard - Zero Trust Outbound Restriction
-// Intercepts and blocks unauthorized outbound requests
+// Intercepts and blocks unauthorized outbound requests with runtime brain integration
 
 const fs = require("fs");
 const path = require("path");
+const { log } = require("./audit-log");
 
 // Allowed domains for outbound requests
 const ALLOWED_DOMAINS = [
@@ -88,6 +89,16 @@ function init() {
     const caller = getCaller();
     const allowed = isAllowedDomain(url);
     
+    // Log to audit log
+    log("NETWORK_REQUEST", {
+      url,
+      caller,
+      allowed,
+      domain: extractDomain(url),
+      timestamp: new Date().toISOString()
+    });
+    
+    // Legacy log format
     logRequest(url, allowed, caller);
     
     if (!allowed) {

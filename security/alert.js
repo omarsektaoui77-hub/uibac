@@ -22,6 +22,8 @@ function sendAlert(message) {
     headers: {
       "Content-Type": "application/json"
     }
+  });
+  
   req.on("error", (error) => {
     console.error(`❌ Slack alert error: ${error.message}`);
   });
