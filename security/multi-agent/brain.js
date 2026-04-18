@@ -8,6 +8,7 @@ const { DeliveryAgent } = require("../agents/delivery");
 const { judge, getJudgeTier, getConsensus } = require("./judge");
 const { debate, getDebateSummary, resolveDebate } = require("./debate");
 const { log } = require("../soc/audit");
+const { runMarketplace } = require("../marketplace/brain");
 
 // Initialize agents
 const agents = [
@@ -21,7 +22,7 @@ const agents = [
  * Run multi-agent analysis
  */
 async function runMultiAgent(events, options = {}) {
-  const { silent = false, enableDebate = true, allowDirectExecution = false } = options;
+  const { silent = false, enableDebate = true, allowDirectExecution = false, useMarketplace = false } = options;
   
   if (!silent) {
     console.log("🧠 ZeroLeak Multi-Agent System");
@@ -44,24 +45,45 @@ async function runMultiAgent(events, options = {}) {
     };
   }
 
-  // Each agent analyzes
-  if (!silent) console.log("🤖 Agent Analysis:");
-  const decisions = agents.map(agent => {
-    const decision = agent.analyze(events);
+  // Each agent analyzes (or use marketplace)
+  let decisions;
+  if (useMarketplace) {
+    if (!silent) console.log("🏪 Using Agent Marketplace for analysis...");
+    const marketplaceResult = await runMarketplace(events, { silent, concurrency: 5, selectTop: 3 });
     
-    // Safety: Remove actions from agent decisions (only judge decides)
-    if (!allowDirectExecution) {
-      decision._actions = decision.actions;
-      decision.actions = []; // Clear actions, judge will decide
+    if (!marketplaceResult.valid) {
+      return marketplaceResult;
     }
     
-    if (!silent) {
-      console.log(`  [${agent.name}] Score: ${decision.score} | Confidence: ${decision.confidence} | ${decision.reasoning}`);
-    }
+    decisions = marketplaceResult.selected.map(r => ({
+      agent: r.agent,
+      score: r.score,
+      confidence: r.confidence,
+      actions: r.actions,
+      reasoning: r.reasoning,
+      fromMarketplace: true
+    }));
     
-    return decision;
-  });
-  console.log();
+    if (!silent) console.log(`  Selected ${decisions.length} top agents from marketplace\n`);
+  } else {
+    if (!silent) console.log("🤖 Agent Analysis:");
+    decisions = agents.map(agent => {
+      const decision = agent.analyze(events);
+      
+      // Safety: Remove actions from agent decisions (only judge decides)
+      if (!allowDirectExecution) {
+        decision._actions = decision.actions;
+        decision.actions = []; // Clear actions, judge will decide
+      }
+      
+      if (!silent) {
+        console.log(`  [${agent.name}] Score: ${decision.score} | Confidence: ${decision.confidence} | ${decision.reasoning}`);
+      }
+      
+      return decision;
+    });
+    console.log();
+  }
 
   // Debate layer (optional)
   let debated = decisions;
