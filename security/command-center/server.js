@@ -6,6 +6,9 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
+// SOC Integration
+const { runSOC } = require("../soc/brain");
+
 const app = express();
 app.use(express.json());
 
@@ -363,6 +366,15 @@ app.post("/ingest", authorize("developer"), (req, res) => {
   }
   
   auditLog("INGEST_SUCCESS", { eventId: e.id, policies: triggeredPolicies }, req.headers["x-role"]);
+  
+  // Trigger SOC brain (async, non-blocking)
+  runSOC(events, { silent: true, autoAct: false, adaptive: true })
+    .then(result => {
+      console.log(`[SOC] Processed ${result.events} events, ${result.incidents} incidents`);
+    })
+    .catch(err => {
+      console.error(`[SOC] Error:`, err.message);
+    });
   
   res.json({ ok: true, id: e.id, policies: triggeredPolicies });
 });
