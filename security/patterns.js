@@ -50,6 +50,11 @@ module.exports = {
   // Heuristic: External domain with env var (potential exfiltration)
   externalDomainEnv: /['"]https?:\/\/[^'"]*['"]\s*\+\s*process\.env/gi,
   
+  // Zero Trust: Forbidden patterns (hard block) - more specific to avoid false positives
+  forbiddenConsoleLog: /console\.log\s*\(\s*process\.env\.[A-Z_]+/gi,
+  forbiddenFetchEnv: /fetch\s*\(\s*["'`]?process\.env\.[A-Z_]+/gi,
+  forbiddenAxiosEnv: /axios\.(post|get|put|delete)\s*\(\s*["'`]?process\.env\.[A-Z_]+/gi,
+  
   // All patterns combined
   allPatterns: function() {
     return [
@@ -68,7 +73,10 @@ module.exports = {
       this.apiKeyPrefix,
       this.envConcatenation,
       this.exfiltration,
-      this.externalDomainEnv
+      this.externalDomainEnv,
+      this.forbiddenConsoleLog,
+      this.forbiddenFetchEnv,
+      this.forbiddenAxiosEnv
     ];
   },
   
@@ -90,7 +98,10 @@ module.exports = {
       [this.apiKeyPrefix]: 'API Key',
       [this.envConcatenation]: 'Suspicious: URL + Env Var (Fragmentation)',
       [this.exfiltration]: 'Suspicious: Exfiltration Attempt',
-      [this.externalDomainEnv]: 'Suspicious: External Domain + Env Var'
+      [this.externalDomainEnv]: 'Suspicious: External Domain + Env Var',
+      [this.forbiddenConsoleLog]: 'FORBIDDEN: console.log with process.env',
+      [this.forbiddenFetchEnv]: 'FORBIDDEN: fetch with process.env',
+      [this.forbiddenAxiosEnv]: 'FORBIDDEN: axios with process.env'
     };
     return names[pattern] || 'Unknown Pattern';
   }
