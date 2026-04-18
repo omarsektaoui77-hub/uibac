@@ -1,0 +1,16 @@
+{
+  "name": "soc-api",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
+    "jsonwebtoken": "^9.0.3",
+    "ws": "^8.20.0",
+    "zod": "^4.3.6"
+  }
+}
