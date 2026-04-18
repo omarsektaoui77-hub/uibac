@@ -9,6 +9,7 @@ const { score, classify, getRiskDescription, getRiskColor, exceedsBaseline, upda
 const { updateProfile, getProfile } = require("./brain-learn");
 const { isAnomalous, getAnomalyScore, getAnomalyExplanation } = require("./brain-anomaly");
 const { log, logPR } = require("./audit-log");
+const { sendEvent } = require("./cc-client");
 
 // Brain memory file
 const MEMORY_FILE = path.join(__dirname, "..", "security", "brain-memory.json");
@@ -150,6 +151,18 @@ function analyze(options = {}) {
     drift,
     exceedsBaseline: exceeds
   });
+  
+  // Send event to command center
+  sendEvent({
+    type: "BRAIN_ANALYSIS",
+    level,
+    risk,
+    author,
+    anomalyScore,
+    anomalous,
+    drift,
+    signals
+  }).catch(() => {}); // Fail silently
   
   // Update memory
   updateBaseline(memory, risk);

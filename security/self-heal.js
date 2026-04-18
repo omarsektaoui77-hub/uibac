@@ -8,6 +8,7 @@ const { decide } = require("./autonomous-core");
 const { decideHealing, isHealingSafe } = require("./healing-core");
 const { sanitizeFile, contain, requireRotation } = require("./healing-actions");
 const { log } = require("./audit-log");
+const { sendEvent, sendAction } = require("./cc-client");
 
 // Safe mode flag (default = safe)
 const SAFE_MODE = process.env.SECURITY_SAFE !== "false";
@@ -84,6 +85,17 @@ function analyze(options = {}) {
     files: diffFiles,
     signals
   });
+  
+  // Send event to command center
+  sendEvent({
+    type: "SELF_HEAL_ANALYSIS",
+    level,
+    risk,
+    actions: allowedActions,
+    safeMode: SAFE_MODE,
+    files: diffFiles,
+    signals
+  }).catch(() => {}); // Fail silently
   
   // Execute healing actions
   allowedActions.forEach(action => {
