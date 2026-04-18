@@ -1,5 +1,5 @@
-// ZeroLeak Security Command Center - Client (Production Hardened)
-// Connects security systems to the command center
+// ZeroLeak Security Command Center - Client (Enterprise Mode)
+// Connects security systems to the command center with multi-tenant support
 
 const http = require("http");
 
@@ -7,18 +7,34 @@ const CC_HOST = process.env.CC_HOST || "localhost";
 const CC_PORT = process.env.CC_PORT || 4000;
 const CC_TOKEN = process.env.CC_TOKEN;
 const CC_SOURCE = process.env.CC_SOURCE || "local";
+const CC_ROLE = process.env.CC_ROLE || "developer";
+const CC_ORG = process.env.CC_ORG || "default-org";
+const CC_REPO = process.env.CC_REPO;
+const CC_ENV = process.env.CC_ENV || "development";
+const CC_SERVICE = process.env.CC_SERVICE || "unknown";
 
 /**
- * Send event to command center
+ * Send event to command center (enterprise mode)
  */
 async function sendEvent(event) {
   try {
-    const data = JSON.stringify(event);
+    // Add multi-tenant metadata
+    const enterpriseEvent = {
+      org: CC_ORG,
+      repo: CC_REPO,
+      env: CC_ENV,
+      service: CC_SERVICE,
+      actor: process.env.USER || process.env.USERNAME || "unknown",
+      ...event
+    };
+    
+    const data = JSON.stringify(enterpriseEvent);
     
     const headers = {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(data),
-      "x-source": CC_SOURCE
+      "x-source": CC_SOURCE,
+      "x-role": CC_ROLE
     };
     
     // Add auth token if configured
@@ -64,7 +80,7 @@ async function sendEvent(event) {
 }
 
 /**
- * Send action to command center
+ * Send action to command center (enterprise mode)
  */
 async function sendAction(type, payload = {}) {
   try {
@@ -73,7 +89,8 @@ async function sendAction(type, payload = {}) {
     const headers = {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(data),
-      "x-source": CC_SOURCE
+      "x-source": CC_SOURCE,
+      "x-role": CC_ROLE
     };
     
     // Add auth token if configured
@@ -117,9 +134,9 @@ async function sendAction(type, payload = {}) {
 }
 
 /**
- * Get events from command center
+ * Get events from command center (with enterprise filters)
  */
-async function getEvents(limit = 100) {
+async function getEvents(filters = {}) {
   try {
     const headers = {};
     
@@ -128,10 +145,20 @@ async function getEvents(limit = 100) {
       headers["x-cc-token"] = CC_TOKEN;
     }
     
+    // Add role header
+    if (CC_ROLE) {
+      headers["x-role"] = CC_ROLE;
+    }
+    
+    const queryParams = new URLSearchParams({
+      limit: filters.limit || 100,
+      ...filters
+    });
+    
     const options = {
       hostname: CC_HOST,
       port: CC_PORT,
-      path: `/events?limit=${limit}`,
+      path: `/events?${queryParams}`,
       method: "GET",
       headers
     };
@@ -163,9 +190,9 @@ async function getEvents(limit = 100) {
 }
 
 /**
- * Get stats from command center
+ * Get stats from command center (with org filter)
  */
-async function getStats() {
+async function getStats(org = null) {
   try {
     const headers = {};
     
@@ -174,10 +201,17 @@ async function getStats() {
       headers["x-cc-token"] = CC_TOKEN;
     }
     
+    // Add role header
+    if (CC_ROLE) {
+      headers["x-role"] = CC_ROLE;
+    }
+    
+    const path = org ? `/stats?org=${org}` : "/stats";
+    
     const options = {
       hostname: CC_HOST,
       port: CC_PORT,
-      path: "/stats",
+      path: path,
       method: "GET",
       headers
     };
@@ -190,21 +224,21 @@ async function getStats() {
           try {
             resolve(JSON.parse(body));
           } catch (e) {
-            resolve({ total: 0, byLevel: {}, byType: {} });
+            resolve({ total: 0, byLevel: {}, byType: {}, byRepo: {}, byEnv: {} });
           }
         });
       });
       
       req.on("error", (e) => {
         console.warn("[CC] Failed to get stats:", e.message);
-        resolve({ total: 0, byLevel: {}, byType: {} });
+        resolve({ total: 0, byLevel: {}, byType: {}, byRepo: {}, byEnv: {} });
       });
       
       req.end();
     });
   } catch (e) {
     console.warn("[CC] Failed to get stats:", e.message);
-    return { total: 0, byLevel: {}, byType: {} };
+    return { total: 0, byLevel: {}, byType: {}, byRepo: {}, byEnv: {} };
   }
 }
 
