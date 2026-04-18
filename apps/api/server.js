@@ -5,6 +5,11 @@ const path = require("path");
 const { runMultiAgent } = require("../../security/multi-agent/brain");
 const { runMarketplace } = require("../../security/marketplace/brain");
 const { copilotBrain } = require("../../security/copilot/brain");
+const { generateToken, authMiddleware } = require("./auth");
+const { users } = require("./users");
+const { requireRole, requireAnyRole } = require("./rbac");
+const { logAudit, getAudit } = require("./audit");
+const { broadcast } = require("./ws");
 
 const app = express();
 app.use(express.json());
@@ -48,8 +53,23 @@ function saveMemory(memory) {
   fs.writeFileSync(MEMORY_FILE, JSON.stringify(memory, null, 2));
 }
 
-// 🔥 ingest endpoint
-app.post("/ingest", async (req, res) => {
+// � login endpoint
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  const user = users.find(u => u.username === username && u.password === password);
+
+  if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+  const token = generateToken({ username, role: user.role });
+
+  logAudit("LOGIN", { username, role: user.role });
+
+  res.json({ token, role: user.role });
+});
+
+// �🔥 ingest endpoint
+app.post("/ingest", authMiddleware, async (req, res) => {
   const events = loadEvents();
   events.push(req.body);
   saveEvents(events);
@@ -73,25 +93,31 @@ app.post("/ingest", async (req, res) => {
 
   decisionsLog.push(decision);
 
+  // WebSocket broadcast
+  broadcast({ type: "EVENT", payload: req.body });
+  broadcast({ type: "DECISION", payload: decision });
+
+  logAudit("INGEST_EVENT", req.user);
+
   res.json({
     status: "processed",
     decision
   });
 });
 
-// � events endpoint
-app.get("/events", (req, res) => {
+// 📡 events endpoint
+app.get("/events", authMiddleware, (req, res) => {
   const events = loadEvents();
   res.json(events);
 });
 
 // 🤖 decisions endpoint
-app.get("/decisions", (req, res) => {
+app.get("/decisions", authMiddleware, (req, res) => {
   res.json(decisionsLog);
 });
 
 // 📊 status
-app.get("/status", (req, res) => {
+app.get("/status", authMiddleware, (req, res) => {
   const events = loadEvents();
   res.json({ 
     eventsCount: events.length,
@@ -108,14 +134,21 @@ app.get("/health", (req, res) => {
   });
 });
 
+// 📜 audit endpoint
+app.get("/audit", authMiddleware, requireRole("ADMIN"), (req, res) => {
+  res.json(getAudit());
+});
+
 // ✋ control endpoints
-app.post("/control/kill", (req, res) => {
+app.post("/control/kill", authMiddleware, requireRole("ADMIN"), (req, res) => {
   autonomyEnabled = false;
+  logAudit("KILL_SWITCH", req.user);
   res.json({ status: "autonomy disabled" });
 });
 
-app.post("/control/enable", (req, res) => {
+app.post("/control/enable", authMiddleware, requireRole("ADMIN"), (req, res) => {
   autonomyEnabled = true;
+  logAudit("ENABLE_AUTONOMY", req.user);
   res.json({ status: "autonomy enabled" });
 });
 
