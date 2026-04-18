@@ -152,7 +152,8 @@ app.post("/control/enable", authMiddleware, requireRole("ADMIN"), (req, res) => 
   res.json({ status: "autonomy enabled" });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`🚀 AI SOC running on http://localhost:${PORT}`)
+const port = process.env.PORT || 3000;
+const host = process.env.HOST || "0.0.0.0";
+app.listen(port, host, () =>
+  console.log(`🚀 AI SOC running on http://${host}:${port}`)
 );
