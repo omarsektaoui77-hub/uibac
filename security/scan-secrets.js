@@ -113,13 +113,76 @@ function getFilesToScan() {
 }
 
 /**
+ * Get staged content for a file (more secure than reading working directory)
+ */
+function getStagedContent(filePath) {
+  try {
+    const content = execSync(`git diff --cached -- "${filePath}"`, { encoding: "utf8" });
+    return content;
+  } catch (e) {
+    return "";
+  }
+}
+
+/**
+ * Normalize content for scanning (join lines, remove whitespace tricks)
+ */
+function normalizeContent(content) {
+  // Remove common whitespace tricks
+  return content
+    .replace(/\s+/g, ' ')  // Collapse whitespace
+    .replace(/\\n/g, '')    // Remove escaped newlines
+    .replace(/\\r/g, '')    // Remove escaped carriage returns
+    .replace(/\\t/g, '');   // Remove escaped tabs
+}
+
+/**
+ * Decode and rescan base64 strings
+ */
+function decodeAndRescan(base64String) {
+  try {
+    const decoded = Buffer.from(base64String, 'base64').toString('utf8');
+    const allPatterns = patterns.allPatterns();
+    const results = [];
+    
+    for (const pattern of allPatterns) {
+      if (pattern === patterns.base64Secret) continue; // Skip base64 pattern itself
+      const matches = decoded.match(pattern);
+      if (matches) {
+        results.push({
+          type: `Base64 Decoded: ${patterns.getPatternName(pattern)}`,
+          secret: decoded.substring(0, 50)
+        });
+      }
+    }
+    
+    return results;
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
  * Scan a single file
  */
 function scanFile(filePath) {
   const results = [];
   
   try {
-    const content = fs.readFileSync(filePath, "utf8");
+    // Use staged content if in staged mode, otherwise read file
+    let content;
+    if (STAGED_ONLY) {
+      content = getStagedContent(filePath);
+      // If no staged diff, try reading the file directly
+      if (!content) {
+        content = fs.readFileSync(filePath, "utf8");
+      }
+    } else {
+      content = fs.readFileSync(filePath, "utf8");
+    }
+    
+    // Normalize content to catch line-splitting tricks
+    const normalizedContent = normalizeContent(content);
     const allPatterns = patterns.allPatterns();
     
     for (const pattern of allPatterns) {
@@ -136,24 +199,98 @@ function scanFile(filePath) {
           });
         });
       }
+      
+      // Also scan normalized content to catch line-splitting tricks
+      const normalizedMatches = normalizedContent.match(pattern);
+      if (normalizedMatches) {
+        normalizedMatches.forEach(match => {
+          // Only add if not already detected
+          const alreadyDetected = results.some(r => r.secret.includes(match.substring(0, 20)));
+          if (!alreadyDetected) {
+            results.push({
+              type: `${patterns.getPatternName(pattern)} (normalized)`,
+              file: filePath,
+              line: "N/A",
+              secret: match.substring(0, 50) + (match.length > 50 ? "..." : "")
+            });
+          }
+        });
+      }
     }
     
-    // Skip entropy detection for now - too many false positives
-    // // Check for high-entropy strings (higher threshold = fewer false positives)
-    // const highEntropy = findHighEntropyStrings(content, 5.5);
-    // highEntropy.forEach(he => {
-    //   const lines = content.split("\n");
-    //   const lineIndex = lines.findIndex(line => line.includes(he.string));
-    //   results.push({
-    //     type: "High-Entropy String",
-    //     file: filePath,
-    //     line: lineIndex + 1,
-    //     secret: `${he.string.substring(0, 30)}... (entropy: ${he.entropy.toFixed(2)})`
-    //   });
-    // });
+    // Decode and rescan base64 strings
+    const base64Matches = content.match(patterns.base64Secret);
+    if (base64Matches) {
+      base64Matches.forEach(b64 => {
+        const decodedResults = decodeAndRescan(b64);
+        results.push(...decodedResults);
+      });
+    }
     
   } catch (e) {
-    // Skip files that can't be read (binary files, etc.)
+    // Try to scan even if file read fails (might be binary)
+    // Don't skip binary files anymore - scan them as text
+    try {
+      const content = fs.readFileSync(filePath, "binary");
+      const allPatterns = patterns.allPatterns();
+      
+      for (const pattern of allPatterns) {
+        const matches = content.toString().match(pattern);
+        if (matches) {
+          results.push({
+            type: `${patterns.getPatternName(pattern)} (binary)`,
+            file: filePath,
+            line: "N/A",
+            secret: "Detected in binary file"
+          });
+        }
+      }
+    } catch (e2) {
+      // Skip files that truly can't be read
+    }
+  }
+  
+  return results;
+}
+
+/**
+ * Scan commit message for secrets
+ */
+function scanCommitMessage() {
+  const results = [];
+  
+  try {
+    const commitMsgFile = process.env.GIT_PARAMS || ".git/COMMIT_EDITMSG";
+    let commitMsg;
+    
+    if (fs.existsSync(commitMsgFile)) {
+      commitMsg = fs.readFileSync(commitMsgFile, "utf8");
+    } else {
+      // Try to get from git command
+      try {
+        commitMsg = execSync("git log -1 --pretty=%B", { encoding: "utf8" });
+      } catch (e) {
+        return [];
+      }
+    }
+    
+    const allPatterns = patterns.allPatterns();
+    
+    for (const pattern of allPatterns) {
+      const matches = commitMsg.match(pattern);
+      if (matches) {
+        matches.forEach(match => {
+          results.push({
+            type: `${patterns.getPatternName(pattern)} (commit message)`,
+            file: "COMMIT_MESSAGE",
+            line: "N/A",
+            secret: match.substring(0, 50) + (match.length > 50 ? "..." : "")
+          });
+        });
+      }
+    }
+  } catch (e) {
+    // Skip if can't read commit message
   }
   
   return results;
@@ -180,6 +317,10 @@ function scan() {
     const fileResults = scanFile(file);
     results.push(...fileResults);
   }
+  
+  // Scan commit message
+  const commitMsgResults = scanCommitMessage();
+  results.push(...commitMsgResults);
   
   if (results.length > 0) {
     if (!SILENT) {

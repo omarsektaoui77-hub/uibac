@@ -1,8 +1,12 @@
 // Secret pattern detectors for ZeroLeak Security Engine
 
 module.exports = {
-  // Slack Webhook URLs
-  slackWebhook: /https:\/\/hooks\.slack\.com\/services\/[A-Za-z0-9\/]+/g,
+  // Slack Webhook URLs (expanded to catch variants)
+  slackWebhook: /hooks\.slack\.com\/services\/[A-Za-z0-9/_-]+/gi,
+  
+  // Base64 encoded secrets (long base64 strings that might be secrets)
+  // More specific to avoid file paths - look for standalone base64 strings
+  base64Secret: /(?:^|\s)([A-Za-z0-9+/]{40,}={0,2})(?:\s|$)/g,
   
   // OpenAI API keys
   openAIKey: /sk-[a-zA-Z0-9]{48,}/g,
@@ -41,6 +45,7 @@ module.exports = {
   allPatterns: function() {
     return [
       this.slackWebhook,
+      this.base64Secret,
       this.openAIKey,
       this.firebaseKey,
       this.awsAccessKey,
@@ -59,6 +64,7 @@ module.exports = {
   getPatternName: function(pattern) {
     const names = {
       [this.slackWebhook]: 'Slack Webhook URL',
+      [this.base64Secret]: 'Base64 Encoded Secret',
       [this.openAIKey]: 'OpenAI API Key',
       [this.firebaseKey]: 'Firebase API Key',
       [this.awsAccessKey]: 'AWS Access Key',
