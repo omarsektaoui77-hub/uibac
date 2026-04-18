@@ -11,12 +11,13 @@ const { adaptiveClassify } = require("./adaptive-classify");
 const { safeLearn } = require("./safe-learn");
 const { verifyAll, needsRollback } = require("./verify");
 const { rollbackFailed } = require("./rollback");
+const { selfHeal } = require("../self-heal/engine");
 
 /**
  * Run SOC analysis on raw events
  */
 async function runSOC(rawEvents, options = {}) {
-  const { silent = false, autoAct = false, adaptive = true } = options;
+  const { silent = false, autoAct = false, adaptive = true, selfHeal: enableSelfHeal = false, healUrl = null } = options;
   
   if (!silent) {
     console.log("🧠 ZeroLeak AI SOC Mode");
@@ -119,6 +120,16 @@ async function runSOC(rawEvents, options = {}) {
       }
     }
     
+    // Step 11: Self-healing (if enabled and conditions met)
+    let healResult = null;
+    if (enableSelfHeal && actions.includes("BLOCK_CI") && classification.severity === "CRITICAL") {
+      if (!silent) console.log(`  Attempting self-healing...`);
+      healResult = await selfHeal(incident, healUrl || "http://localhost:3000");
+      if (!silent) {
+        console.log(`  Self-healing result: ${healResult.success ? "SUCCESS" : "FAILED"}`);
+      }
+    }
+    
     results.push({
       incident: incident.id,
       classification,
@@ -126,8 +137,10 @@ async function runSOC(rawEvents, options = {}) {
       actionResults,
       verifications,
       rollbacks,
+      healResult,
       autoActed: autoAct,
-      learned: adaptive
+      learned: adaptive,
+      selfHealed: enableSelfHeal && healResult?.success
     });
     
     if (!silent) console.log();
@@ -138,6 +151,7 @@ async function runSOC(rawEvents, options = {}) {
     console.log(`   Incidents processed: ${incidents.length}`);
     console.log(`   Actions taken: ${autoAct ? "YES" : "NO (auto-act disabled)"}`);
     console.log(`   Adaptive learning: ${adaptive ? "ENABLED" : "DISABLED"}`);
+    console.log(`   Self-healing: ${enableSelfHeal ? "ENABLED" : "DISABLED"}`);
   }
   
   return {
