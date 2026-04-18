@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧠 AI SOC Command Center</title>
+    <title>🧠 AI SOC Command Center v2</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -75,6 +76,11 @@
             font-weight: bold;
         }
 
+        .risk-critical { color: #ef4444; }
+        .risk-high { color: #f97316; }
+        .risk-medium { color: #eab308; }
+        .risk-low { color: #22c55e; }
+
         .log-container {
             background: #0f0f0f;
             border: 1px solid #333;
@@ -95,6 +101,48 @@
             display: flex;
             gap: 10px;
             margin-top: 10px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4;
+        }
+
+        .heatmap-cell {
+            height: 20;
+            border-radius: 2px;
+        }
+
+        .alert-item {
+            background: #450a0a;
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .decision-item {
+            background: #262626;
+            border: 1px solid #404040;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
         }
 
         button {
@@ -151,7 +199,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🧠 AI SOC Command Center</h1>
+        <h1>🧠 AI SOC Command Center v2</h1>
 
         <div id="alert" class="alert" style="display: none;">
             🚨 High activity detected
@@ -169,8 +217,12 @@
                     <div class="status-value" id="decisionsCount">0</div>
                 </div>
                 <div class="status-item">
-                    <div class="status-label">System Health</div>
-                    <div class="status-value" style="color: #4ade80;">HEALTHY</div>
+                    <div class="status-label">Global Risk</div>
+                    <div class="status-value" id="globalRisk">0</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Risk Level</div>
+                    <div class="status-value" id="riskLevel">LOW</div>
                 </div>
             </div>
             
@@ -180,19 +232,54 @@
             </div>
         </div>
 
-        <div class="section">
-            <h2>📡 Recent Events</h2>
-            <div class="log-container" id="eventsLog"></div>
+        <div class="dashboard-grid">
+            <div class="chart-container">
+                <h3>� Risk Trend</h3>
+                <canvas id="riskChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>🚨 Alerts</h3>
+                <div id="alertsPanel"></div>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>🤖 Agent Decisions</h2>
-            <div class="log-container" id="decisionsLog"></div>
+        <div class="section" style="margin-top: 20px;">
+            <h3>🔥 Risk Heatmap</h3>
+            <div class="heatmap-grid" id="heatmap"></div>
+        </div>
+
+        <div class="section" style="margin-top: 20px;">
+            <h3>🧠 Agent Decisions</h3>
+            <div id="decisionsPanel"></div>
         </div>
     </div>
 
     <script>
         const API = "http://localhost:3000";
+        let riskChart = null;
+
+        // Risk scoring logic
+        function computeGlobalRisk(events = []) {
+            if (!events.length) return 0;
+            const total = events.reduce((acc, e) => acc + (e.risk || 0), 0);
+            return Math.min(100, Math.round(total / events.length * 10));
+        }
+
+        function riskLevel(score) {
+            if (score > 80) return "CRITICAL";
+            if (score > 60) return "HIGH";
+            if (score > 30) return "MEDIUM";
+            return "LOW";
+        }
+
+        function riskClass(level) {
+            switch (level) {
+                case "CRITICAL": return "risk-critical";
+                case "HIGH": return "risk-high";
+                case "MEDIUM": return "risk-medium";
+                default: return "risk-low";
+            }
+        }
 
         async function fetchStatus() {
             const res = await fetch(`${API}/status`);
@@ -248,28 +335,130 @@
             }
         }
 
-        async function updateEvents() {
-            const events = await fetchEvents();
-            const eventsLog = document.getElementById('eventsLog');
-            eventsLog.innerHTML = events.slice(-10).map(e => 
-                `<pre>${JSON.stringify(e, null, 2)}</pre>`
-            ).join('');
+        async function updateRiskChart(events) {
+            const data = events.map((e, i) => ({
+                index: i,
+                risk: e.risk || 0
+            }));
+
+            const ctx = document.getElementById('riskChart').getContext('2d');
+            
+            if (riskChart) {
+                riskChart.destroy();
+            }
+
+            riskChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.index),
+                    datasets: [{
+                        label: 'Risk',
+                        data: data.map(d => d.risk),
+                        borderColor: '#4ade80',
+                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            grid: {
+                                color: '#333'
+                            },
+                            ticks: {
+                                color: '#a3a3a3'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#333'
+                            },
+                            ticks: {
+                                color: '#a3a3a3'
+                            }
+                        }
+                    }
+                }
+            });
         }
 
-        async function updateDecisions() {
-            const decisions = await fetchDecisions();
-            const decisionsLog = document.getElementById('decisionsLog');
+        async function updateHeatmap(events) {
+            const heatmap = document.getElementById('heatmap');
+            heatmap.innerHTML = events.slice(-100).map(e => {
+                const intensity = Math.min(255, (e.risk || 0) * 25);
+                return `<div class="heatmap-cell" style="background: rgb(${intensity}, 0, 0)"></div>`;
+            }).join('');
+        }
+
+        async function updateAlerts(events) {
+            const alertsPanel = document.getElementById('alertsPanel');
+            const critical = events.filter(e => (e.risk || 0) > 7);
+            
+            if (critical.length === 0) {
+                alertsPanel.innerHTML = '<p style="color: #a3a3a3;">No critical alerts</p>';
+            } else {
+                alertsPanel.innerHTML = critical.map(e => `
+                    <div class="alert-item">
+                        ⚠️ ${e.type || 'Unknown'} (risk: ${e.risk})
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function updateDecisions(decisions) {
+            const decisionsPanel = document.getElementById('decisionsPanel');
             document.getElementById('decisionsCount').textContent = decisions.length;
-            decisionsLog.innerHTML = decisions.slice(-5).map(d => 
-                `<pre>${JSON.stringify(d, null, 2)}</pre>`
-            ).join('');
+            
+            if (decisions.length === 0) {
+                decisionsPanel.innerHTML = '<p style="color: #a3a3a3;">No decisions yet</p>';
+            } else {
+                decisionsPanel.innerHTML = decisions.slice(-5).map(d => `
+                    <div class="decision-item">
+                        <strong>Score:</strong> ${d.multi?.score || 'N/A'}
+                        <br>
+                        <strong>Actions:</strong> ${d.multi?.actions?.join(', ') || 'None'}
+                        <br>
+                        <strong>Time:</strong> ${new Date(d.time).toLocaleTimeString()}
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function updateGlobalRisk(events) {
+            const risk = computeGlobalRisk(events);
+            const level = riskLevel(risk);
+            const riskElement = document.getElementById('globalRisk');
+            const levelElement = document.getElementById('riskLevel');
+            
+            riskElement.textContent = risk;
+            riskElement.className = 'status-value ' + riskClass(level);
+            
+            levelElement.textContent = level;
+            levelElement.className = 'status-value ' + riskClass(level);
         }
 
         // Poll every 2 seconds
         async function update() {
             await updateStatus();
-            await updateEvents();
-            await updateDecisions();
+            
+            const events = await fetchEvents();
+            const decisions = await fetchDecisions();
+            
+            await updateGlobalRisk(events);
+            await updateRiskChart(events);
+            await updateHeatmap(events);
+            await updateAlerts(events);
+            await updateDecisions(decisions);
         }
 
         update();
