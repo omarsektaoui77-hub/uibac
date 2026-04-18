@@ -1,6 +1,6 @@
 #!/bin/sh
 # ZeroLeak Security Engine - Pre-Commit Hook
-# This hook blocks commits that contain secrets
+# This hook blocks commits that contain secrets or high-risk changes
 
 echo "🔍 ZeroLeak Security Scan..."
 
@@ -19,4 +19,28 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo "✅ No secrets detected - commit allowed"
+# Run AppSec scanner
+node security/appsec-scan.js --silent
+
+# Check exit code
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ BLOCKED: AppSec issues detected in staged files"
+  echo "👉 Review the suspicious patterns and fix"
+  echo ""
+  exit 1
+fi
+
+# Run Brain analysis
+node security/brain.js --staged --silent
+
+# Check exit code
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ BLOCKED: High-risk change detected by Brain"
+  echo "👉 Review the behavioral risk and get approval"
+  echo ""
+  exit 1
+fi
+
+echo "✅ All security checks passed - commit allowed"
