@@ -8,9 +8,13 @@ const { copilotBrain } = require("../../security/copilot/brain");
 
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../../dashboard")));
 
 const EVENTS_FILE = path.join(__dirname, "../../data/events.json");
 const MEMORY_FILE = path.join(__dirname, "../../data/memory.json");
+
+let decisionsLog = [];
+let autonomyEnabled = true;
 
 function loadEvents() {
   try {
@@ -59,21 +63,39 @@ app.post("/ingest", async (req, res) => {
   // 🤖 co-pilot
   const copilot = await copilotBrain(events, { silent: true });
 
-  res.json({
-    status: "processed",
+  // Log decision
+  const decision = {
+    time: Date.now(),
     multi,
     market,
     copilot
+  };
+
+  decisionsLog.push(decision);
+
+  res.json({
+    status: "processed",
+    decision
   });
+});
+
+// � events endpoint
+app.get("/events", (req, res) => {
+  const events = loadEvents();
+  res.json(events);
+});
+
+// 🤖 decisions endpoint
+app.get("/decisions", (req, res) => {
+  res.json(decisionsLog);
 });
 
 // 📊 status
 app.get("/status", (req, res) => {
   const events = loadEvents();
-  const memory = loadMemory();
   res.json({ 
     eventsCount: events.length,
-    memoryCount: memory.length
+    autonomyEnabled
   });
 });
 
@@ -81,8 +103,20 @@ app.get("/status", (req, res) => {
 app.get("/health", (req, res) => {
   res.json({ 
     status: "healthy",
+    autonomyEnabled,
     timestamp: new Date().toISOString()
   });
+});
+
+// ✋ control endpoints
+app.post("/control/kill", (req, res) => {
+  autonomyEnabled = false;
+  res.json({ status: "autonomy disabled" });
+});
+
+app.post("/control/enable", (req, res) => {
+  autonomyEnabled = true;
+  res.json({ status: "autonomy enabled" });
 });
 
 const PORT = process.env.PORT || 3000;

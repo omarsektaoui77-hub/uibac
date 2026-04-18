@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 AI SOC Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        h2 {
+            margin: 20px 0 10px;
+            font-size: 1.5em;
+            color: #4ade80;
+        }
+
+        .section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            background: #450a0a;
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .status-item {
+            background: #262626;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #404040;
+        }
+
+        .status-label {
+            font-size: 0.9em;
+            color: #a3a3a3;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .log-container {
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-kill {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-kill:hover {
+            background: #dc2626;
+        }
+
+        .btn-enable {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-enable:hover {
+            background: #16a34a;
+        }
+
+        .btn-disabled {
+            background: #404040;
+            color: #a3a3a3;
+            cursor: not-allowed;
+        }
+
+        .autonomy-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .autonomy-enabled {
+            background: #166534;
+            color: #4ade80;
+        }
+
+        .autonomy-disabled {
+            background: #7f1d1d;
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 AI SOC Command Center</h1>
+
+        <div id="alert" class="alert" style="display: none;">
+            🚨 High activity detected
+        </div>
+
+        <div class="section">
+            <h2>📊 System Status <span id="autonomyStatus" class="autonomy-status autonomy-enabled">Autonomy: ENABLED</span></h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">Total Events</div>
+                    <div class="status-value" id="eventsCount">0</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Decisions Made</div>
+                    <div class="status-value" id="decisionsCount">0</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">System Health</div>
+                    <div class="status-value" style="color: #4ade80;">HEALTHY</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="killBtn" class="btn-kill" onclick="killAutonomy()">🛑 Kill Autonomy</button>
+                <button id="enableBtn" class="btn-enable btn-disabled" onclick="enableAutonomy()">✅ Enable Autonomy</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📡 Recent Events</h2>
+            <div class="log-container" id="eventsLog"></div>
+        </div>
+
+        <div class="section">
+            <h2>🤖 Agent Decisions</h2>
+            <div class="log-container" id="decisionsLog"></div>
+        </div>
+    </div>
+
+    <script>
+        const API = "http://localhost:3000";
+
+        async function fetchStatus() {
+            const res = await fetch(`${API}/status`);
+            return res.json();
+        }
+
+        async function fetchEvents() {
+            const res = await fetch(`${API}/events`);
+            return res.json();
+        }
+
+        async function fetchDecisions() {
+            const res = await fetch(`${API}/decisions`);
+            return res.json();
+        }
+
+        async function killAutonomy() {
+            await fetch(`${API}/control/kill`, { method: "POST" });
+            updateStatus();
+        }
+
+        async function enableAutonomy() {
+            await fetch(`${API}/control/enable`, { method: "POST" });
+            updateStatus();
+        }
+
+        async function updateStatus() {
+            const status = await fetchStatus();
+            document.getElementById('eventsCount').textContent = status.eventsCount;
+            
+            const autonomyStatus = document.getElementById('autonomyStatus');
+            const killBtn = document.getElementById('killBtn');
+            const enableBtn = document.getElementById('enableBtn');
+            
+            if (status.autonomyEnabled) {
+                autonomyStatus.textContent = "Autonomy: ENABLED";
+                autonomyStatus.className = "autonomy-status autonomy-enabled";
+                killBtn.classList.remove('btn-disabled');
+                enableBtn.classList.add('btn-disabled');
+            } else {
+                autonomyStatus.textContent = "Autonomy: DISABLED";
+                autonomyStatus.className = "autonomy-status autonomy-disabled";
+                killBtn.classList.add('btn-disabled');
+                enableBtn.classList.remove('btn-disabled');
+            }
+
+            // Alert for high activity
+            const alert = document.getElementById('alert');
+            if (status.eventsCount > 10) {
+                alert.style.display = 'block';
+            } else {
+                alert.style.display = 'none';
+            }
+        }
+
+        async function updateEvents() {
+            const events = await fetchEvents();
+            const eventsLog = document.getElementById('eventsLog');
+            eventsLog.innerHTML = events.slice(-10).map(e => 
+                `<pre>${JSON.stringify(e, null, 2)}</pre>`
+            ).join('');
+        }
+
+        async function updateDecisions() {
+            const decisions = await fetchDecisions();
+            const decisionsLog = document.getElementById('decisionsLog');
+            document.getElementById('decisionsCount').textContent = decisions.length;
+            decisionsLog.innerHTML = decisions.slice(-5).map(d => 
+                `<pre>${JSON.stringify(d, null, 2)}</pre>`
+            ).join('');
+        }
+
+        // Poll every 2 seconds
+        async function update() {
+            await updateStatus();
+            await updateEvents();
+            await updateDecisions();
+        }
+
+        update();
+        setInterval(update, 2000);
+    </script>
+</body>
+</html>
