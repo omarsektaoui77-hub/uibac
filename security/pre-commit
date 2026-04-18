@@ -1,0 +1,22 @@
+#!/bin/sh
+# ZeroLeak Security Engine - Pre-Commit Hook
+# This hook blocks commits that contain secrets
+
+echo "🔍 ZeroLeak Security Scan..."
+
+# Run the scanner on staged files
+node security/scan-secrets.js --staged --silent
+
+# Check exit code
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ BLOCKED: Secrets detected in staged files"
+  echo "👉 To fix:"
+  echo "   1. Review and remove the secrets"
+  echo "   2. Or run: node security/scan-secrets.js --fix"
+  echo "   3. Commit again"
+  echo ""
+  exit 1
+fi
+
+echo "✅ No secrets detected - commit allowed"
