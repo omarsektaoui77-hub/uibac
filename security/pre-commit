@@ -43,4 +43,15 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Run Autonomous Security System
+node security/autonomous.js --staged --silent
+
+# Check exit code
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ BLOCKED: Autonomous Security System blocked this commit"
+  echo ""
+  exit 1
+fi
+
 echo "✅ All security checks passed - commit allowed"
