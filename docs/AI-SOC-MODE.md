@@ -7,7 +7,7 @@ AI SOC Mode transforms the ZeroLeak Security Engine from a gatekeeper into an an
 ## 🏗️ Core Pipeline
 
 ```
-Ingest → Normalize → Correlate → Score → Decide → Act → Audit
+Ingest → Normalize → Correlate → Score → Decide → Act → Verify → Rollback (if needed) → Audit
 ```
 
 ## 📡 Architecture
@@ -157,7 +157,64 @@ log({
 - Query by incident or action
 - Verification function for integrity
 
-### 7. SOC Brain Orchestrator
+### 7. Verification Module
+
+Verifies action effectiveness and triggers rollback if needed.
+
+```javascript
+const { verify, verifyAll, needsRollback } = require("./soc/verify");
+
+// Verify single action
+const verification = await verify("BLOCK_CI", incident, classification);
+// Returns: { action, success, reason, timestamp }
+
+// Verify all actions
+const verifications = await verifyAll(actions, incident, classification);
+
+// Check if rollback needed
+const rollbackNeeded = needsRollback(verifications);
+```
+
+**Verification Logic:**
+- BLOCK_CI: Checks if CI pipeline is blocked
+- ALERT_SECURITY: Checks if security team was alerted
+- ALERT_DEVELOPER: Checks if developer was alerted
+- REQUIRE_ROTATION: Checks if rotation was required
+- FREEZE_ACCOUNT: Checks if account was frozen
+- OPEN_ISSUE: Checks if issue was created
+- LOG_ONLY: Always succeeds
+
+### 8. Rollback Module
+
+Rolls back failed actions to maintain system integrity.
+
+```javascript
+const { rollback, rollbackFailed, emergencyRollback } = require("./soc/rollback");
+
+// Rollback single action
+const rollbackResult = await rollback("BLOCK_CI", incident, classification);
+
+// Rollback all failed actions
+const rollbacks = await rollbackFailed(verifications, incident, classification);
+
+// Emergency rollback (all actions)
+const rollbacks = await emergencyRollback(actions, incident, classification);
+```
+
+**Rollback Logic:**
+- BLOCK_CI: Unblocks CI pipeline
+- ALERT_SECURITY: Retracts security alert
+- ALERT_DEVELOPER: Retracts developer alert
+- REQUIRE_ROTATION: Removes rotation requirement
+- FREEZE_ACCOUNT: Unfreezes account
+- OPEN_ISSUE: Closes issue
+- LOG_ONLY: No rollback needed
+
+**When Rollback Triggers:**
+- Critical action (BLOCK_CI, FREEZE_ACCOUNT, REQUIRE_ROTATION) fails verification
+- Manual emergency rollback requested
+
+### 9. SOC Brain Orchestrator
 
 Core pipeline orchestrator.
 
@@ -187,7 +244,7 @@ const result = runSOC(events, {
 }
 ```
 
-### 8. Brain Runner
+### 10. Brain Runner
 
 Command-line interface for SOC analysis.
 

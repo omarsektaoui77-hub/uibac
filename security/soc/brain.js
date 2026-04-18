@@ -1,5 +1,5 @@
 // ZeroLeak AI SOC Mode - Brain Orchestrator
-// Core pipeline: Ingest → Normalize → Correlate → Score → Decide → Act → Audit
+// Core pipeline: Ingest → Normalize → Correlate → Score → Decide → Act → Verify → Rollback (if needed) → Audit
 
 const { normalizeAll } = require("./normalize");
 const { correlateAdvanced } = require("./correlate");
@@ -9,6 +9,8 @@ const { act } = require("./act");
 const { log, read } = require("./audit");
 const { adaptiveClassify } = require("./adaptive-classify");
 const { safeLearn } = require("./safe-learn");
+const { verifyAll, needsRollback } = require("./verify");
+const { rollbackFailed } = require("./rollback");
 
 /**
  * Run SOC analysis on raw events
@@ -95,7 +97,21 @@ async function runSOC(rawEvents, options = {}) {
       if (!silent) console.log(`  Auto-act disabled (actions logged only)`);
     }
     
-    // Step 8: Safe learning (if adaptive enabled)
+    // Step 8: Verify actions (if auto-act enabled)
+    let verifications = [];
+    let rollbacks = [];
+    if (autoAct && actionResults.length > 0) {
+      if (!silent) console.log(`  Verifying actions...`);
+      verifications = await verifyAll(actions, incident, classification);
+      
+      // Step 9: Rollback failed actions if needed
+      if (needsRollback(verifications)) {
+        if (!silent) console.log(`  Rolling back failed actions...`);
+        rollbacks = await rollbackFailed(verifications, incident, classification);
+      }
+    }
+    
+    // Step 10: Safe learning (if adaptive enabled)
     if (adaptive) {
       if (!silent) console.log(`  Learning from incident...`);
       for (const e of incident.events) {
@@ -108,6 +124,8 @@ async function runSOC(rawEvents, options = {}) {
       classification,
       actions,
       actionResults,
+      verifications,
+      rollbacks,
       autoActed: autoAct,
       learned: adaptive
     });
