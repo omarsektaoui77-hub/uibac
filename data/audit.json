@@ -1,0 +1,224 @@
+[
+  {
+    "time": 1776510787630,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "LOGIN"
+  },
+  {
+    "time": 1776510798711,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776510806825,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776510806908,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776510806993,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776510809122,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776510811236,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516133511,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "LOGIN"
+  },
+  {
+    "time": 1776516179525,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516187973,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516210978,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516213100,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516215234,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516217350,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516219465,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516231554,
+    "user": "viewer",
+    "role": "VIEWER",
+    "action": "LOGIN"
+  },
+  {
+    "time": 1776516267302,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516283065,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516283245,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516283360,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516283464,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516283590,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516283699,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516283809,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516283928,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284055,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284165,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284266,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284375,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284478,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284585,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284692,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284844,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516284962,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516285080,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516285202,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  },
+  {
+    "time": 1776516285322,
+    "user": "admin",
+    "role": "ADMIN",
+    "action": "INGEST_EVENT"
+  }
+]
