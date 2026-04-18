@@ -1,10 +1,12 @@
-// ZeroLeak Security Command Center - Client
+// ZeroLeak Security Command Center - Client (Production Hardened)
 // Connects security systems to the command center
 
 const http = require("http");
 
 const CC_HOST = process.env.CC_HOST || "localhost";
 const CC_PORT = process.env.CC_PORT || 4000;
+const CC_TOKEN = process.env.CC_TOKEN;
+const CC_SOURCE = process.env.CC_SOURCE || "local";
 
 /**
  * Send event to command center
@@ -13,15 +15,23 @@ async function sendEvent(event) {
   try {
     const data = JSON.stringify(event);
     
+    const headers = {
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(data),
+      "x-source": CC_SOURCE
+    };
+    
+    // Add auth token if configured
+    if (CC_TOKEN) {
+      headers["x-cc-token"] = CC_TOKEN;
+    }
+    
     const options = {
       hostname: CC_HOST,
       port: CC_PORT,
       path: "/event",
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(data)
-      }
+      headers
     };
     
     return new Promise((resolve, reject) => {
@@ -60,15 +70,23 @@ async function sendAction(type, payload = {}) {
   try {
     const data = JSON.stringify({ type, payload });
     
+    const headers = {
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(data),
+      "x-source": CC_SOURCE
+    };
+    
+    // Add auth token if configured
+    if (CC_TOKEN) {
+      headers["x-cc-token"] = CC_TOKEN;
+    }
+    
     const options = {
       hostname: CC_HOST,
       port: CC_PORT,
       path: "/action",
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(data)
-      }
+      headers
     };
     
     return new Promise((resolve, reject) => {
@@ -103,11 +121,19 @@ async function sendAction(type, payload = {}) {
  */
 async function getEvents(limit = 100) {
   try {
+    const headers = {};
+    
+    // Add auth token if configured
+    if (CC_TOKEN) {
+      headers["x-cc-token"] = CC_TOKEN;
+    }
+    
     const options = {
       hostname: CC_HOST,
       port: CC_PORT,
       path: `/events?limit=${limit}`,
-      method: "GET"
+      method: "GET",
+      headers
     };
     
     return new Promise((resolve, reject) => {
@@ -141,11 +167,19 @@ async function getEvents(limit = 100) {
  */
 async function getStats() {
   try {
+    const headers = {};
+    
+    // Add auth token if configured
+    if (CC_TOKEN) {
+      headers["x-cc-token"] = CC_TOKEN;
+    }
+    
     const options = {
       hostname: CC_HOST,
       port: CC_PORT,
       path: "/stats",
-      method: "GET"
+      method: "GET",
+      headers
     };
     
     return new Promise((resolve, reject) => {

@@ -50,17 +50,70 @@
       color: #58a6ff;
       font-weight: bold;
     }
+    .auth-input {
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      width: 300px;
+    }
+    .auth-button {
+      background: #238636;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .auth-button:hover {
+      background: #2ea043;
+    }
+    .error {
+      color: #e74c3c;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <h2>🛡️ Security Command Center</h2>
+  
+  <div id="auth-section">
+    <input type="password" id="token" class="auth-input" placeholder="Enter auth token (optional in dev)">
+    <button class="auth-button" onclick="setToken()">Set Token</button>
+  </div>
+  
   <div class="stats" id="stats"></div>
   <div id="events"></div>
+  <div id="error" class="error"></div>
 
 <script>
+let authToken = localStorage.getItem("cc-token") || "";
+
+function setToken() {
+  authToken = document.getElementById("token").value;
+  localStorage.setItem("cc-token", authToken);
+  load();
+}
+
+async function fetchWithAuth(url) {
+  const headers = {};
+  if (authToken) {
+    headers["x-cc-token"] = authToken;
+  }
+  const response = await fetch(url, { headers });
+  if (response.status === 403) {
+    document.getElementById("error").textContent = "Unauthorized - check your token";
+    throw new Error("Unauthorized");
+  }
+  document.getElementById("error").textContent = "";
+  return response;
+}
+
 async function load() {
   try {
-    const stats = await fetch("/stats").then(r=>r.json());
+    const stats = await fetchWithAuth("/stats").then(r=>r.json());
     document.getElementById("stats").innerHTML =
       `<div class="stat-card">
         <div class="stat-value">${stats.total}</div>
@@ -79,7 +132,7 @@ async function load() {
         </div>`
       ).join("");
 
-    const events = await fetch("/events").then(r=>r.json());
+    const events = await fetchWithAuth("/events").then(r=>r.json());
     document.getElementById("events").innerHTML =
       events.slice(-20).reverse().map(e =>
         `<div class="card ${e.level || 'LOW'}">
