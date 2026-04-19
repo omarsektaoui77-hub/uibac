@@ -23,6 +23,10 @@ function simulateEvents() {
           xpEarned: Math.floor(Math.random() * 30) + 10,
           streak: Math.floor(Math.random() * 10) + 1,
           accuracy: Math.random() * 100
+        },
+        metadata: {
+          source: 'event-simulator',
+          testRun: true
         }
       });
     }, i * 100); // 100ms between events

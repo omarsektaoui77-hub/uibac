@@ -39,6 +39,10 @@ export default function TelemetryTestPage() {
           xpEarned: Math.floor(Math.random() * 30) + 10,
           streak: Math.floor(Math.random() * 10) + 1,
           accuracy: Math.random() * 100
+        },
+        metadata: {
+          source: 'telemetry-test',
+          testRun: true
         }
       });
 

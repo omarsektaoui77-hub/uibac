@@ -1,5 +1,57 @@
 # Deploy UIBAC to GitHub and Vercel
 
+## Docker Deployment (Manual)
+
+### Build Docker Image Locally
+
+```powershell
+cd c:\Users\DELL\uibac
+docker build -t uibac:latest .
+```
+
+### Run Container Locally
+
+```powershell
+docker run -d -p 3000:3000 --name uibac uibac:latest
+```
+
+### With Environment Variables
+
+```powershell
+docker run -d -p 3000:3000 --name uibac `
+  -e JWT_SECRET=your-super-secret-jwt-key-min-32-chars `
+  -e PORT=3000 `
+  -e HOST=0.0.0.0 `
+  -e NODE_ENV=production `
+  uibac:latest
+```
+
+### Push to Docker Registry
+
+```powershell
+docker tag uibac:latest your-registry/uibac:latest
+docker push your-registry/uibac:latest
+```
+
+### Health Check
+
+After deployment, test the health endpoint:
+
+```powershell
+curl http://localhost:3000/health
+```
+
+Expected response:
+```json
+{
+  "status": "healthy",
+  "autonomyEnabled": true,
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+---
+
 ## GitHub
 
 1. Create a new empty repository on GitHub (no README if you already have commits locally).
