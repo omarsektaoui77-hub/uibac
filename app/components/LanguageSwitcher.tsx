@@ -20,6 +20,7 @@ export default function LanguageSwitcher() {
 
   const handleLanguageChange = (newLocale: string) => {
     // Standard next-intl logic: replace the locale in the pathname
+    if (!pathname) return;
     const newPathname = pathname.replace(`/${locale}`, `/${newLocale}`);
     router.push(newPathname);
     setIsOpen(false);

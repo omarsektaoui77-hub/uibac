@@ -1,31 +1,17 @@
 /**
  * Insights API
- * 
+ *
  * GET /api/analytics/insights
  * Returns behavior analysis insights for users
  */
 
 import { NextResponse } from 'next/server';
 import { BehaviorAnalyzer } from '@/app/lib/analytics/behaviorAnalyzer';
-import { TelemetryEvent } from '@/app/lib/types/telemetry';
-
-// TEMP: In-memory store - replace with DB later
-const eventStore: TelemetryEvent[] = [];
-
-/**
- * Store a telemetry event (called by other APIs)
- */
-export function storeTelemetryEvent(event: TelemetryEvent): void {
-  eventStore.push(event);
-
-  // Keep only last 1000 events
-  if (eventStore.length > 1000) {
-    eventStore.shift();
-  }
-}
+import { storeTelemetryEvent, getStoredEvents } from '@/app/lib/analytics/telemetryStore';
 
 export async function GET() {
   try {
+    const eventStore = getStoredEvents();
     const insights = BehaviorAnalyzer.analyze(eventStore);
 
     return NextResponse.json({
@@ -61,7 +47,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const event: TelemetryEvent = {
+    const event = {
       userId: body.userId,
       subjectId: body.subjectId,
       isCorrect: body.isCorrect,
@@ -73,6 +59,8 @@ export async function POST(request: Request) {
     };
 
     storeTelemetryEvent(event);
+
+    const eventStore = getStoredEvents();
 
     return NextResponse.json({
       success: true,
