@@ -1,0 +1,28 @@
+{
+  "subject": "الرياضيات",
+  "subjectKey": "math",
+  "locale": "ar",
+  "questions": [
+    {
+      "id": "math_ar_001",
+      "topic": "الجبر",
+      "difficulty": "easy",
+      "question": "ما هو حل المعادلة 2س + 5 = 15؟",
+      "options": ["س = 5", "س = 10", "س = 7.5", "س = 4"],
+      "correctAnswer": "س = 5",
+      "explanation": "2س + 5 = 15 → 2س = 10 → س = 5",
+      "points": 10,
+      "timeLimit": 30
+    },
+    {
+      "id": "math_ar_002",
+      "topic": "الهندسة",
+      "difficulty": "medium",
+      "question": "ما هو محيط مربع طول ضلعه 7 سم؟",
+      "options": ["28 سم", "49 سم", "14 سم", "21 سم"],
+      "correctAnswer": "28 سم",
+      "points": 15,
+      "timeLimit": 30
+    }
+  ]
+}

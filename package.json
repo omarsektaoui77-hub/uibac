@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@sentry/nextjs": "^10.48.0",
+    "@supabase/auth-helpers-nextjs": "^0.15.0",
+    "@supabase/supabase-js": "^2.103.3",
     "bcrypt": "^6.0.0",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.2",
@@ -24,6 +26,7 @@
     "googleapis": "^171.4.0",
     "jsonwebtoken": "^9.0.3",
     "next": "16.2.3",
+    "next-auth": "^4.24.14",
     "next-intl": "^4.9.1",
     "next-pwa": "^5.6.0",
     "pdf-parse": "^1.1.1",

@@ -1,0 +1,17 @@
+{
+  "subject": "Física",
+  "subjectKey": "physics",
+  "locale": "es",
+  "questions": [
+    {
+      "id": "phys_es_001",
+      "topic": "Mecánica",
+      "difficulty": "easy",
+      "question": "¿Cuál es la fórmula de la velocidad?",
+      "options": ["v = d/t", "v = d × t", "v = t/d", "v = d + t"],
+      "correctAnswer": "v = d/t",
+      "points": 10,
+      "timeLimit": 30
+    }
+  ]
+}

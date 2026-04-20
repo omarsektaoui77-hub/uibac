@@ -1,0 +1,62 @@
+{
+  "subject": "Mathematics",
+  "subjectKey": "mathematics",
+  "locale": "fr",
+  "questions": [
+    {
+      "id": "math_001",
+      "topic": "Algebra",
+      "difficulty": "easy",
+      "question": "Quelle est la solution de l'équation 2x + 5 = 15 ?",
+      "options": ["x = 5", "x = 10", "x = 7.5", "x = 4"],
+      "correctAnswer": "x = 5",
+      "explanation": "2x + 5 = 15 → 2x = 10 → x = 5",
+      "points": 10,
+      "timeLimit": 30
+    },
+    {
+      "id": "math_002",
+      "topic": "Geometry",
+      "difficulty": "medium",
+      "question": "Quel est le périmètre d'un carré de côté 7 cm ?",
+      "options": ["28 cm", "49 cm", "14 cm", "21 cm"],
+      "correctAnswer": "28 cm",
+      "explanation": "Périmètre = 4 × côté = 4 × 7 = 28 cm",
+      "points": 15,
+      "timeLimit": 30
+    },
+    {
+      "id": "math_003",
+      "topic": "Calculus",
+      "difficulty": "hard",
+      "question": "Quelle est la dérivée de f(x) = 3x² ?",
+      "options": ["6x", "3x", "x²", "6x²"],
+      "correctAnswer": "6x",
+      "explanation": "La dérivée de xⁿ est n·xⁿ⁻¹, donc 3·2·x = 6x",
+      "points": 20,
+      "timeLimit": 45
+    },
+    {
+      "id": "math_004",
+      "topic": "Algebra",
+      "difficulty": "easy",
+      "question": "Résoudre: 3x - 7 = 14",
+      "options": ["x = 7", "x = 5", "x = 3.5", "x = 21"],
+      "correctAnswer": "x = 7",
+      "explanation": "3x - 7 = 14 → 3x = 21 → x = 7",
+      "points": 10,
+      "timeLimit": 30
+    },
+    {
+      "id": "math_005",
+      "topic": "Geometry",
+      "difficulty": "medium",
+      "question": "Quelle est l'aire d'un cercle de rayon 5 cm ?",
+      "options": ["25π cm²", "10π cm²", "5π cm²", "50π cm²"],
+      "correctAnswer": "25π cm²",
+      "explanation": "Aire = π × r² = π × 5² = 25π cm²",
+      "points": 15,
+      "timeLimit": 30
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "subject": "Physics",
+  "subjectKey": "physics",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "phys_en_001",
+      "topic": "Mechanics",
+      "difficulty": "easy",
+      "question": "What is the formula for velocity?",
+      "options": ["v = d/t", "v = d × t", "v = t/d", "v = d + t"],
+      "correctAnswer": "v = d/t",
+      "explanation": "Velocity = distance ÷ time",
+      "points": 10,
+      "timeLimit": 30
+    },
+    {
+      "id": "phys_en_002",
+      "topic": "Energy",
+      "difficulty": "medium",
+      "question": "What is the SI unit of energy?",
+      "options": ["Watt", "Joule", "Newton", "Pascal"],
+      "correctAnswer": "Joule",
+      "points": 15,
+      "timeLimit": 30
+    },
+    {
+      "id": "phys_en_003",
+      "topic": "Electricity",
+      "difficulty": "medium",
+      "question": "What is Ohm's Law?",
+      "options": ["V = I/R", "V = I × R", "V = R/I", "V = I + R"],
+      "correctAnswer": "V = I × R",
+      "points": 15,
+      "timeLimit": 30
+    }
+  ]
+}

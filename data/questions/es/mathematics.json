@@ -1,0 +1,27 @@
+{
+  "subject": "Matemáticas",
+  "subjectKey": "math",
+  "locale": "es",
+  "questions": [
+    {
+      "id": "math_es_001",
+      "topic": "Álgebra",
+      "difficulty": "easy",
+      "question": "¿Cuál es la solución de la ecuación 2x + 5 = 15?",
+      "options": ["x = 5", "x = 10", "x = 7.5", "x = 4"],
+      "correctAnswer": "x = 5",
+      "points": 10,
+      "timeLimit": 30
+    },
+    {
+      "id": "math_es_002",
+      "topic": "Geometría",
+      "difficulty": "medium",
+      "question": "¿Cuál es el perímetro de un cuadrado de 7 cm de lado?",
+      "options": ["28 cm", "49 cm", "14 cm", "21 cm"],
+      "correctAnswer": "28 cm",
+      "points": 15,
+      "timeLimit": 30
+    }
+  ]
+}

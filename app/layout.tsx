@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { TelemetryProvider } from "@/components/TelemetryProvider";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "UIBAC",
@@ -13,11 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#171035]">
-        <TelemetryProvider>
-          {children}
-        </TelemetryProvider>
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-[#171035]" suppressHydrationWarning>
+        <Providers>
+          <TelemetryProvider>
+            {children}
+          </TelemetryProvider>
+        </Providers>
       </body>
     </html>
   );

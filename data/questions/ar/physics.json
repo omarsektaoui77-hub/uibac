@@ -1,0 +1,17 @@
+{
+  "subject": "الفيزياء",
+  "subjectKey": "physics",
+  "locale": "ar",
+  "questions": [
+    {
+      "id": "phys_ar_001",
+      "topic": "الميكانيكا",
+      "difficulty": "easy",
+      "question": "ما هي صيغة حساب السرعة؟",
+      "options": ["ع = م/ز", "ع = م × ز", "ع = ز/م", "ع = م + ز"],
+      "correctAnswer": "ع = م/ز",
+      "points": 10,
+      "timeLimit": 30
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "subject": "Physics",
+  "subjectKey": "physics",
+  "locale": "fr",
+  "questions": [
+    {
+      "id": "phys_001",
+      "topic": "Mechanics",
+      "difficulty": "easy",
+      "question": "Quelle est la formule de la vitesse ?",
+      "options": ["v = d/t", "v = d × t", "v = t/d", "v = d + t"],
+      "correctAnswer": "v = d/t",
+      "explanation": "La vitesse = distance ÷ temps",
+      "points": 10,
+      "timeLimit": 30
+    },
+    {
+      "id": "phys_002",
+      "topic": "Mechanics",
+      "difficulty": "medium",
+      "question": "Quelle est l'accélération d'un objet qui passe de 0 à 20 m/s en 4 secondes ?",
+      "options": ["5 m/s²", "4 m/s²", "10 m/s²", "2.5 m/s²"],
+      "correctAnswer": "5 m/s²",
+      "explanation": "a = (v₂ - v₁) / t = (20 - 0) / 4 = 5 m/s²",
+      "points": 15,
+      "timeLimit": 30
+    },
+    {
+      "id": "phys_003",
+      "topic": "Energy",
+      "difficulty": "hard",
+      "question": "Quelle est l'énergie cinétique d'un objet de 2 kg se déplaçant à 10 m/s ?",
+      "options": ["100 J", "20 J", "200 J", "50 J"],
+      "correctAnswer": "100 J",
+      "explanation": "Ec = ½mv² = ½ × 2 × 10² = 100 J",
+      "points": 20,
+      "timeLimit": 45
+    },
+    {
+      "id": "phys_004",
+      "topic": "Mechanics",
+      "difficulty": "easy",
+      "question": "Quelle est la force nécessaire pour accélérer une masse de 5 kg à 2 m/s² ?",
+      "options": ["10 N", "2.5 N", "7 N", "5 N"],
+      "correctAnswer": "10 N",
+      "explanation": "F = ma = 5 × 2 = 10 N",
+      "points": 10,
+      "timeLimit": 30
+    },
+    {
+      "id": "phys_005",
+      "topic": "Waves",
+      "difficulty": "medium",
+      "question": "Quelle est la vitesse d'une onde de fréquence 50 Hz et de longueur d'onde 2 m ?",
+      "options": ["100 m/s", "25 m/s", "52 m/s", "48 m/s"],
+      "correctAnswer": "100 m/s",
+      "explanation": "v = f × λ = 50 × 2 = 100 m/s",
+      "points": 15,
+      "timeLimit": 30
+    }
+  ]
+}

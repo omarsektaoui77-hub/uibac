@@ -35,8 +35,8 @@ export default async function RootLayout({
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={direction} className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#171035]">
+    <html lang={locale} dir={direction} className="h-full antialiased" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-[#171035]" suppressHydrationWarning>
         <TelemetryProvider>
           <ServiceWorkerRegistration />
           {children}
