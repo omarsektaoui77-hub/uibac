@@ -1,8 +1,9 @@
 'use client';
 
-import * as Sentry from "@sentry/nextjs";
+// import * as Sentry from "@sentry/nextjs";
 
 export default function SentryTestPage() {
+  // Sentry temporarily disabled for Next.js 14 compatibility
   const handleClientError = () => {
     console.log("[Sentry Test] Throwing client error...");
     throw new Error("Sentry client test");
@@ -10,42 +11,42 @@ export default function SentryTestPage() {
 
   const handleManualCapture = () => {
     console.log("[Sentry Test] Capturing exception manually...");
-    Sentry.captureException(new Error("Manual captured test"), {
-      tags: {
-        test: "phase-2",
-        module: "sentry-test",
-        surface: "client",
-      },
-      extra: {
-        action: "button_click",
-        surface: "client",
-        timestamp: new Date().toISOString(),
-      },
-    });
+    // Sentry.captureException(new Error("Manual captured test"), {
+    //   tags: {
+    //     test: "phase-2",
+    //     module: "sentry-test",
+    //     surface: "client",
+    //   },
+    //   extra: {
+    //     action: "button_click",
+    //     surface: "client",
+    //     timestamp: new Date().toISOString(),
+    //   },
+    // });
     console.log("[Sentry Test] Exception captured with metadata");
   };
 
   const handleBreadcrumb = () => {
-    Sentry.addBreadcrumb({
-      message: "User clicked breadcrumb button",
-      level: "info",
-      category: "user-action",
-    });
+    // Sentry.addBreadcrumb({
+    //   message: "User clicked breadcrumb button",
+    //   level: "info",
+    //   category: "user-action",
+    // });
     console.log("[Sentry Test] Breadcrumb added");
   };
 
   const setUserContext = () => {
-    Sentry.setUser({
-      id: "test-user-123",
-      email: "test@example.com",
-      username: "testuser",
-    });
+    // Sentry.setUser({
+    //   id: "test-user-123",
+    //   email: "test@example.com",
+    //   username: "testuser",
+    // });
     console.log("[Sentry Test] User context set");
   };
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Sentry Test Page (Production-Grade)</h1>
+      <h1>Sentry Test Page (Production-Grade) - Disabled</h1>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 300 }}>
         <button onClick={handleClientError}>

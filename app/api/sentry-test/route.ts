@@ -1,3 +1,4 @@
+// Sentry test route - disabled since Sentry is temporarily removed
 export async function GET() {
-  throw new Error("Sentry server test");
+  return new Response("Sentry test route disabled", { status: 200 });
 }

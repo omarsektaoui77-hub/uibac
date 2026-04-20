@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
+// import * as Sentry from '@sentry/nextjs';
 import { withAuth, AuthenticatedUser } from '@/app/lib/auth/firebaseAuth';
 import { withTieredRateLimit } from '@/app/lib/middleware/rateLimiting';
 import { AtomicOperationsManager } from '@/app/lib/database/atomicOperations';
@@ -131,14 +131,14 @@ async function handler(
       // Ignore telemetry errors
     });
 
-    // Enrich Sentry context with API-specific metadata
-    Sentry.setContext('progress_update', {
-      subjectId: input.subjectId,
-      earnedXP: input.earnedXP,
-      activityType: input.activityType,
-      difficulty: input.difficulty,
-      isCorrect: input.isCorrect,
-    });
+    // Enrich Sentry context with API-specific metadata - temporarily disabled
+    // Sentry.setContext('progress_update', {
+    //   subjectId: input.subjectId,
+    //   earnedXP: input.earnedXP,
+    //   activityType: input.activityType,
+    //   difficulty: input.difficulty,
+    //   isCorrect: input.isCorrect,
+    // });
 
     // ---------- Security Checks ----------
     // XP abuse protection (already enforced in AtomicOperationsManager)
@@ -259,21 +259,21 @@ async function handler(
 
   } catch (error) {
     console.error('Progress update API error:', error);
-    
-    // Enrich Sentry context with user and route information
-    Sentry.setUser({
-      id: user.uid,
-    });
-    
-    Sentry.setContext('api_request', {
-      route: route,
-      method: 'POST',
-      timestamp: new Date().toISOString(),
-    });
-    
-    Sentry.setTag('error_code', 'INTERNAL_ERROR');
-    Sentry.captureException(error);
-    
+
+    // Enrich Sentry context with user and route information - temporarily disabled
+    // Sentry.setUser({
+    //   id: user.uid,
+    // });
+
+    // Sentry.setContext('api_request', {
+    //   route: route,
+    //   method: 'POST',
+    //   timestamp: new Date().toISOString(),
+    // });
+
+    // Sentry.setTag('error_code', 'INTERNAL_ERROR');
+    // Sentry.captureException(error);
+
     const duration = Date.now() - startTime;
     metrics.recordRequest(route, 500, duration);
     logger.log(route, 500, duration);

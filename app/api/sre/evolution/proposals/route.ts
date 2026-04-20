@@ -1,12 +1,14 @@
 /**
  * Evolution Proposals API
- * 
+ *
  * GET /api/sre/evolution/proposals
  * Returns architecture improvement proposals
  */
 
 import { NextResponse } from 'next/server';
 import { generateProposals, getAutoApplyProposals, getPendingProposals, getProposalStats } from '@/lib/sre/architectureAdvisor';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {

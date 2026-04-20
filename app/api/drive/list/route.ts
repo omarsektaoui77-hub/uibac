@@ -3,6 +3,8 @@ import { google } from 'googleapis';
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 
+export const dynamic = 'force-dynamic';
+
 async function getDriveClient() {
   const auth = new google.auth.GoogleAuth({
     credentials: {

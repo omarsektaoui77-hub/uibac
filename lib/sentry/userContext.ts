@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+// import * as Sentry from "@sentry/nextjs";
 
 interface UserContext {
   id: string;
@@ -12,30 +12,32 @@ interface UserContext {
  * Call this after user authentication
  */
 export function setSentryUser(user: UserContext) {
-  Sentry.setUser({
-    id: user.id,
-    email: user.email,
-    username: user.username,
-  });
+  // Sentry temporarily disabled for Next.js 14 compatibility
+  // Sentry.setUser({
+  //   id: user.id,
+  //   email: user.email,
+  //   username: user.username,
+  // });
 
   // Add role as a tag for easier filtering
-  if (user.role) {
-    Sentry.setTag("user_role", user.role);
-  }
+  // if (user.role) {
+  //   Sentry.setTag("user_role", user.role);
+  // }
 }
 
 /**
  * Clear user context on logout
  */
 export function clearSentryUser() {
-  Sentry.setUser(null);
+  // Sentry.setUser(null);
 }
 
 /**
  * Get current Sentry user ID
  */
 export function getSentryUserId(): string | null {
-  const scope = Sentry.getCurrentScope();
-  const user = scope.getUser();
-  return user?.id ? String(user.id) : null;
+  // const scope = Sentry.getCurrentScope();
+  // const user = scope.getUser();
+  // return user?.id ? String(user.id) : null;
+  return null;
 }

@@ -1,9 +1,9 @@
 /**
  * Real-Time Metrics Stream API (SSE)
- * 
+ *
  * Server-Sent Events endpoint for live dashboard updates
  * Streams: stability score, error rates, fix outcomes, system health
- * 
+ *
  * Endpoint: GET /api/sre/metrics/stream
  */
 
@@ -11,6 +11,8 @@ import { NextRequest } from 'next/server';
 import { calculateStabilityScore, getCurrentMetrics } from '@/lib/sre/stabilityScoring';
 import { getLearningStats } from '@/lib/sre/learningEngine';
 import { getSystemHealthSnapshot, generateInsights } from '@/lib/sre/insightsEngine';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * SSE Event types
