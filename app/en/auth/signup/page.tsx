@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation"
 export default function SignUp() {
   const router = useRouter()
   const pathname = usePathname()
-  const locale = pathname.split("/")[1] || "en"
+  const locale = pathname ? pathname.split("/")[1] : "en"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")

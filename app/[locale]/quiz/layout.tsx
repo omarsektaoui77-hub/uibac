@@ -1,10 +1,12 @@
-export default function QuizLayout({
+export default async function QuizLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+  
   return (
     <div suppressHydrationWarning>
       {children}

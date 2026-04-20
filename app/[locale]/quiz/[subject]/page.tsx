@@ -11,8 +11,8 @@ export default function QuizPage() {
   const { data: session, status } = useSession();
   const [quizCompleted, setQuizCompleted] = useState(false);
 
-  const locale = params.locale as string;
-  const subject = params.subject as string;
+  const locale = params?.locale as string || "fr";
+  const subject = params?.subject as string || "mathematics";
 
   // Subject names in each locale
   const subjectNames: Record<string, Record<string, string>> = {
