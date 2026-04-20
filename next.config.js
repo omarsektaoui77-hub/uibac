@@ -8,7 +8,6 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
   reactStrictMode: true,
-  turbopack: {}, // Silence Turbopack error
 }
 
 module.exports = withPWA(nextConfig)
