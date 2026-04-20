@@ -1,11 +1,6 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getSupabase } from "./supabase"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,6 +11,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        const supabase = getSupabase()
         const { data: { user }, error } = await supabase.auth.signInWithPassword({
           email: credentials!.email,
           password: credentials!.password,

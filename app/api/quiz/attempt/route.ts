@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabase } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -19,6 +14,8 @@ export async function POST(request: NextRequest) {
     const { subject, score, answers, totalQuestions } = await request.json();
     
     const correctCount = answers.filter((a: any) => a.correct).length;
+    
+    const supabase = getSupabase();
     
     // Save quiz attempt
     const { data, error } = await supabase
