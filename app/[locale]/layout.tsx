@@ -4,6 +4,7 @@ import { TelemetryProvider } from "@/components/TelemetryProvider";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import { Providers } from "./providers";
 
 export const dynamic = "force-dynamic";
 
@@ -43,10 +44,12 @@ export default async function RootLayout({
     <html lang={locale} dir={direction} className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-[#171035]" suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <TelemetryProvider>
-            <ServiceWorkerRegistration />
-            {children}
-          </TelemetryProvider>
+          <Providers>
+            <TelemetryProvider>
+              <ServiceWorkerRegistration />
+              {children}
+            </TelemetryProvider>
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>
