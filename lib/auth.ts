@@ -13,25 +13,16 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        try {
-          const supabase = getSupabase()
-          const { data: { user }, error } = await supabase.auth.signInWithPassword({
-            email: credentials!.email,
-            password: credentials!.password,
-          })
-
-          if (error || !user) {
-            throw new Error(error?.message || "Invalid credentials")
-          }
-
-          return {
-            id: user.id,
-            email: user.email || "",
-            name: user.user_metadata?.full_name,
-          }
-        } catch (error) {
-          console.error("Auth error:", error)
+        // Temporarily skip Supabase to isolate NextAuth issue
+        if (!credentials?.email || !credentials?.password) {
           return null
+        }
+        
+        // For now, return a mock user to test if NextAuth works
+        return {
+          id: "test-user-id",
+          email: credentials.email,
+          name: "Test User",
         }
       }
     })
