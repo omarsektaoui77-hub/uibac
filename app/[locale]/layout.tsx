@@ -34,9 +34,9 @@ export default async function RootLayout({
   params
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  const { locale } = await params;
+  const { locale } = params;
   console.log('[I18N DEBUG] Layout.tsx - Received locale:', locale);
   
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
