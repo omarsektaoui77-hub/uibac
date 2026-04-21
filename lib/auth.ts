@@ -1,7 +1,7 @@
 // @ts-nocheck - Supabase type inference issues with database schema
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { getSupabase } from "./supabase"
+import { getSupabaseAuthClient } from "./supabase"
 
 // Validate critical environment variables at module load time
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET

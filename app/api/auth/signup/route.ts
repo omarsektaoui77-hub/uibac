@@ -1,6 +1,6 @@
 // @ts-nocheck - Supabase type inference issues with database schema
 import { NextResponse } from "next/server"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabaseAdminClient } from "@/lib/supabase"
 
 export const runtime = "nodejs"
 
@@ -28,7 +28,7 @@ function checkRateLimit(identifier: string): boolean {
 
 export async function POST(request: Request) {
   try {
-    const supabase = getSupabase()
+    const supabase = getSupabaseAdminClient()
     const { email, password, name } = await request.json()
 
     // Validate input
