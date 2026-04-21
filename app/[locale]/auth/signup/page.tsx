@@ -3,16 +3,13 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { usePathname } from "next/navigation"
-import { useTranslations } from "next-intl"
-import { useParams } from "next/navigation"
+import { useTranslations, useLocale } from "next-intl"
+import Link from "next/link"
 
 export default function SignUp() {
   const t = useTranslations("Auth.signup")
+  const locale = useLocale()
   const router = useRouter()
-  const pathname = usePathname()
-  const params = useParams()
-  const locale = params?.locale as string || pathname?.split("/")[1] || "en"
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -107,9 +104,9 @@ export default function SignUp() {
 
         <p className="text-white/60 text-center mt-4 text-sm">
           {t("already_have_account")}{" "}
-          <a href={`/${locale}/auth/signin`} className="text-blue-400">
+          <Link href={`/${locale}/auth/signin`} className="text-blue-400">
             {t("sign_in")}
-          </a>
+          </Link>
         </p>
       </div>
     </div>
