@@ -2,6 +2,8 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/lib/supabase"
 
+export const runtime = "nodejs"
+
 // Simple in-memory rate limiting for production (consider Redis for scale)
 const signupAttempts = new Map<string, { count: number; resetTime: number }>()
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour

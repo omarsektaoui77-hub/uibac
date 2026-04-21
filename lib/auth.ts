@@ -3,9 +3,27 @@ import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { getSupabase } from "./supabase"
 
+// Validate critical environment variables at module load time
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL
+
+if (!NEXTAUTH_SECRET) {
+  throw new Error(
+    "NEXTAUTH_SECRET environment variable is required in production. " +
+    "Generate one with: openssl rand -base64 32"
+  )
+}
+
+if (!NEXTAUTH_URL) {
+  console.warn(
+    "NEXTAUTH_URL not set. Using default from request headers. " +
+    "For production, set NEXTAUTH_URL=https://uibac.vercel.app"
+  )
+}
+
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
-  url: process.env.NEXTAUTH_URL,
+  url: NEXTAUTH_URL,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -22,7 +40,7 @@ export const authOptions: NextAuthOptions = {
           })
 
           if (error || !user) {
-            throw new Error(error?.message || "Invalid credentials")
+            return null
           }
 
           return {
@@ -38,9 +56,15 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub!
+      if (session.user && token) {
+        session.user.id = token.id as string
       }
       return session
     }
@@ -51,23 +75,5 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-key-for-development-only-change-in-production",
-}
-    })
-  ],
-  callbacks: {
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub!
-      }
-      return session
-    }
-  },
-  pages: {
-    signIn: "/auth/signin",
-  },
-  session: {
-    strategy: "jwt",
-  },
-  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-key-for-development-only-change-in-production",
+  secret: NEXTAUTH_SECRET,
 }
