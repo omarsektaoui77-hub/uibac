@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-[#171035]" suppressHydrationWarning>
         <Providers>
           <TelemetryProvider>
