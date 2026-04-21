@@ -1,6 +1,9 @@
 // @ts-nocheck - Supabase type inference issues with database schema
 import { NextResponse } from "next/server"
 import { getSupabaseAdminClient } from "@/lib/supabase"
+import { APILogger } from "@/lib/api-logger"
+import { RateLimiter } from "@/lib/rate-limiter"
+import { PasswordValidator } from "@/lib/password-validator"
 
 export const runtime = "nodejs"
 
@@ -27,6 +30,8 @@ function checkRateLimit(identifier: string): boolean {
 }
 
 export async function POST(request: Request) {
+  APILogger.logRequest(request as any)
+  
   try {
     const supabase = getSupabaseAdminClient()
     const { email, password, name } = await request.json()
@@ -101,10 +106,24 @@ export async function POST(request: Request) {
       { status: 201 }
     )
   } catch (error) {
-    console.error("Signup error:", error)
+    APILogger.logError(error, request as any)
+    APILogger.logAuth('signup', false, undefined, { error: error instanceof Error ? error.message : 'Unknown' })
+    
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     )
+  }
+}
+  }
+}
+  }
+}
+  }
+}
+      { status: 500 }
+    )
+  }
+}
   }
 }
