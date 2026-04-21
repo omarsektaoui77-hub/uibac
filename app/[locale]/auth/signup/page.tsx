@@ -4,8 +4,10 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 export default function SignUp() {
+  const t = useTranslations("Auth.signup")
   const router = useRouter()
   const pathname = usePathname()
   const locale = pathname ? pathname.split("/")[1] : "fr"
@@ -21,43 +23,33 @@ export default function SignUp() {
     setError("")
 
     try {
-      console.log("1. Submitting signup request...")
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name }),
       })
 
-      console.log("2. Signup response status:", res.status)
       const data = await res.json()
-      console.log("3. Signup response:", data)
 
       if (res.ok) {
-        console.log("4. Signup successful, signing in...")
         const signInResult = await signIn("credentials", {
           email,
           password,
           redirect: false,
         })
-        
-        console.log("5. Sign in result:", signInResult)
-        
+
         if (signInResult?.error) {
-          console.error("Sign in error:", signInResult.error)
-          setError("Account created but login failed. Please sign in manually.")
+          setError(t("error_account_created_login_failed"))
           setLoading(false)
         } else if (signInResult?.ok) {
-          console.log("6. Sign in successful, redirecting to dashboard")
           router.push(`/${locale}/dashboard`)
         }
       } else {
-        console.error("Signup failed:", data.error)
-        setError(data.error || "Signup failed")
+        setError(data.error || t("error_signup_failed"))
         setLoading(false)
       }
     } catch (err) {
-      console.error("Signup error:", err)
-      setError("An error occurred")
+      setError(t("error_occurred"))
       setLoading(false)
     }
   }
@@ -66,7 +58,7 @@ export default function SignUp() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-black">
       <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl w-96">
         <h1 className="text-3xl font-bold text-white mb-6 text-center">
-          Create UIbac Account
+          {t("title")}
         </h1>
 
         {error && (
@@ -78,7 +70,7 @@ export default function SignUp() {
         <form onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Full Name"
+            placeholder={t("full_name")}
             className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white/50"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -86,7 +78,7 @@ export default function SignUp() {
           />
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t("email")}
             className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white/50"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -94,26 +86,26 @@ export default function SignUp() {
           />
           <input
             type="password"
-            placeholder="Password (min 6 characters)"
+            placeholder={t("password")}
             className="w-full p-3 mb-4 rounded-lg bg-white/20 text-white placeholder-white/50"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={6}
+            minLength={8}
           />
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-blue-600 text-white p-3 rounded-lg mb-4 hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? "Creating account..." : "Sign Up"}
+            {loading ? t("creating") : t("sign_up")}
           </button>
         </form>
 
         <p className="text-white/60 text-center mt-4 text-sm">
-          Already have an account?{" "}
+          {t("already_have_account")}{" "}
           <a href={`/${locale}/auth/signin`} className="text-blue-400">
-            Sign in
+            {t("sign_in")}
           </a>
         </p>
       </div>
