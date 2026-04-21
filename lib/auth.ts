@@ -4,7 +4,8 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { getSupabase } from "./supabase"
 
 export const authOptions: NextAuthOptions = {
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
+  url: process.env.NEXTAUTH_URL,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -13,18 +14,45 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Temporarily skip Supabase to isolate NextAuth issue
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          const supabase = getSupabase()
+          const { data: { user }, error } = await supabase.auth.signInWithPassword({
+            email: credentials!.email,
+            password: credentials!.password,
+          })
+
+          if (error || !user) {
+            throw new Error(error?.message || "Invalid credentials")
+          }
+
+          return {
+            id: user.id,
+            email: user.email || "",
+            name: user.user_metadata?.full_name,
+          }
+        } catch (error) {
+          console.error("Auth error:", error)
           return null
         }
-        
-        // For now, return a mock user to test if NextAuth works
-        return {
-          id: "test-user-id",
-          email: credentials.email,
-          name: "Test User",
-        }
       }
+    })
+  ],
+  callbacks: {
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.sub!
+      }
+      return session
+    }
+  },
+  pages: {
+    signIn: "/auth/signin",
+  },
+  session: {
+    strategy: "jwt",
+  },
+  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-key-for-development-only-change-in-production",
+}
     })
   ],
   callbacks: {

@@ -27,21 +27,19 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseServiceKey)
 }
 
-// Lazy initialization - client is only created when first accessed
-let supabaseClient: any = null
+// For serverless environments, create fresh client per request to avoid connection issues
+// Lazy initialization is not suitable for Vercel serverless functions
 
 /**
- * Get or create the Supabase client instance.
- * This function uses lazy initialization to avoid creating the client during build time.
+ * Get a fresh Supabase client instance.
+ * In serverless environments, creates a new client per request to avoid connection pooling issues.
  * Throws an error if environment variables are missing at runtime.
  * 
- * @returns Supabase client instance (never null)
+ * @returns Supabase client instance
+ * @throws Error if environment variables are missing at runtime
  */
 export function getSupabase(): any {
-  if (!supabaseClient) {
-    supabaseClient = getSupabaseClient()
-  }
-  return supabaseClient
+  return getSupabaseClient()
 }
 
 /**
