@@ -21,26 +21,43 @@ export default function SignUp() {
     setError("")
 
     try {
+      console.log("1. Submitting signup request...")
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name }),
       })
 
+      console.log("2. Signup response status:", res.status)
       const data = await res.json()
+      console.log("3. Signup response:", data)
 
       if (res.ok) {
-        await signIn("credentials", {
+        console.log("4. Signup successful, signing in...")
+        const signInResult = await signIn("credentials", {
           email,
           password,
-          callbackUrl: `/${locale}/dashboard`,
+          redirect: false,
         })
+        
+        console.log("5. Sign in result:", signInResult)
+        
+        if (signInResult?.error) {
+          console.error("Sign in error:", signInResult.error)
+          setError("Account created but login failed. Please sign in manually.")
+          setLoading(false)
+        } else if (signInResult?.ok) {
+          console.log("6. Sign in successful, redirecting to dashboard")
+          router.push(`/${locale}/dashboard`)
+        }
       } else {
+        console.error("Signup failed:", data.error)
         setError(data.error || "Signup failed")
+        setLoading(false)
       }
     } catch (err) {
+      console.error("Signup error:", err)
       setError("An error occurred")
-    } finally {
       setLoading(false)
     }
   }
