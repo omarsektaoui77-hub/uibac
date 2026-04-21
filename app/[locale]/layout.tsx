@@ -35,7 +35,7 @@ export default async function RootLayout({
 }) {
   const { locale } = await params;
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
-  const messages = await getMessages();
+  const messages = await getMessages({ locale });
 
   return (
     <html lang={locale} dir={direction} className="h-full antialiased" suppressHydrationWarning>

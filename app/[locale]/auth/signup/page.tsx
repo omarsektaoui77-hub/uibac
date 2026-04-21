@@ -13,11 +13,7 @@ export default function SignUp() {
   const pathname = usePathname()
   const params = useParams()
   const locale = params?.locale as string || pathname?.split("/")[1] || "en"
-  
-  console.log("DEBUG - Signup page locale:", locale)
-  console.log("DEBUG - Params:", params)
-  console.log("DEBUG - Pathname:", pathname)
-  
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
