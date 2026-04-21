@@ -37,8 +37,13 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  console.log('[I18N DEBUG] Layout.tsx - Received locale:', locale);
+  
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const messages = await getMessages({ locale });
+  
+  console.log('[I18N DEBUG] Layout.tsx - getMessages result keys:', Object.keys(messages));
+  console.log('[I18N DEBUG] Layout.tsx - Direction:', direction);
 
   return (
     <html lang={locale} dir={direction} className="h-full antialiased" suppressHydrationWarning>

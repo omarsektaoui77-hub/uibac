@@ -10,6 +10,11 @@ export default function SignUp() {
   const t = useTranslations("Auth.signup")
   const locale = useLocale()
   const router = useRouter()
+  
+  // Debug: Log locale from useLocale()
+  console.log('[I18N DEBUG] Signup page - useLocale() returned:', locale);
+  console.log('[I18N DEBUG] Signup page - Translation namespace:', "Auth.signup");
+  console.log('[I18N DEBUG] Signup page - Sample translation t("title"):', t("title"));
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
