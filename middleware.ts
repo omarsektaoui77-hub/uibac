@@ -1,6 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 
-export default createMiddleware({
+const intlMiddleware = createMiddleware({
   // A list of all locales that are supported
   locales: ['en', 'ar', 'fr', 'es'],
 
@@ -8,22 +8,18 @@ export default createMiddleware({
   defaultLocale: 'fr'
 });
 
-// Debug: Add custom middleware wrapper to log locale
-export function middleware(request: Request) {
+export default function middleware(request: Request) {
   const url = new URL(request.url);
   const pathname = url.pathname;
-  
-  // Extract locale from pathname
+
+  // Extract locale from pathname for debugging
   const localeMatch = pathname.match(/^\/([a-z]{2})/);
   const detectedLocale = localeMatch ? localeMatch[1] : 'default (fr)';
-  
+
   console.log('[I18N DEBUG] Middleware - Pathname:', pathname);
   console.log('[I18N DEBUG] Middleware - Detected locale:', detectedLocale);
-  
-  return createMiddleware({
-    locales: ['en', 'ar', 'fr', 'es'],
-    defaultLocale: 'fr'
-  })(request);
+
+  return intlMiddleware(request);
 }
 
 export const config = {
