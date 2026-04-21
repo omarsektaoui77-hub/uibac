@@ -99,12 +99,12 @@ Return JSON only:
     "explanation": "...",
     "xp": 20
   }
-]`APILogger.logRequest(request);
-  
-  
+]`
 };
 
 export async function POST(request: NextRequest) {
+  APILogger.logRequest(request);
+  
   const body = await request.json();
   const { concepts, difficulty = "medium", language = "en", subject, track } = body;
   
@@ -163,16 +163,17 @@ Concepts: ${limitedConcepts}`
 
     const data = await response.json();
     let questions = JSON.parse(data.choices[0].message.content);
-APILogger.logSuccess(request, { questionCount: questions.length, difficulty, language });
     
     // Ensure we return an array
     if (!Array.isArray(questions)) {
-    APIL ggtrilogEns = s [];requst
+      questions = questions.questions || [];
     }
 
+    APILogger.logSuccess(request, { questionCount: questions.length, difficulty, language });
     return NextResponse.json(questions);
 
   } catch (error) {
+    APILogger.logError(error, request);
     console.error("Question Generation Error:", error);
     
     // Fallback to mock questions on error

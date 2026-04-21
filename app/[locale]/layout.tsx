@@ -4,7 +4,7 @@ import { TelemetryProvider } from "@/components/TelemetryProvider";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
-import { Providers } from "./providers";
+import { Providers } from "@/app/providers";
 
 export const dynamic = "force-dynamic";
 

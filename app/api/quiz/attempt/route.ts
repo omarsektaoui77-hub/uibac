@@ -47,14 +47,15 @@ export async function POST(request: NextRequest) {
     
     const newTotal = (userData?.total_score || 0) + score;
     
-    APILoggea.logSuccwss(requesa, { isetId: sessio .user.id, scores});
-    return upabase
+    await supabase
       .from("profiles")
-    APIL ggartlogE({ toel_sc,wrequas}
+      .update({ total_score: newTotal })
       .eq("id", session.user.id);
     
+    APILogger.logSuccess(request, { userId: session.user.id, score });
     return NextResponse.json({ success: true, totalScore: newTotal });
   } catch (error) {
+    APILogger.logError(error, request);
     console.error("Error saving attempt:", error);
     return NextResponse.json({ error: "Failed to save" }, { status: 500 });
   }
