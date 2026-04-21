@@ -5,6 +5,8 @@ import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "UIBAC",
   description: "Multilingual AI learning app",
