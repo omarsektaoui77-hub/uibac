@@ -39,5 +39,20 @@
       "back": "Volver"
     },
     "question_counter": "Pregunta {current} / {total}"
+  },
+  "Auth": {
+    "signup": {
+      "title": "Crear cuenta UIbac",
+      "full_name": "Nombre completo",
+      "email": "Email",
+      "password": "Contraseña (min 8 caracteres)",
+      "creating": "Creando cuenta...",
+      "sign_up": "Registrarse",
+      "already_have_account": "¿Ya tienes cuenta?",
+      "sign_in": "Iniciar sesión",
+      "error_account_created_login_failed": "Cuenta creada pero el inicio de sesión falló. Por favor inicia sesión manualmente.",
+      "error_signup_failed": "El registro falló",
+      "error_occurred": "Ocurrió un error"
+    }
   }
 }

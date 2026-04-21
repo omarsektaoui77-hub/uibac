@@ -39,5 +39,20 @@
       "back": "Back to Base"
     },
     "question_counter": "Question {current} / {total}"
+  },
+  "Auth": {
+    "signup": {
+      "title": "Create UIbac Account",
+      "full_name": "Full Name",
+      "email": "Email",
+      "password": "Password (min 8 characters)",
+      "creating": "Creating account...",
+      "sign_up": "Sign Up",
+      "already_have_account": "Already have an account?",
+      "sign_in": "Sign in",
+      "error_account_created_login_failed": "Account created but login failed. Please sign in manually.",
+      "error_signup_failed": "Signup failed",
+      "error_occurred": "An error occurred"
+    }
   }
 }

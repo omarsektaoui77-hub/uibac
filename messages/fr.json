@@ -39,5 +39,20 @@
       "back": "Retour"
     },
     "question_counter": "Question {current} / {total}"
+  },
+  "Auth": {
+    "signup": {
+      "title": "Créer un compte UIbac",
+      "full_name": "Nom complet",
+      "email": "Email",
+      "password": "Mot de passe (min 8 caractères)",
+      "creating": "Création du compte...",
+      "sign_up": "S'inscrire",
+      "already_have_account": "Vous avez déjà un compte ?",
+      "sign_in": "Se connecter",
+      "error_account_created_login_failed": "Compte créé mais la connexion a échoué. Veuillez vous connecter manuellement.",
+      "error_signup_failed": "L'inscription a échoué",
+      "error_occurred": "Une erreur s'est produite"
+    }
   }
 }

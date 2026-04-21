@@ -39,5 +39,20 @@
       "back": "Rjê l-base"
     },
     "question_counter": "Soual {current} fayel {total}"
+  },
+  "Auth": {
+    "signup": {
+      "title": "Creer compte UIbac",
+      "full_name": "Sm kamel",
+      "email": "Email",
+      "password": "Mot de passe (min 8 caractères)",
+      "creating": "Creer compte...",
+      "sign_up": "Tjamel",
+      "already_have_account": "3ndk deja compte?",
+      "sign_in": "Connecter",
+      "error_account_created_login_failed": "Compte cree mais connexion rate. Veuillez connecter manuellement.",
+      "error_signup_failed": "Linscription rate",
+      "error_occurred": "Erreur survenue"
+    }
   }
 }
