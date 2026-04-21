@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { APILogger } from '@/lib/api-logger';
+
+export const runtime = "nodejs";
+export const maxDuration = 30; // 30 second timeout for Vercel
 
 const QUESTION_GENERATION_PROMPT = {
   en: `You are generating quiz questions for Moroccan Baccalaureate students.
@@ -95,7 +99,9 @@ Return JSON only:
     "explanation": "...",
     "xp": 20
   }
-]`
+]`APILogger.logRequest(request);
+  
+  
 };
 
 export async function POST(request: NextRequest) {
@@ -157,10 +163,11 @@ Concepts: ${limitedConcepts}`
 
     const data = await response.json();
     let questions = JSON.parse(data.choices[0].message.content);
-
+APILogger.logSuccess(request, { questionCount: questions.length, difficulty, language });
+    
     // Ensure we return an array
     if (!Array.isArray(questions)) {
-      questions = questions.questions || [];
+    APIL ggtrilogEns = s [];requst
     }
 
     return NextResponse.json(questions);

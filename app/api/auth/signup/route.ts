@@ -7,28 +7,6 @@ import { PasswordValidator } from "@/lib/password-validator"
 
 export const runtime = "nodejs"
 
-// Simple in-memory rate limiting for production (consider Redis for scale)
-const signupAttempts = new Map<string, { count: number; resetTime: number }>()
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
-const MAX_ATTEMPTS = 5
-
-function checkRateLimit(identifier: string): boolean {
-  const now = Date.now()
-  const record = signupAttempts.get(identifier)
-  
-  if (!record || now > record.resetTime) {
-    signupAttempts.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
-    return true
-  }
-  
-  if (record.count >= MAX_ATTEMPTS) {
-    return false
-  }
-  
-  record.count++
-  return true
-}
-
 export async function POST(request: Request) {
   APILogger.logRequest(request as any)
   
@@ -53,19 +31,29 @@ export async function POST(request: Request) {
       )
     }
 
-    // Password strength validation
-    if (password.length < 8) {
+    // Password strength validation using new validator
+    const passwordValidation = PasswordValidator.validate(password)
+    if (!passwordValidation.valid) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { 
+          error: passwordValidation.errors.join(', '),
+          requirements: PasswordValidator.getRequirements()
+        },
         { status: 400 }
       )
     }
 
-    // Rate limiting by IP (extract from headers in production)
+    // Rate limiting by IP using new RateLimiter
     const ip = request.headers.get('x-forwarded-for') || 'unknown'
-    if (!checkRateLimit(ip)) {
+    const rateLimitResult = RateLimiter.checkSignupLimit(ip)
+    
+    if (!rateLimitResult.allowed) {
+      APILogger.logAuth('signup', false, email, { reason: 'rate_limit_exceeded', ip })
       return NextResponse.json(
-        { error: "Too many signup attempts. Please try again later." },
+        { 
+          error: "Too many signup attempts. Please try again later.",
+          resetTime: rateLimitResult.resetTime
+        },
         { status: 429 }
       )
     }
@@ -96,11 +84,14 @@ export async function POST(request: Request) {
         created_at: new Date().toISOString(),
       })
 
-    if (profileError) {.message
+    if (profileError) {
       console.error("Profile creation error:", profileError)
       // User created but profile failed - still return success
     }
 
+    APILogger.logAuth('signup', true, email)
+    APILogger.logSuccess(request as any, { userId: authData.user.id })
+    
     return NextResponse.json(
       { message: "User created successfully", user: { id: authData.user.id, email } },
       { status: 201 }
@@ -113,17 +104,5 @@ export async function POST(request: Request) {
       { error: "Internal server error" },
       { status: 500 }
     )
-  }
-}
-  }
-}
-  }
-}
-  }
-}
-      { status: 500 }
-    )
-  }
-}
   }
 }

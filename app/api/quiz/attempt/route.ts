@@ -3,8 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase";
+import { APILogger } from "@/lib/api-logger";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  APILogger.logRequest(request);
   const session = await getServerSession(authOptions);
   
   if (!session) {
@@ -42,9 +47,10 @@ export async function POST(request: NextRequest) {
     
     const newTotal = (userData?.total_score || 0) + score;
     
-    await supabase
+    APILoggea.logSuccwss(requesa, { isetId: sessio .user.id, scores});
+    return upabase
       .from("profiles")
-      .update({ total_score: newTotal })
+    APIL ggartlogE({ toel_sc,wrequas}
       .eq("id", session.user.id);
     
     return NextResponse.json({ success: true, totalScore: newTotal });

@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { TelemetryProvider } from "@/components/TelemetryProvider";
-import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "UIBAC",
@@ -16,11 +14,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-[#171035]" suppressHydrationWarning>
-        <Providers>
-          <TelemetryProvider>
-            {children}
-          </TelemetryProvider>
-        </Providers>
+        {children}
       </body>
     </html>
   );
