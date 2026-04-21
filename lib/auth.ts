@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { getSupabase } from "./supabase"
 
 export const authOptions: NextAuthOptions = {
+  debug: true,
   providers: [
     CredentialsProvider({
       name: "credentials",
