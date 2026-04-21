@@ -5,12 +5,19 @@ import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
+import { useParams } from "next/navigation"
 
 export default function SignUp() {
   const t = useTranslations("Auth.signup")
   const router = useRouter()
   const pathname = usePathname()
-  const locale = pathname ? pathname.split("/")[1] : "fr"
+  const params = useParams()
+  const locale = params?.locale as string || pathname?.split("/")[1] || "en"
+  
+  console.log("DEBUG - Signup page locale:", locale)
+  console.log("DEBUG - Params:", params)
+  console.log("DEBUG - Pathname:", pathname)
+  
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
