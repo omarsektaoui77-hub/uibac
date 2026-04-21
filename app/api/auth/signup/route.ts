@@ -74,6 +74,7 @@ export async function POST(request: Request) {
     })
 
     if (authError) {
+      console.error("Supabase signup error:", authError.message)
       return NextResponse.json(
         { error: authError.message },
         { status: 400 }
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
         created_at: new Date().toISOString(),
       })
 
-    if (profileError) {
+    if (profileError) {.message
       console.error("Profile creation error:", profileError)
       // User created but profile failed - still return success
     }

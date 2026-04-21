@@ -33,13 +33,19 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const supabase = getSupabase()
+          const supabase = getSupabaseAuthClient()
           const { data: { user }, error } = await supabase.auth.signInWithPassword({
             email: credentials!.email,
             password: credentials!.password,
           })
 
-          if (error || !user) {
+          if (error) {
+            console.error("Supabase auth error:", error.message)
+            return null
+          }
+
+          if (!user) {
+            console.error("Supabase auth error: No user returned")
             return null
           }
 
@@ -49,7 +55,7 @@ export const authOptions: NextAuthOptions = {
             name: user.user_metadata?.full_name,
           }
         } catch (error) {
-          console.error("Auth error:", error)
+          console.error("Unexpected auth error:", error)
           return null
         }
       }
