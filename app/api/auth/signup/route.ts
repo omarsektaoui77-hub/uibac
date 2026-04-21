@@ -2,6 +2,28 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/lib/supabase"
 
+// Simple in-memory rate limiting for production (consider Redis for scale)
+const signupAttempts = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
+const MAX_ATTEMPTS = 5
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now()
+  const record = signupAttempts.get(identifier)
+  
+  if (!record || now > record.resetTime) {
+    signupAttempts.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
+    return true
+  }
+  
+  if (record.count >= MAX_ATTEMPTS) {
+    return false
+  }
+  
+  record.count++
+  return true
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = getSupabase()
@@ -15,10 +37,29 @@ export async function POST(request: Request) {
       )
     }
 
-    if (password.length < 6) {
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
+        { error: "Invalid email format" },
         { status: 400 }
+      )
+    }
+
+    // Password strength validation
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
+        { status: 400 }
+      )
+    }
+
+    // Rate limiting by IP (extract from headers in production)
+    const ip = request.headers.get('x-forwarded-for') || 'unknown'
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json(
+        { error: "Too many signup attempts. Please try again later." },
+        { status: 429 }
       )
     }
 
@@ -26,7 +67,7 @@ export async function POST(request: Request) {
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // Auto-confirm email (for testing)
+      email_confirm: true,
       user_metadata: { full_name: name },
     })
 
