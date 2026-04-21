@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { TelemetryProvider } from "@/components/TelemetryProvider";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: "UIBAC",
@@ -33,14 +35,17 @@ export default async function RootLayout({
 }) {
   const { locale } = await params;
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
+  const messages = await getMessages();
 
   return (
     <html lang={locale} dir={direction} className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-[#171035]" suppressHydrationWarning>
-        <TelemetryProvider>
-          <ServiceWorkerRegistration />
-          {children}
-        </TelemetryProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <TelemetryProvider>
+            <ServiceWorkerRegistration />
+            {children}
+          </TelemetryProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
