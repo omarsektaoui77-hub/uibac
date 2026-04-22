@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 
 const intlMiddleware = createMiddleware({
@@ -8,9 +9,8 @@ const intlMiddleware = createMiddleware({
   defaultLocale: 'fr'
 });
 
-export default function middleware(request: Request) {
-  const url = new URL(request.url);
-  const pathname = url.pathname;
+export default function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
 
   // Extract locale from pathname for debugging
   const localeMatch = pathname.match(/^\/([a-z]{2})/);
