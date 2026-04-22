@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=18"
+    "node": ">=18 <=20"
   },
   "scripts": {
     "dev": "next dev",
+    "dev:safe": "node --trace-warnings node_modules/next/dist/bin/next dev",
     "build": "next build",
     "start": "node apps/api/server.js",
     "start:api": "node apps/api/server.js",
