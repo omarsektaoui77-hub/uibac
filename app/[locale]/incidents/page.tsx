@@ -8,7 +8,7 @@ import {
   resolveIncident,
   clearAllIncidents,
   Incident,
-} from "@/lib/incident/incidentStore";
+} from "@/core/analytics/incident/incidentStore";
 
 export default function IncidentsDashboard() {
   const [incidents, setIncidents] = useState<Incident[]>([]);

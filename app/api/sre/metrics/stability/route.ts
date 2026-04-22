@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { calculateStabilityScore, getScoreHistory } from '@/lib/sre/stabilityScoring';
+import { calculateStabilityScore, getScoreHistory } from '@/core/sre/stabilityScoring';
 
 export async function GET() {
   try {

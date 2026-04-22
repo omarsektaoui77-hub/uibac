@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { generateInsights, generateWeeklySummary, getSystemHealthSnapshot } from '@/lib/sre/insightsEngine';
+import { generateInsights, generateWeeklySummary, getSystemHealthSnapshot } from '@/core/sre/insightsEngine';
 
 export async function GET() {
   try {

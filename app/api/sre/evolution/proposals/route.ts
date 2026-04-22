@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { generateProposals, getAutoApplyProposals, getPendingProposals, getProposalStats } from '@/lib/sre/architectureAdvisor';
+import { generateProposals, getAutoApplyProposals, getPendingProposals, getProposalStats } from '@/core/sre/architectureAdvisor';
 
 export const dynamic = 'force-dynamic';
 

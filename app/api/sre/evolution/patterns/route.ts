@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getPatterns, getCriticalPatterns, getPatternStats } from '@/lib/sre/patternDetection';
+import { getPatterns, getCriticalPatterns, getPatternStats } from '@/core/sre/patternDetection';
 
 export async function GET(request: Request) {
   try {

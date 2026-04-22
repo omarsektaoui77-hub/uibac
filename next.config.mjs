@@ -5,7 +5,6 @@ const withNextIntl = createNextIntlPlugin();
 
 const nextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ["pdf-parse"],
   typescript: {
     ignoreBuildErrors: true,
   },

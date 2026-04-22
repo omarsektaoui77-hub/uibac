@@ -13,23 +13,23 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import { 
-  getDashboardIntelligence, 
-  intelligenceBroadcast, 
+import {
+  getDashboardIntelligence,
+  intelligenceBroadcast,
   processTelemetryIntelligence,
   IntelligenceEvent,
-  AIInsight 
-} from '@/lib/sre/realtimeIntelligence';
-import { 
-  getRecentReports, 
-  IncidentReport, 
+  AIInsight
+} from '@/core/sre/realtimeIntelligence';
+import {
+  getRecentReports,
+  IncidentReport,
   updateIncidentStatus,
   formatIncidentReport,
   exportReportsAsJSON,
   exportReportsAsMarkdown
-} from '@/lib/sre/incidentReports';
-import { AnomalyDetection } from '@/lib/sre/anomalyDetector';
-import { TelemetryEvent, getAllEvents } from '@/lib/telemetry/eventQueue';
+} from '@/core/sre/incidentReports';
+import { AnomalyDetection } from '@/core/sre/anomalyDetector';
+import { TelemetryEvent, getAllEvents } from '@/infra/telemetry/eventQueue';
 
 // Component imports would go here in a real Next.js app
 // Using inline components for simplicity

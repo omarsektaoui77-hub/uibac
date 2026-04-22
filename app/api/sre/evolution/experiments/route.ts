@@ -6,12 +6,12 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getAllExperiments, getExperimentStats } from '@/lib/sre/experimentEngine';
+import { getAllExperiments, getExperimentStats } from '@/core/sre/experimentEngine';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const state = searchParams.get('state') as import('@/lib/sre/experimentEngine').ExperimentState | null;
+    const state = searchParams.get('state') as import('@/core/sre/experimentEngine').ExperimentState | null;
     
     let experiments = getAllExperiments();
     

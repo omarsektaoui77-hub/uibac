@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getLearningStats, getTrendHistory, getTopPatterns } from '@/lib/sre/learningEngine';
+import { getLearningStats, getTrendHistory, getTopPatterns } from '@/core/sre/learningEngine';
 
 export async function GET() {
   try {

@@ -1,8 +1,8 @@
 // Event Simulator for Telemetry Testing
 // Run this in the browser console to simulate 50 events
 
-import { trackEvent } from '@/lib/telemetry/trackEvent';
-import { startPeriodicFlush, setupLifecycleFlush } from '@/lib/telemetry/persistence';
+import { trackEvent } from '@/core/telemetry/trackEvent';
+import { startPeriodicFlush, setupLifecycleFlush } from '@/core/telemetry/persistence';
 
 // Initialize telemetry
 startPeriodicFlush();

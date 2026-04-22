@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { trackEvent } from '@/lib/telemetry/trackEvent';
-import { startPeriodicFlush, setupLifecycleFlush, stopPeriodicFlush } from '@/lib/telemetry/persistence';
-import { eventQueue } from '@/lib/telemetry/eventQueue';
+import { trackEvent } from '@/infra/telemetry/trackEvent';
+import { startPeriodicFlush, setupLifecycleFlush, stopPeriodicFlush } from '@/infra/telemetry/persistence';
+import { eventQueue } from '@/infra/telemetry/eventQueue';
 
 export default function TelemetryTestPage() {
   const [logs, setLogs] = useState<string[]>([]);

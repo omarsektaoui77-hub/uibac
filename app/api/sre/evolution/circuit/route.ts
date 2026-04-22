@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCircuitStatus, getFailureAnalysis, getUptimeStats } from '@/lib/sre/evolutionCircuitBreaker';
+import { getCircuitStatus, getFailureAnalysis, getUptimeStats } from '@/core/sre/evolutionCircuitBreaker';
 
 export async function GET() {
   try {

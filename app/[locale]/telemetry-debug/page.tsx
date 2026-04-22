@@ -6,9 +6,9 @@ import {
   toggleNetworkFailure,
   SIMULATE_NETWORK_FAILURE,
   DEBUG_TELEMETRY,
-} from "@/lib/telemetry/eventQueue";
-import { flushEvents, flushAllRemaining } from "@/lib/telemetry/flush";
-import type { TelemetryEvent } from "@/lib/telemetry/eventQueue";
+} from "@/infra/telemetry/eventQueue";
+import { flushEvents, flushAllRemaining } from "@/infra/telemetry/flush";
+import type { TelemetryEvent } from "@/infra/telemetry/eventQueue";
 
 export default function TelemetryDebugPage() {
   const [events, setEvents] = useState<TelemetryEvent[]>([]);
@@ -67,7 +67,7 @@ export default function TelemetryDebugPage() {
 
   // Trigger test event
   const triggerTestEvent = () => {
-    const { trackEvent } = require("@/lib/telemetry/trackEvent");
+    const { trackEvent } = require("@/infra/telemetry/trackEvent");
     trackEvent("QUIZ_COMPLETED", {
       score: Math.floor(Math.random() * 100),
       difficulty: "MEDIUM",
@@ -78,7 +78,7 @@ export default function TelemetryDebugPage() {
 
   // Trigger multiple events
   const triggerBulkEvents = (count: number) => {
-    const { trackEvent } = require("@/lib/telemetry/trackEvent");
+    const { trackEvent } = require("@/infra/telemetry/trackEvent");
     for (let i = 0; i < count; i++) {
       setTimeout(() => {
         trackEvent("ENGAGEMENT_UPDATED", {

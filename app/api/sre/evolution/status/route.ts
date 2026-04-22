@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getEvolutionStatus, getEvolutionInsights, getEvolutionSummary } from '@/lib/sre/selfEvolution';
+import { getEvolutionStatus, getEvolutionInsights, getEvolutionSummary } from '@/core/sre/selfEvolution';
 
 export async function GET() {
   try {

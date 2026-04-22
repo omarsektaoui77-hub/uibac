@@ -8,9 +8,9 @@
  */
 
 import { NextRequest } from 'next/server';
-import { calculateStabilityScore, getCurrentMetrics } from '@/lib/sre/stabilityScoring';
-import { getLearningStats } from '@/lib/sre/learningEngine';
-import { getSystemHealthSnapshot, generateInsights } from '@/lib/sre/insightsEngine';
+import { calculateStabilityScore, getCurrentMetrics } from '@/core/sre/stabilityScoring';
+import { getLearningStats } from '@/core/sre/learningEngine';
+import { getSystemHealthSnapshot, generateInsights } from '@/core/sre/insightsEngine';
 
 export const dynamic = 'force-dynamic';
 

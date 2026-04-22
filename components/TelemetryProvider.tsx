@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { startAutoFlush, stopAutoFlush } from '@/lib/telemetry/autoFlush';
-import { setupBeaconListener, removeBeaconListener } from '@/lib/telemetry/beacon';
-import { DEBUG_TELEMETRY } from '@/lib/telemetry/eventQueue';
+import { startAutoFlush, stopAutoFlush } from '@/infra/telemetry/autoFlush';
+import { setupBeaconListener, removeBeaconListener } from '@/infra/telemetry/beacon';
+import { DEBUG_TELEMETRY } from '@/infra/telemetry/eventQueue';
 
 export function TelemetryProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
