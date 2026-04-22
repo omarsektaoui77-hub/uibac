@@ -75,22 +75,18 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Preserve locale from URL for i18n support
-      const localeMatch = url.match(/\/(en|fr|ar|es)\//);
-      const locale = localeMatch ? localeMatch[1] : "fr";
-      
-      // If URL is relative or doesn't have locale, add locale
-      if (url.startsWith("/")) {
-        return `${baseUrl}/${locale}${url}`;
-      }
-      
-      // If URL already has locale, use it
+      // If URL is already fully qualified and starts with baseUrl, use it
       if (url.startsWith(baseUrl)) {
         return url;
       }
       
-      // Default to locale-aware dashboard
-      return `${baseUrl}/${locale}/dashboard`;
+      // If URL is relative, prepend baseUrl
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
+      
+      // Default to baseUrl
+      return baseUrl;
     }
   },
   session: {
