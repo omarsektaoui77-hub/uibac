@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 
 const intlMiddleware = createMiddleware({
@@ -14,6 +14,15 @@ export default function middleware(request: NextRequest) {
 
   console.log('[I18N DEBUG] Middleware - Pathname:', pathname);
   console.log('[I18N DEBUG] Middleware - Detected locale:', detectedLocale);
+
+  // Protect dashboard routes
+  if (pathname.includes('/dashboard')) {
+    const isAuth = request.cookies.get('next-auth.session-token');
+
+    if (!isAuth) {
+      return NextResponse.redirect(new URL('/fr/auth/signin', request.url));
+    }
+  }
 
   return intlMiddleware(request);
 }

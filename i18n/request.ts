@@ -10,7 +10,7 @@ export default getRequestConfig(async ({ locale }) => {
   // If locale is undefined or invalid, use default locale instead of notFound()
   // This prevents 404s when next-intl calls getRequestConfig during rendering
   if (!locale || !locales.includes(locale as (typeof locales)[number])) {
-    console.log('[I18N DEBUG] getRequestConfig - Invalid locale, using default:', defaultLocale);
+    console.warn('[I18N WARNING] Invalid locale, fallback to default:', locale);
     locale = defaultLocale;
   }
 

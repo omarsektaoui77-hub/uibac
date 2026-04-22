@@ -24,6 +24,9 @@ if (!NEXTAUTH_URL) {
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
   url: NEXTAUTH_URL,
+  pages: {
+    signIn: "/auth/signin",
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -75,19 +78,10 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      // If URL is already fully qualified and starts with baseUrl, use it
-      if (url.startsWith(baseUrl)) {
-        return url;
-      }
-      
-      // If URL is relative, prepend baseUrl
-      if (url.startsWith("/")) {
-        return `${baseUrl}${url}`;
-      }
-      
-      // Default to baseUrl
+      // Preserve locale in redirects
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
       return baseUrl;
-    }
+    },
   },
   session: {
     strategy: "jwt",
