@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 
 const intlMiddleware = createMiddleware({
@@ -14,10 +14,15 @@ export default function middleware(request: NextRequest) {
 
   // Extract locale from pathname for debugging
   const localeMatch = pathname.match(/^\/([a-z]{2})/);
-  const detectedLocale = localeMatch ? localeMatch[1] : 'default (fr)';
+  const detectedLocale = localeMatch ? localeMatch[1] : 'fr';
 
   console.log('[I18N DEBUG] Middleware - Pathname:', pathname);
   console.log('[I18N DEBUG] Middleware - Detected locale:', detectedLocale);
+
+  // Skip API routes and static files
+  if (pathname.startsWith('/api') || pathname.startsWith('/_next') || pathname.includes('.')) {
+    return intlMiddleware(request);
+  }
 
   return intlMiddleware(request);
 }

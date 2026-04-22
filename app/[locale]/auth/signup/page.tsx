@@ -40,6 +40,7 @@ export default function SignUp() {
         const signInResult = await signIn("credentials", {
           email,
           password,
+          callbackUrl: `/${locale}/dashboard`,
           redirect: false,
         })
 
