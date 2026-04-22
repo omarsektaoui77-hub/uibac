@@ -1,5 +1,5 @@
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
+export default async function Page({ params }: { params: { locale: string } }) {
+  const { locale } = params;
   
   // Safe i18n loading - per-page strategy
   let messages;
